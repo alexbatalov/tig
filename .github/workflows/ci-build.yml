@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  code-format:
+    name: Code format check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+
+      - name: clang-format
+        run: find example first_party include src test -type f -name \*.c -o -name \*.cc -o -name \*.h | xargs clang-format --dry-run --Werror
+
+  build:
+    name: Build & test
+    runs-on: windows-2019
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: windows-x86-cmake-v1
+
+      - name: Configure
+        run: |
+          cmake \
+            -B build \
+            -G "Visual Studio 16 2019" \
+            -A Win32 \
+            -D TIG_BUILD_TESTS=ON \
+            -D TIG_BUILD_EXAMPLE=OFF \
+            # EOL
+
+      - name: Build
+        run: |
+          cmake \
+            --build build \
+            --config Debug \
+            # EOL
+
+      - name: Test
+        run: |
+          cd build
+          ctest \
+            --build-config Debug \
+            --output-on-failure \
+            --parallel 1 \
+            # EOL
