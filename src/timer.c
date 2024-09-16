@@ -13,7 +13,7 @@
 
 // clang-format off
 #include <windows.h>
-#include <timeapi.h>
+#include <mmsystem.h>
 // clang-format on
 
 #define RESOLUTION 1
