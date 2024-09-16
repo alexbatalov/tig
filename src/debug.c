@@ -186,7 +186,7 @@ void tig_debug_init_backends()
 void tig_debug_init_backends_from_registry()
 {
 #ifdef _WIN32
-    LSTATUS rc;
+    LONG rc;
     HKEY key;
     DWORD type;
     DWORD data;
