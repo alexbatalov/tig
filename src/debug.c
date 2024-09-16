@@ -108,7 +108,7 @@ void tig_debug_printf(const char* format, ...)
     va_start(args, format);
 
     if (have_debug_funcs) {
-        vsnprintf(buffer, sizeof(buffer), format, args);
+        _vsnprintf(buffer, sizeof(buffer), format, args);
 
         for (index = 0; index < MAX_DEBUG_FUNCS; index++) {
             func = tig_debug_funcs[index];
