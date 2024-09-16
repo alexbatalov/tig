@@ -100,7 +100,7 @@ set(SRCS
 # COMMON LIBRARY
 # ------------------------------------------------------------------------------
 
-add_library(tig_common INTERFACE EXCLUDE_FROM_ALL)
+add_library(tig_common INTERFACE)
 
 target_include_directories(tig_common INTERFACE
     ${FPATTERN_INCLUDE_DIR}
