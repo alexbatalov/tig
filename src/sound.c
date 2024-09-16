@@ -44,7 +44,7 @@ typedef struct TigSound {
     /* 0134 */ bool positional;
     /* 0138 */ int64_t positional_x;
     /* 0140 */ int64_t positional_y;
-    /* 0148 */ int positional_size;
+    /* 0148 */ TigSoundPositionalSize positional_size;
 } TigSound;
 
 static_assert(sizeof(TigSound) == 0x150, "wrong size");
@@ -658,7 +658,7 @@ void tig_sound_set_type(tig_sound_handle_t sound_handle, TigSoundType type)
 }
 
 // 0x5338D0
-int tig_sound_get_positional_size(tig_sound_handle_t sound_handle)
+TigSoundPositionalSize tig_sound_get_positional_size(tig_sound_handle_t sound_handle)
 {
     if (!tig_sound_initialized) {
         return TIG_SOUND_SIZE_LARGE;
