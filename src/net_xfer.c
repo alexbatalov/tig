@@ -214,7 +214,7 @@ void tig_net_xfer_recv_info_pkt(void* pkt)
 
             FREE(directory_path);
 
-            snprintf(buffer, sizeof(buffer), "%s.%s", xfer->path, ".RECV");
+            _snprintf(buffer, sizeof(buffer), "%s.%s", xfer->path, ".RECV");
 
             xfer->stream = tig_file_fopen(buffer, "wb");
             xfer->flags = TIG_NET_XFER_ACTIVE | TIG_NET_XFER_RECEIVER;
@@ -239,7 +239,7 @@ void tig_net_xfer_recv_info_pkt(void* pkt)
                 xfer->path);
             tig_file_fclose(xfer->stream);
 
-            snprintf(buffer, sizeof(buffer), xfer->path, ".RECV");
+            _snprintf(buffer, sizeof(buffer), xfer->path, ".RECV");
             tig_file_rename(buffer, xfer->path);
             FREE(xfer->path);
             tig_net_xfer_reset(xfer);

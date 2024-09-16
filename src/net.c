@@ -3246,7 +3246,7 @@ bool tig_net_client_is_lagging(int client_id)
 // 0x52ACE0
 bool sub_52ACE0(int client_id, char* dst, size_t size)
 {
-    snprintf(dst, size, "%s", tig_net_client_is_waiting(client_id) ? "Waiting to join" : "Playing");
+    _snprintf(dst, size, "%s", tig_net_client_is_waiting(client_id) ? "Waiting to join" : "Playing");
     return true;
 }
 
