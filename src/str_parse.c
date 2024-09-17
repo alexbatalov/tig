@@ -77,7 +77,7 @@ void tig_str_parse_value(char** str, int* value)
 }
 
 // 0x531A20
-void tig_str_parse_value_64(char** str, long long* value)
+void tig_str_parse_value_64(char** str, int64_t* value)
 {
     while (isspace(*(*str))) {
         (*str)++;
@@ -394,7 +394,7 @@ void tig_str_parse_flag_list(char** str, const char** keys, const unsigned int* 
 }
 
 // 0x531FB0
-void tig_str_parse_flag_list_64(char** str, const char** keys, const unsigned long long* values, int length, unsigned long long* value)
+void tig_str_parse_flag_list_64(char** str, const char** keys, const uint64_t* values, int length, uint64_t* value)
 {
     *value = 0;
 
@@ -698,7 +698,7 @@ bool tig_str_parse_named_complex_str_value(char** str, const char* name, int del
 }
 
 // 0x5329E0
-bool tig_str_parse_named_flag_list_64(char** str, const char* name, const char** keys, unsigned long long* values, int length, unsigned long long* value)
+bool tig_str_parse_named_flag_list_64(char** str, const char* name, const char** keys, uint64_t* values, int length, uint64_t* value)
 {
     *value = 0;
 
