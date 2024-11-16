@@ -43,7 +43,7 @@ int BINKCALL BinkCopyToBuffer(HBINK bnk, void* dest, int destpitch, unsigned des
 
 int BINKCALL BinkDDSurfaceType(void* lpDDS)
 {
-    if (BinkDDSurfaceType != NULL) {
+    if (_BinkDDSurfaceType != NULL) {
         return _BinkDDSurfaceType(lpDDS);
     } else {
         return -1;
