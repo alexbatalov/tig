@@ -390,7 +390,7 @@ tig_art_id_t sub_504180(tig_art_id_t art_id, int value);
 int tig_art_portal_id_create(unsigned int num, int a2, int a3, unsigned int frame, int a5, unsigned int a6, tig_art_id_t* art_id_ptr);
 int sub_504260(tig_art_id_t art_id);
 int tig_art_scenery_id_create(unsigned int num, int type, unsigned int frame, int rotation, unsigned int palette, tig_art_id_t* art_id_ptr);
-int tig_art_scenery_id_subtype_get(tig_art_id_t art_id);
+int tig_art_scenery_id_type_get(tig_art_id_t art_id);
 int tig_art_interface_id_create(unsigned int num, unsigned int frame, unsigned char a3, unsigned int a4, tig_art_id_t* art_id_ptr);
 int sub_504390(tig_art_id_t art_id);
 int tig_art_item_id_create(int num, int disposition, int damaged, int destroyed, int subtype, int type, int armor_coverage, unsigned int palette, tig_art_id_t* art_id_ptr);
