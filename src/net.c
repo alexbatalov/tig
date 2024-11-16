@@ -2070,7 +2070,7 @@ bool tig_net_local_server_set_description(const char* description)
 // 0x529310
 bool tig_net_local_server_set_max_players(int max_players)
 {
-    if (max_players < 0 || max_players >= TIG_NET_MAX_PLAYERS) {
+    if (max_players <= 0 || max_players > TIG_NET_MAX_PLAYERS) {
         return false;
     }
 
