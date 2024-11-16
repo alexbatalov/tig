@@ -1808,7 +1808,7 @@ int tig_file_open_internal(const char* path, const char* mode, TigFile* stream)
                 && (ignored & TIG_FILE_IGNORE_DATABASE) == 0
                 && tig_database_get_entry(repo->database, path, &database_entry)) {
                 if ((database_entry->flags & (TIG_DATABASE_ENTRY_0x100 | TIG_DATABASE_ENTRY_0x200)) != 0
-                    && mode[0] == 'w') {
+                    || mode[0] == 'w') {
                     writeable_repo = tig_file_repositories_head;
                     while (writeable_repo != repo) {
                         if ((writeable_repo->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
