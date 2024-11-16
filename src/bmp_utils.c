@@ -23,7 +23,7 @@
 
 static int sub_53A5D0(int r, int g, int b);
 static void sub_53A6B0(int alpha, int index, int b, int g, int r);
-static void sub_53A730();
+static void sub_53A730(int radius, int a2, int b, int g, int r);
 
 // 0x636F24
 static int dword_636F24[256];
