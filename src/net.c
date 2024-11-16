@@ -462,7 +462,6 @@ static unsigned int tig_net_client_info_get_flags(int client_id);
 static void sub_52AB10(int client_id);
 static void tig_net_client_set_waiting(int client_id);
 static void tig_net_client_unset_waiting(int client_id);
-static void tig_net_shutdown(int client_id);
 static bool tig_net_client_is_shutting_down(int client_id);
 static void tig_net_bookmarks_load(const char* path);
 static void tig_net_bookmarks_save(const char* path);

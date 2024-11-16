@@ -162,6 +162,7 @@ void tig_net_client_set_loading(int client_id);
 void tig_net_client_unset_loading(int client_id);
 void sub_52A9E0(int client_id);
 bool tig_net_client_is_waiting(int client_id);
+void tig_net_shutdown(int client_id);
 bool tig_net_client_is_lagging(int client_id);
 bool sub_52ACE0(int client_id, char* dst, size_t size);
 bool tig_net_ban(int client_id);
