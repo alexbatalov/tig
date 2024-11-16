@@ -1896,7 +1896,7 @@ void tig_file_list_add(TigFileList* list, TigFileInfo* info)
         int m;
         int cmp;
 
-        do {
+        while (l <= r) {
             m = (l + r) / 2;
             cmp = strcmpi(list->entries[m].path, info->path);
             if (cmp < 0) {
@@ -1907,15 +1907,11 @@ void tig_file_list_add(TigFileList* list, TigFileInfo* info)
                 // Already added.
                 return;
             }
-        } while (l <= r);
-
-        if (cmp < 0) {
-            m += 1;
         }
 
         list->entries = (TigFileInfo*)REALLOC(list->entries, sizeof(TigFileInfo) * (list->count + 1));
-        memcpy(&(list->entries[m + 1]), &(list->entries[m]), sizeof(TigFileInfo) * (list->count - m - 1));
-        memcpy(&(list->entries[m]), info, sizeof(TigFileInfo));
+        memcpy(&(list->entries[l + 1]), &(list->entries[l]), sizeof(TigFileInfo) * (list->count - l));
+        list->entries[l] = *info;
         list->count++;
     } else {
         list->entries = (TigFileInfo*)MALLOC(sizeof(TigFileInfo));
