@@ -653,7 +653,7 @@ bool tig_file_repository_add(const char* path)
 }
 
 // 0x52EF30
-bool tig_path_repository_remove(const char* file_name)
+bool tig_file_repository_remove(const char* file_name)
 {
     TigFileRepository* repo;
     TigFileRepository* prev;
