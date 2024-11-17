@@ -125,8 +125,8 @@ bool sub_52E040(const char* path)
     for (index = 0; index < list.count; index++) {
         sprintf(pattern, "%s\\%s", path, list.entries[index].path);
         if ((list.entries[index].attributes & TIG_FILE_ATTRIBUTE_SUBDIR) != 0) {
-            if (strcmp(list.entries[index].path, ".") == 0
-                || strcmp(list.entries[index].path, "..") == 0) {
+            if (strcmp(list.entries[index].path, ".") != 0
+                && strcmp(list.entries[index].path, "..") != 0) {
                 if (!sub_52E040(pattern)) {
                     success = false;
                 }
