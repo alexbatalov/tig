@@ -292,7 +292,7 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
                 dst_rect.x += dx;
 
                 if (dx != 0 && !shadow) {
-                    dst_rect.x += dst_rect_x;
+                    dst_rect.x = dst_rect_x + dx;
                 }
 
                 rc = sub_535850(video_buffer, str, line_length + 1, &blit_info, shadow);
