@@ -514,8 +514,7 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
             TigRectListNode* prev = NULL;
 
             while (curr != NULL) {
-                TigRect win_frame;
-                rc = tig_rect_intersection(&(curr->rect), &(win->frame), &win_frame);
+                rc = tig_rect_intersection(&(curr->rect), &(win->frame), &dirty_rect);
                 if (rc == TIG_OK) {
                     // TODO: Not sure how to represent it one to one.
                     bool cont;
@@ -541,10 +540,10 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
                     }
 
                     if (cont) {
-                        blt_src_rect.x = win_frame.x - win->frame.x;
-                        blt_src_rect.y = win_frame.y - win->frame.y;
-                        blt_src_rect.width = win_frame.width;
-                        blt_src_rect.height = win_frame.height;
+                        blt_src_rect.x = dirty_rect.x - win->frame.x;
+                        blt_src_rect.y = dirty_rect.y - win->frame.y;
+                        blt_src_rect.width = dirty_rect.width;
+                        blt_src_rect.height = dirty_rect.height;
 
                         if ((win->flags & TIG_WINDOW_HAVE_TRANSPARENCY) != 0
                             && (tig_window_ctx_flags & TIG_INITIALIZE_SCRATCH_BUFFER) != 0) {
@@ -556,8 +555,8 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
                             tig_video_buffer_blit(&vb_blit_info);
                         }
 
-                        blt_dst_rect.x = win_frame.x - v45;
-                        blt_dst_rect.y = win_frame.y - v47;
+                        blt_dst_rect.x = dirty_rect.x - v45;
+                        blt_dst_rect.y = dirty_rect.y - v47;
                         blt_dst_rect.width = blt_src_rect.width;
                         blt_dst_rect.height = blt_src_rect.height;
 
