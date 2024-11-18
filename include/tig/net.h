@@ -181,7 +181,8 @@ void sub_52B270(int client_id);
 void sub_52B2E0(int a1);
 
 // NOTE: Seen in `anim_mp_reap_run_index`.
-static inline bool tig_net_is_active() {
+static inline bool tig_net_is_active()
+{
     return (tig_net_flags & TIG_NET_CONNECTED) != 0;
 }
 
