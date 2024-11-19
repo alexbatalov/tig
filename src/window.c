@@ -1276,7 +1276,8 @@ void push_window_stack(tig_window_handle_t window_handle)
                 sizeof(tig_window_handle_t) * (tig_window_num_windows - prev_index));
         }
 
-        tig_window_stack[tig_window_num_windows++] = window_handle;
+        tig_window_stack[prev_index + 1] = window_handle;
+        tig_window_num_windows++;
     }
 }
 
