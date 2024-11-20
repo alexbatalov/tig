@@ -94,7 +94,7 @@ void tig_palette_destroy(TigPalette palette)
 {
     TigPaletteListNode* node;
 
-    node = (TigPaletteListNode*)((unsigned char*)palette - sizeof(TigPaletteListNode*));
+    node = *(TigPaletteListNode**)((unsigned char*)palette - sizeof(TigPaletteListNode*));
     node->next = tig_palette_head;
     tig_palette_head = node;
 }
