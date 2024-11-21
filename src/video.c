@@ -2818,9 +2818,9 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
                 // FIXME: Leaking `stream`.
                 return TIG_ERR_13;
             case 24:
-                if (tig_file_fread(&r, sizeof(r), 1, stream) != 1
+                if (tig_file_fread(&b, sizeof(b), 1, stream) != 1
                     || tig_file_fread(&g, sizeof(g), 1, stream) != 1
-                    || tig_file_fread(&b, sizeof(b), 1, stream) != 1) {
+                    || tig_file_fread(&r, sizeof(r), 1, stream) != 1) {
                     tig_video_buffer_unlock(*video_buffer_ptr);
 
                     if ((flags & 0x1) != 0) {
