@@ -186,6 +186,12 @@ static inline bool tig_net_is_active()
     return (tig_net_flags & TIG_NET_CONNECTED) != 0;
 }
 
+// NOTE: Convenience.
+static inline bool tig_net_is_host()
+{
+    return (tig_net_flags & TIG_NET_HOST) != 0;
+}
+
 #ifdef __cplusplus
 }
 #endif
