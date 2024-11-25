@@ -2715,7 +2715,7 @@ int tig_art_facade_id_num_get(tig_art_id_t art_id)
         return 0;
     }
 
-    num = (art_id >> FACADE_ID_NUM_LOW_SHIFT) & 256;
+    num = (art_id >> FACADE_ID_NUM_LOW_SHIFT) & 0xFF;
     if ((art_id & (1 << FACADE_ID_NUM_HIGH_SHIFT)) != 0) {
         num += 256;
     }
