@@ -365,7 +365,7 @@ int tig_button_state_get(tig_button_handle_t button_handle, int* state)
 {
     int button_index;
 
-    if (button_handle != TIG_BUTTON_HANDLE_INVALID) {
+    if (button_handle == TIG_BUTTON_HANDLE_INVALID) {
         tig_debug_printf("tig_button_state_get: ERROR: Attempt to reference Empty ButtonID!\n");
         return TIG_ERR_12;
     }
