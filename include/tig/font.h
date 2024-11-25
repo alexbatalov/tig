@@ -15,7 +15,7 @@ typedef enum TigFontFlags {
     TIG_FONT_SHADOW = 0x08,
     TIG_FONT_CENTERED = 0x10,
     TIG_FONT_STRIKE_THROUGH = 0x20,
-    TIG_FONT_BLEND_ALPHA_SRC = 0x80,
+    TIG_FONT_NO_ALPHA_BLEND = 0x80,
     TIG_FONT_BLEND_ADD = 0x100,
 } TigFontFlags;
 

@@ -239,7 +239,7 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
                 blit_info.flags |= TIG_ART_BLT_BLEND_ADD;
             }
 
-            if ((tig_font_stack[tig_font_stack_index]->flags & TIG_FONT_BLEND_ALPHA_SRC) != 0) {
+            if ((tig_font_stack[tig_font_stack_index]->flags & TIG_FONT_NO_ALPHA_BLEND) == 0) {
                 blit_info.flags |= TIG_ART_BLT_BLEND_ALPHA_SRC;
             }
 
