@@ -2698,7 +2698,7 @@ int tig_art_facade_id_create(unsigned int num, unsigned int tile_num, unsigned i
         | ((num < 256 ? 0 : 1) << FACADE_ID_NUM_HIGH_SHIFT)
         | ((flippable & 1) << FACADE_ID_FLIPPABLE_SHIFT)
         | ((type & (TILE_ID_MAX_TYPE - 1)) << FACADE_ID_TYPE_SHIFT)
-        | ((num & 256) << FACADE_ID_NUM_LOW_SHIFT)
+        | ((num & 0xFF) << FACADE_ID_NUM_LOW_SHIFT)
         | ((tile_num & (TILE_ID_MAX_NUM - 1)) << FACADE_ID_TILE_NUM_SHIFT)
         | ((frame & (FACADE_ID_MAX_FRAME - 1)) << FACADE_ID_FRAME_SHIFT)
         | (a6 & 1);
