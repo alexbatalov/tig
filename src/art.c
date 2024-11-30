@@ -5714,8 +5714,6 @@ tig_art_id_t tig_art_id_reset(tig_art_id_t art_id)
     return art_id;
 }
 
-// TODO: Check.
-//
 // 0x51B0E0
 bool tig_art_cache_find(const char* path, int* index)
 {
@@ -5737,7 +5735,7 @@ bool tig_art_cache_find(const char* path, int* index)
         }
     }
 
-    *index = 0;
+    *index = l;
     return false;
 }
 
