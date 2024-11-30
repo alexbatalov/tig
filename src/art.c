@@ -3100,9 +3100,9 @@ int art_get_video_buffer(unsigned int cache_entry_index, tig_art_id_t art_id, Ti
             art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
 
             if (dword_604718) {
-                rc = sub_5059F0(art_id, &art_blit_info);
+                rc = sub_5059F0(cache_entry_index, &art_blit_info);
             } else {
-                rc = art_blit(art_id, &art_blit_info);
+                rc = art_blit(cache_entry_index, &art_blit_info);
             }
         }
 
