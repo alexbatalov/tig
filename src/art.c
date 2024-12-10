@@ -1022,7 +1022,7 @@ tig_art_id_t tig_art_id_rotation_set(tig_art_id_t art_id, int rotation)
         return art_id;
     }
 
-    if (!sub_504790(art_id)) {
+    if (sub_504790(art_id)) {
         return art_id;
     }
 
