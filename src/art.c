@@ -5810,9 +5810,12 @@ bool tig_art_cache_entry_load(tig_art_id_t art_id, const char* path, int cache_e
         }
     }
 
-    for (index = MAX_ROTATIONS - num_rotations; index > 0; --index) {
-        rotation = (num_rotations + start) % MAX_ROTATIONS;
-        art->pixels_tbl[rotation] = art->pixels_tbl[0];
+    if (MAX_ROTATIONS - num_rotations > 0) {
+        rotation = num_rotations + start;
+        for (index = MAX_ROTATIONS - num_rotations; index > 0; --index) {
+            art->pixels_tbl[rotation % MAX_ROTATIONS] = art->pixels_tbl[0];
+            rotation++;
+        }
     }
 
     tig_art_cache_entries_length++;
