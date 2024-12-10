@@ -5830,6 +5830,7 @@ void tig_art_cache_entry_unload(unsigned int cache_entry_index)
     int num_rotations;
     int rotation;
     int palette;
+    int idx;
 
     cache_entry = &(tig_art_cache_entries[cache_entry_index]);
 
@@ -5854,7 +5855,8 @@ void tig_art_cache_entry_unload(unsigned int cache_entry_index)
         num_rotations = MAX_ROTATIONS;
     }
 
-    for (rotation = 0; rotation < num_rotations; ++rotation) {
+    for (idx = 0; idx < num_rotations; ++idx) {
+        rotation = (idx + rotation_start) % MAX_ROTATIONS;
         FREE(cache_entry->pixels_tbl[rotation]);
         FREE(cache_entry->hdr.pixels_tbl[rotation]);
         FREE(cache_entry->hdr.frames_tbl[rotation]);
