@@ -3446,8 +3446,8 @@ int art_blit(int cache_entry_index, TigArtBlitInfo* blit_info)
     } else {
         src_rect.x += dst_rect.x - tmp_rect.x;
         src_rect.y += dst_rect.y - tmp_rect.y;
-        src_rect.width += tmp_rect.width - dst_rect.width;
-        src_rect.height += tmp_rect.height - dst_rect.height;
+        src_rect.width -= tmp_rect.width - dst_rect.width;
+        src_rect.height -= tmp_rect.height - dst_rect.height;
     }
 
     if ((blit_info->flags & TIG_ART_BLT_PALETTE_OVERRIDE) != 0) {
