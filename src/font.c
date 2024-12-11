@@ -138,7 +138,7 @@ void sub_535390(TigFont* font)
             }
 
             pos = 0;
-            do {
+            for (;;) {
                 line_length = sub_535C40(tig_font_stack[tig_font_stack_index]->art_id, &(str[pos]), font->width, &line_width);
                 if (line_length == -1) {
                     font->height = 0;
@@ -146,8 +146,13 @@ void sub_535390(TigFont* font)
                 }
 
                 pos += line_length;
+                if (str[pos] == '\0') {
+                    break;
+                }
+
                 lines++;
-            } while (str[pos] != '\0');
+                pos++;
+            }
         } else {
             pos = 0;
             while (str[pos] != '\0') {
