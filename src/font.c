@@ -203,6 +203,7 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
     int pass;
     bool shadow;
     int dst_rect_x;
+    const char* remainder;
 
     // NOTE: Initialize to keep compiler happy.
     max_y = 0;
@@ -256,6 +257,8 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
             blit_info.color = tig_font_shadow_color;
         }
 
+        remainder = str;
+
         if (!tig_font_glyph_data(tig_font_stack[tig_font_stack_index]->art_id, ' ', &glyph_width, &glyph_height, &glyph_dx, &glyph_dy)) {
             return TIG_ERR_16;
         }
@@ -270,7 +273,7 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
             int rc;
 
             while (1) {
-                line_length = sub_535C40(tig_font_stack[tig_font_stack_index]->art_id, str, rect->width, &line_width);
+                line_length = sub_535C40(tig_font_stack[tig_font_stack_index]->art_id, remainder, rect->width, &line_width);
                 if (line_length == -1) {
                     break;
                 }
@@ -295,7 +298,7 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
                     dst_rect.x = dst_rect_x + dx;
                 }
 
-                rc = sub_535850(video_buffer, str, line_length + 1, &blit_info, shadow);
+                rc = sub_535850(video_buffer, remainder, line_length + 1, &blit_info, shadow);
                 if (rc != TIG_OK) {
                     return rc;
                 }
@@ -305,11 +308,11 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
 
                 max_y += glyph_height;
 
-                if (str[line_length] == '\0') {
+                if (remainder[line_length] == '\0') {
                     break;
                 }
 
-                str += line_length + 1;
+                remainder += line_length + 1;
                 if (rect->y + rect->height - max_y < glyph_height) {
                     break;
                 }
