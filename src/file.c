@@ -995,8 +995,8 @@ void tig_file_list_create(TigFileList* list, const char* pattern)
 
                             tig_file_list_add(list, &info);
                         } while (tig_database_find_next_entry(&database_ffd));
-                        tig_database_find_close(&database_ffd);
                     }
+                    tig_database_find_close(&database_ffd);
                 }
             } else if ((repo->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
                 if ((ignored & TIG_FILE_IGNORE_DIRECTORY) == 0) {
