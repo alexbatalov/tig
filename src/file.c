@@ -707,7 +707,7 @@ bool tig_file_repository_remove_all()
             tig_database_close(curr->database);
         } else {
             sprintf(path, "%s\\%s", curr->path, CACHE_DIR_NAME);
-            tig_file_rmdir(path);
+            tig_file_rmdir_recursively(path);
         }
 
         FREE(curr->path);
