@@ -425,7 +425,7 @@ bool sub_52E900(TigFile* dst_stream, TigFile* src_stream, size_t size)
         return false;
     }
 
-    if (tig_file_fwrite(buffer, size, 1, src_stream) != 1) {
+    if (tig_file_fwrite(buffer, size, 1, dst_stream) != 1) {
         return false;
     }
 
