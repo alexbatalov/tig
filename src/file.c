@@ -292,7 +292,7 @@ bool sub_52E550(const char* src, const char* dst)
         return false;
     }
 
-    strcpy(path2, src);
+    strcpy(path2, dst);
     strcat(path2, "\\");
 
     while (tig_file_fread(&type, sizeof(type), 1, stream1) == 1) {
@@ -317,7 +317,7 @@ bool sub_52E550(const char* src, const char* dst)
                 break;
             }
 
-            if (!sub_52E900(tmp_stream, stream1, size)) {
+            if (!sub_52E900(tmp_stream, stream2, size)) {
                 tig_file_fclose(tmp_stream);
                 break;
             }
@@ -347,7 +347,7 @@ bool sub_52E550(const char* src, const char* dst)
             if (pch == NULL) {
                 break;
             }
-            *pch = '\0';
+            pch[1] = '\0';
         } else if (type == 3) {
             tig_file_fclose(stream2);
             tig_file_fclose(stream1);
