@@ -1163,7 +1163,7 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
             }
         } else if ((repo->type & TIG_FILE_REPOSITORY_DATABASE) != 0) {
             if ((ignored & TIG_FILE_IGNORE_DATABASE) == 0
-                && strcmpi(search_path, repo->path)) {
+                && strcmpi(search_path, repo->path) == 0) {
                 if (tig_database_get_entry(repo->database, file_name, &database_entry)) {
                     if (info != NULL) {
                         info->attributes = TIG_FILE_ATTRIBUTE_0x80 | TIG_FILE_ATTRIBUTE_READONLY;
