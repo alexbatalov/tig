@@ -145,11 +145,186 @@ int tig_bmp_destroy(TigBmp* bmp)
 // 0x5368B0
 int tig_bmp_copy_to_video_buffer(TigBmp* bmp, const TigRect* src_rect, TigVideoBuffer* video_buffer, const TigRect* dst_rect)
 {
-    // TODO: Incomplete.
-    (void)bmp;
-    (void)src_rect;
-    (void)video_buffer;
-    (void)dst_rect;
+    int rc;
+    TigVideoBufferData video_buffer_data;
+    bool stretched;
+    TigRect bounds;
+    TigRect blit_src_rect;
+    TigRect blit_dst_rect;
+    TigRect tmp_rect;
+    float width_ratio;
+    float height_ratio;
+    uint8_t* src_pixels;
+    float src_step_x;
+    float src_step_y;
+
+    if (src_rect->x < 0
+        || src_rect->y < 0
+        || src_rect->x + src_rect->width > bmp->width
+        || src_rect->y + src_rect->height > bmp->height) {
+        return TIG_ERR_12;
+    }
+
+    rc = tig_video_buffer_lock(video_buffer);
+    if (rc != TIG_OK) {
+        return rc;
+    }
+
+    rc = tig_video_buffer_data(video_buffer, &video_buffer_data);
+    if (rc != TIG_OK) {
+        tig_video_buffer_unlock(video_buffer);
+        return rc;
+    }
+
+    if (dst_rect->x < 0
+        || dst_rect->y < 0
+        || dst_rect->x + dst_rect->width > video_buffer_data.width
+        || dst_rect->y + dst_rect->height > video_buffer_data.height) {
+        tig_video_buffer_unlock(video_buffer);
+        return TIG_ERR_12;
+    }
+
+    if (src_rect->width == dst_rect->width && src_rect->height == dst_rect->height) {
+        stretched = false;
+        width_ratio = 1.0f;
+        height_ratio = 1.0f;
+    } else {
+        stretched = true;
+        width_ratio = (float)src_rect->width / (float)dst_rect->width;
+        height_ratio = (float)src_rect->height / (float)dst_rect->height;
+    }
+
+    bounds.x = 0;
+    bounds.y = 0;
+    bounds.width = bmp->width;
+    bounds.height = bmp->height;
+
+    if (tig_rect_intersection(src_rect, &bounds, &blit_src_rect) != TIG_OK) {
+        tig_video_buffer_unlock(video_buffer);
+        return TIG_OK;
+    }
+
+    tmp_rect = *dst_rect;
+
+    if (stretched) {
+        tmp_rect.x += (int)((float)(blit_src_rect.x - src_rect->x) / width_ratio);
+        tmp_rect.y += (int)((float)(blit_src_rect.y - src_rect->y) / height_ratio);
+        tmp_rect.width -= (int)((float)(src_rect->width - blit_src_rect.width) / width_ratio);
+        tmp_rect.height -= (int)((float)(src_rect->height - blit_src_rect.height) / height_ratio);
+    } else {
+        tmp_rect.x += blit_src_rect.x - src_rect->x;
+        tmp_rect.y += blit_src_rect.y - src_rect->y;
+        tmp_rect.width -= src_rect->width - blit_src_rect.width;
+        tmp_rect.height -= src_rect->height - blit_src_rect.height;
+    }
+
+    bounds.x = 0;
+    bounds.y = 0;
+    bounds.width = video_buffer_data.width;
+    bounds.height = video_buffer_data.height;
+
+    if (tig_rect_intersection(&tmp_rect, &bounds, &blit_dst_rect) != TIG_OK) {
+        tig_video_buffer_unlock(video_buffer);
+        return TIG_OK;
+    }
+
+    if (stretched) {
+        blit_src_rect.x += (int)((float)(blit_dst_rect.x - tmp_rect.x) / width_ratio);
+        blit_src_rect.y += (int)((float)(blit_dst_rect.y - tmp_rect.y) / height_ratio);
+        blit_src_rect.width -= (int)((float)(tmp_rect.width - blit_dst_rect.width) / width_ratio);
+        blit_src_rect.height -= (int)((float)(tmp_rect.height - blit_dst_rect.height) / height_ratio);
+    } else {
+        blit_src_rect.x += blit_dst_rect.x - tmp_rect.x;
+        blit_src_rect.y += blit_dst_rect.y - tmp_rect.y;
+        blit_src_rect.width -= tmp_rect.width - blit_dst_rect.width;
+        blit_src_rect.height -= tmp_rect.height - blit_dst_rect.height;
+    }
+
+    src_pixels = (uint8_t*)bmp->pixels + blit_src_rect.y * bmp->pitch + blit_src_rect.x;
+    src_step_x = (float)blit_src_rect.width / (float)blit_dst_rect.width;
+    src_step_y = (float)blit_src_rect.height / (float)blit_dst_rect.height;
+
+    if (bmp->bpp == 8) {
+        switch (video_buffer_data.bpp) {
+        case 8:
+            // TODO: Incomplete.
+            break;
+        case 16:
+            // TODO: Incomplete.
+            break;
+        case 24:
+            // TODO: Incomplete.
+            break;
+        case 32: {
+            uint32_t* palette = (uint32_t*)MALLOC(sizeof(*palette) * 256);
+            for (int idx = 0; idx < 256; idx++) {
+                palette[idx] = tig_color_index_of(bmp->palette[idx]);
+            }
+
+            uint32_t* dst = (uint32_t*)video_buffer_data.surface_data.pixels + blit_dst_rect.y * (video_buffer_data.pitch / 4) + blit_dst_rect.x;
+            int skip = video_buffer_data.pitch / 4 - blit_dst_rect.width;
+
+            float src_y = 0.0f;
+            for (int y = 0; y < blit_dst_rect.height; y++) {
+                float src_x = 0.0f;
+                for (int x = 0; x < blit_dst_rect.width; x++) {
+                    *dst++ = palette[src_pixels[bmp->pitch * (int)src_y + (int)src_x]];
+                    src_x += src_step_x;
+                }
+
+                dst += skip;
+                src_y += src_step_y;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    } else {
+        // NOTE: This codepath looks totally broken. Instead of copying bmp to
+        // video buffer, it copies video buffer to bmp, and it does so without
+        // respecting src/dst rects, which leads to memory corruption.
+        if (bmp->bpp == video_buffer_data.bpp) {
+            switch (bmp->bpp) {
+            case 8:
+                for (int y = 0; y < bmp->height; y++) {
+                    for (int x = 0; x < bmp->width; x++) {
+                        *((uint8_t*)bmp->pixels + bmp->pitch * y + x) = *((uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x);
+                    }
+                }
+                break;
+            case 16:
+                for (int y = 0; y < bmp->height; y++) {
+                    for (int x = 0; x < bmp->width; x++) {
+                        *((uint16_t*)bmp->pixels + bmp->pitch * y + x) = *((uint16_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x);
+                    }
+                }
+                break;
+            case 24:
+                for (int y = 0; y < bmp->height; y++) {
+                    for (int x = 0; x < bmp->width; x++) {
+                        *((uint32_t*)bmp->pixels + bmp->pitch * y + x) = *((uint32_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x);
+                    }
+                }
+                break;
+            case 32:
+                for (int y = 0; y < bmp->height; y++) {
+                    for (int x = 0; x < bmp->width; x++) {
+                        *((uint32_t*)bmp->pixels + bmp->pitch * y + x) = *((uint32_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x);
+                    }
+                }
+                break;
+            }
+        } else if (bmp->bpp == 24 && video_buffer_data.bpp == 16) {
+            for (int y = 0; y < bmp->height; y++) {
+                for (int x = 0; x < bmp->width; x++) {
+                    *((uint16_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x) = (uint16_t)tig_color_index_of(*((uint16_t*)bmp->pixels + bmp->pitch * y + x));
+                }
+            }
+        }
+    }
+
+    tig_video_buffer_unlock(video_buffer);
 
     return TIG_OK;
 }
