@@ -82,7 +82,7 @@ int tig_bmp_create(TigBmp* bmp)
     }
 
     if (num_colors > 0) {
-        if (info_hdr.biBitCount > 8) {
+        if (info_hdr.biBitCount <= 8) {
             if (tig_file_fread(palette, sizeof(RGBQUAD), num_colors, stream) != num_colors) {
                 tig_file_fclose(stream);
                 return TIG_ERR_13;
