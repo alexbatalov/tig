@@ -551,7 +551,7 @@ unsigned int tig_color_to_24_bpp(int red, int green, int blue)
         green = 0;
     }
 
-    normalized_green = (tig_color_range_table[CS_24][CC_GREEN] * green / 255) << tig_color_shifts_table[CS_24][CC_RED];
+    normalized_green = (tig_color_range_table[CS_24][CC_GREEN] * green / 255) << tig_color_shifts_table[CS_24][CC_GREEN];
 
     if (blue > 255) {
         blue = 255;
