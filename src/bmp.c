@@ -275,6 +275,8 @@ int tig_bmp_copy_to_video_buffer(TigBmp* bmp, const TigRect* src_rect, TigVideoB
                 dst += skip;
                 src_y += src_step_y;
             }
+
+            FREE(palette);
             break;
         }
         default:
