@@ -92,6 +92,8 @@
 #define EYE_CANDY_ID_ROTATION_SHIFT 9
 #define EYE_CANDY_ID_TYPE_SHIFT 6
 
+#define MONSTER_ID_SPECIE_SHIFT 23
+
 #define MAX_PALETTES 4
 #define MAX_ROTATIONS 8
 
@@ -278,7 +280,7 @@ static int dword_5BE980[5] = {
 };
 
 // 0x5BE994
-static int dword_5BE994[32] = {
+static int dword_5BE994[TIG_ART_MONSTER_SPECIE_COUNT] = {
     0,
     0,
     1,
@@ -1993,9 +1995,9 @@ int tig_art_critter_id_create(unsigned int a1, int a2, int a3, unsigned int a4, 
 }
 
 // 0x503CD0
-int tig_art_monster_id_create(int a1, int a2, unsigned int a3, unsigned int a4, int rotation, int a6, int a7, unsigned int palette, tig_art_id_t* art_id_ptr)
+int tig_art_monster_id_create(int specie, int a2, unsigned int a3, unsigned int a4, int rotation, int a6, int a7, unsigned int palette, tig_art_id_t* art_id_ptr)
 {
-    if (a1 >= 32
+    if (specie >= TIG_ART_MONSTER_SPECIE_COUNT
         || a2 >= 8
         || a3 >= 2
         || a4 >= 0x20
@@ -2007,7 +2009,7 @@ int tig_art_monster_id_create(int a1, int a2, unsigned int a3, unsigned int a4, 
     }
 
     *art_id_ptr = (TIG_ART_TYPE_MONSTER << ART_ID_TYPE_SHIFT)
-        | ((a1 & 0x1F) << 23)
+        | ((specie & (TIG_ART_MONSTER_SPECIE_COUNT - 1)) << MONSTER_ID_SPECIE_SHIFT)
         | ((a2 & 7) << 20)
         | ((a3 & 1) << 19)
         | ((a4 & 0x1F) << 12)
@@ -2102,10 +2104,10 @@ tig_art_id_t sub_503ED0(tig_art_id_t art_id, int value)
 }
 
 // 0x503F20
-int sub_503F20(tig_art_id_t art_id)
+int tig_art_monster_id_specie_get(tig_art_id_t art_id)
 {
     if (tig_art_type(art_id) == TIG_ART_TYPE_MONSTER) {
-        return (art_id >> 23) & 0x1F;
+        return (art_id >> MONSTER_ID_SPECIE_SHIFT) & (TIG_ART_MONSTER_SPECIE_COUNT);
     }
 
     return 0;
@@ -2126,7 +2128,7 @@ int sub_503F60(tig_art_id_t art_id)
         v1 = tig_art_num_get(art_id);
         return dword_5BE980[v1];
     case TIG_ART_TYPE_MONSTER:
-        v1 = sub_503F20(art_id);
+        v1 = tig_art_monster_id_specie_get(art_id);
         return dword_5BE994[v1];
     default:
         return 1;

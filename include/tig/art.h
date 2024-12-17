@@ -161,6 +161,42 @@ typedef enum TigArtEyeCandyType {
     TIG_ART_EYE_CANDY_TYPE_COUNT,
 } TigArtEyeCandyType;
 
+typedef enum TigArtMonsterSpecie {
+    TIG_ART_MONSTER_SPECIE_WOLF,
+    TIG_ART_MONSTER_SPECIE_SPIDER,
+    TIG_ART_MONSTER_SPECIE_ORC,
+    TIG_ART_MONSTER_SPECIE_EARTH_ELEMENTAL,
+    TIG_ART_MONSTER_SPECIE_LESSER_DEMON,
+    TIG_ART_MONSTER_SPECIE_LESSER_SKELETON,
+    TIG_ART_MONSTER_SPECIE_LESSER_ZOMBIE,
+    TIG_ART_MONSTER_SPECIE_LESSER_MUMMY,
+    TIG_ART_MONSTER_SPECIE_GREATER_DEMON,
+    TIG_ART_MONSTER_SPECIE_BUNNY,
+    TIG_ART_MONSTER_SPECIE_MECH_SPIDER,
+    TIG_ART_MONSTER_SPECIE_AUTOMATON,
+    TIG_ART_MONSTER_SPECIE_LIZARD_MAN,
+    TIG_ART_MONSTER_SPECIE_PHANTOM_KNIGHT,
+    TIG_ART_MONSTER_SPECIE_WERERAT,
+    TIG_ART_MONSTER_SPECIE_SNAKE_MAN,
+    TIG_ART_MONSTER_SPECIE_APE,
+    TIG_ART_MONSTER_SPECIE_BEAR,
+    TIG_ART_MONSTER_SPECIE_CHICKEN,
+    TIG_ART_MONSTER_SPECIE_COUGAR,
+    TIG_ART_MONSTER_SPECIE_SHEEP,
+    TIG_ART_MONSTER_SPECIE_TIGER,
+    TIG_ART_MONSTER_SPECIE_PIG,
+    TIG_ART_MONSTER_SPECIE_COW,
+    TIG_ART_MONSTER_SPECIE_WISP,
+    TIG_ART_MONSTER_SPECIE_MUTANT_PIG,
+    TIG_ART_MONSTER_SPECIE_FIRE_ELEMENTAL,
+    TIG_ART_MONSTER_SPECIE_WATER_ELEMENTAL,
+    TIG_ART_MONSTER_SPECIE_AIR_ELEMENTAL,
+    TIG_ART_MONSTER_SPECIE_DEATH_KNIGHT,
+    TIG_ART_MONSTER_SPECIE_SPIDER_QUEEN,
+    TIG_ART_MONSTER_SPECIE_WEREWOLF,
+    TIG_ART_MONSTER_SPECIE_COUNT,
+} TigArtMonsterSpecie;
+
 typedef enum TigArtAnimFlags {
     TIG_ART_0x01 = 0x01,
     TIG_ART_0x02 = 0x02,
@@ -370,13 +406,13 @@ tig_art_id_t tig_art_wall_id_variation_set(tig_art_id_t art_id, int value);
 int tig_art_id_damaged_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_damaged_set(tig_art_id_t art_id, int value);
 int tig_art_critter_id_create(unsigned int a1, int a2, int a3, unsigned int a4, unsigned int a5, int rotation, int a7, int a8, unsigned int a9, tig_art_id_t* art_id_ptr);
-int tig_art_monster_id_create(int a1, int a2, unsigned int a3, unsigned int a4, int rotation, int a6, int a7, unsigned int a8, tig_art_id_t* art_id_ptr);
+int tig_art_monster_id_create(int specie, int a2, unsigned int a3, unsigned int a4, int rotation, int a6, int a7, unsigned int a8, tig_art_id_t* art_id_ptr);
 int tig_art_unique_npc_id_create(int num, unsigned int a2, unsigned int frame, int a4, int a5, int a6, unsigned int a7, tig_art_id_t* art_id_ptr);
 int sub_503E20(tig_art_id_t art_id);
 tig_art_id_t sub_503E50(tig_art_id_t art_id, int value);
 int sub_503EA0(tig_art_id_t art_id);
 tig_art_id_t sub_503ED0(tig_art_id_t art_id, int value);
-int sub_503F20(tig_art_id_t art_id);
+int tig_art_monster_id_specie_get(tig_art_id_t art_id);
 int sub_503F50(int a1);
 int sub_503F60(tig_art_id_t art_id);
 int sub_503FB0(tig_art_id_t art_id);
