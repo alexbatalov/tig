@@ -81,9 +81,17 @@ void AILCALL AIL_quick_handles(HDIGDRIVER* pdig, HMDIDRIVER* pmdi, HDLSDEVICE* p
     if (mss32_AIL_quick_handles != NULL) {
         mss32_AIL_quick_handles(pdig, pmdi, pdls);
     } else {
-        *pdig = NULL;
-        *pmdi = NULL;
-        *pdls = NULL;
+        if (pdig != NULL) {
+            *pdig = NULL;
+        }
+
+        if (pmdi != NULL) {
+            *pmdi = NULL;
+        }
+
+        if (pdls != NULL) {
+            *pdls = NULL;
+        }
     }
 }
 
