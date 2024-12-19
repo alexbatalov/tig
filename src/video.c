@@ -2274,8 +2274,6 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                     break;
                 case 32:
                     for (y = 0; y < blit_dst_rect.height; y++) {
-                        uint8_t* src_base = src;
-
                         for (x = 0; x < blit_dst_rect.width; x++) {
                             if ((blit_info->src_video_buffer->flags & TIG_VIDEO_BUFFER_COLOR_KEY) == 0
                                 || *(uint32_t*)src != blit_info->src_video_buffer->color_key) {
@@ -2288,7 +2286,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                             dst += 4;
                         }
 
-                        src = src_base + src_pitch;
+                        src += src_pitch;
                         dst += dst_skip;
                     }
                     break;
