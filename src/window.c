@@ -832,9 +832,12 @@ int tig_window_blit(TigWindowBlitInfo* win_blit_info)
 
     vb_blit_info.flags = win_blit_info->vb_blit_flags;
     vb_blit_info.src_rect = win_blit_info->src_rect;
+    vb_blit_info.alpha[0] = win_blit_info->alpha[0];
+    vb_blit_info.alpha[1] = win_blit_info->alpha[1];
+    vb_blit_info.alpha[2] = win_blit_info->alpha[2];
+    vb_blit_info.alpha[3] = win_blit_info->alpha[3];
 
     // TODO: Looks odd, investigate.
-    // vb_blit_info.field_C = win_blit_info->field_14;
     // vb_blit_info.field_10 = win_blit_info->field_18;
     // vb_blit_info.field_14 = win_blit_info->field_1C;
     // vb_blit_info.field_18 = win_blit_info->field_20;

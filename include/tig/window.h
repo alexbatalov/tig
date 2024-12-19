@@ -52,7 +52,7 @@ typedef struct TigWindowBlitInfo {
     /* 0008 */ tig_window_handle_t src_window_handle;
     /* 000C */ TigVideoBuffer* src_video_buffer;
     /* 0010 */ TigRect* src_rect;
-    /* 0014 */ uint8_t field_14[4];
+    /* 0014 */ uint8_t alpha[4];
     /* 0018 */ int field_18;
     /* 001C */ tig_window_handle_t dst_window_handle;
     /* 0020 */ TigVideoBuffer* dst_video_buffer;
