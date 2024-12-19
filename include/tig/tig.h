@@ -1,6 +1,8 @@
 #ifndef TIG_TIG_H_
 #define TIG_TIG_H_
 
+#include <zlib.h>
+
 #include "tig/art.h"
 #include "tig/bmp.h"
 #include "tig/bsearch.h"
