@@ -69,6 +69,9 @@ int tig_rect_intersection(const TigRect* a, const TigRect* b, TigRect* r);
 //     +-----------------+
 int tig_rect_clip(const TigRect* a, const TigRect* b, TigRect* rects);
 
+// 0x52D480
+void sub_52D480(TigRectListNode** node_ptr, TigRect* rect);
+
 // Computes a union of two rectangles.
 //
 // Returns `TIG_OK` (its always possible to compute a union)

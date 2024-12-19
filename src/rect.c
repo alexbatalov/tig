@@ -196,6 +196,391 @@ int tig_rect_clip(const TigRect* a, const TigRect* b, TigRect* rects)
     return count;
 }
 
+// 0x52D480
+void sub_52D480(TigRectListNode** node_ptr, TigRect* rect)
+{
+    TigRectListNode* prev;
+    TigRectListNode* node;
+    TigRect tmp;
+    int x;
+    int y;
+    int width;
+    int height;
+    unsigned int flags1;
+    unsigned int flags2;
+    unsigned int flags;
+    int dx;
+    int dy;
+
+    x = rect->x;
+    y = rect->y;
+    width = rect->width;
+    height = rect->height;
+
+    prev = NULL;
+    node = *node_ptr;
+
+    while (node != NULL) {
+        flags1 = 0;
+        if (x >= node->rect.x
+            && y >= node->rect.y
+            && x < node->rect.x + node->rect.width
+            && y < node->rect.y + node->rect.height) {
+            flags1 |= 0x08;
+        }
+
+        if (x + width - 1 >= node->rect.x
+            && y >= node->rect.y
+            && x + width - 1 < node->rect.x + node->rect.width
+            && y < node->rect.y + node->rect.height) {
+            flags1 |= 0x04;
+        }
+
+        if (x + width - 1 >= node->rect.x
+            && y + height - 1 >= node->rect.y
+            && x + width - 1 < node->rect.x + node->rect.width
+            && y + height - 1 < node->rect.y + node->rect.height) {
+            flags1 |= 0x02;
+        }
+
+        if (x >= node->rect.x
+            && y + height - 1 >= node->rect.y
+            && x <= node->rect.x + node->rect.width
+            && y + height - 1 < node->rect.y + node->rect.height) {
+            flags1 |= 0x01;
+        }
+
+        flags2 = 0;
+        if (node->rect.x >= x
+            && node->rect.y >= y
+            && node->rect.x < x + width
+            && node->rect.y < y + height) {
+            flags2 |= 0x08;
+        }
+
+        if (node->rect.x + node->rect.width - 1 >= x
+            && node->rect.y >= y
+            && node->rect.x + node->rect.width - 1 < x + width
+            && node->rect.y < y + height) {
+            flags2 |= 0x04;
+        }
+
+        if (node->rect.x + node->rect.width - 1 >= x
+            && node->rect.y + node->rect.height - 1 >= y
+            && node->rect.x + node->rect.width - 1 < x + width
+            && node->rect.y + node->rect.height - 1 <= y + height) {
+            flags2 |= 0x02;
+        }
+
+        if (node->rect.x >= x
+            && node->rect.y + node->rect.height - 1 >= y
+            && node->rect.x < x + width
+            && node->rect.y + node->rect.height - 1 < y + height) {
+            flags2 |= 0x01;
+        }
+
+        flags = flags1 | (flags2 << 4);
+        switch (flags) {
+        case 0x68:
+        case 0x69:
+        case 0x6C:
+            node->rect.width = x - node->rect.x;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x6F:
+        case 0x8F:
+        case 0x9F:
+        case 0xCF:
+        case 0xFF:
+            return;
+        case 0x82:
+            tmp.x = x;
+            tmp.y = y;
+            tmp.width = width;
+            tmp.height = node->rect.y - y;
+
+            y += tmp.height;
+            height -= tmp.height;
+            width = node->rect.x + node->rect.width - x;
+
+            node->rect.y += height;
+            node->rect.height -= height;
+
+            if (node->next != NULL) {
+                sub_52D480(&(node->next), &tmp);
+            } else {
+                node->next = tig_rect_node_create();
+                node->next->rect = tmp;
+            }
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x83:
+        case 0x93:
+        case 0xC3:
+            height = node->rect.y - y;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x86:
+        case 0x96:
+        case 0xC6:
+            width = node->rect.x - x;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x90:
+        case 0x92:
+        case 0x94:
+        case 0x9C:
+            dx = x + width - node->rect.x;
+            node->rect.x += dx;
+            node->rect.width -= dx;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0xC0:
+        case 0xC1:
+        case 0xC2:
+        case 0xC9:
+            dy = y + height - node->rect.y;
+            node->rect.y = y + height;
+            node->rect.height -= dy;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0xF0:
+        case 0xF1:
+        case 0xF2:
+        case 0xF3:
+        case 0xF4:
+        case 0xF6:
+        case 0xF8:
+        case 0xF9:
+        case 0xFC:
+            if (node->next == NULL) {
+                node->rect.x = x;
+                node->rect.y = y;
+                node->rect.width = width;
+                node->rect.height = height;
+                return;
+            }
+
+            if (prev != NULL) {
+                prev->next = node->next;
+                tig_rect_node_destroy(node);
+                node = prev->next;
+            } else {
+                *node_ptr = node->next;
+                tig_rect_node_destroy(node);
+                node = *node_ptr;
+            }
+            break;
+        case 0x00:
+            if (node->rect.x < x) {
+                if (width + x >= node->rect.x + node->rect.width) {
+                    prev = node;
+                    node = node->next;
+                    break;
+                }
+
+                if (y >= node->rect.y
+                    || height + y <= node->rect.height + node->rect.y) {
+                    prev = node;
+                    node = node->next;
+                    break;
+                }
+
+                tmp.x = x;
+                tmp.width = width;
+                tmp.y = node->rect.y + node->rect.height;
+                tmp.height = y + height - tmp.y;
+
+                if (node->next != NULL) {
+                    sub_52D480(&(node->next), &tmp);
+                } else {
+                    node->next = tig_rect_node_create();
+                    node->next->rect = tmp;
+                }
+
+                prev = node;
+                node = node->next;
+            } else {
+                if (node->rect.x <= x
+                    || node->rect.x + node->rect.width >= width + x
+                    || node->rect.y >= y
+                    || node->rect.height + node->rect.y <= height + y) {
+                    prev = node;
+                    node = node->next;
+                    break;
+                }
+
+                tmp.x = node->rect.x;
+                tmp.width = node->rect.width;
+                tmp.y = height + y;
+                tmp.height = node->rect.y + node->rect.height - (height + y);
+                node->rect.height = y - node->rect.y;
+
+                if (node->next != NULL) {
+                    sub_52D480(&(node->next), &tmp);
+                } else {
+                    node->next = tig_rect_node_create();
+                    node->next->rect = tmp;
+                }
+
+                prev = node;
+                node = node->next;
+            }
+            break;
+        case 0x03:
+        case 0x43:
+            prev = node;
+            node = node->next;
+            break;
+        case 0x06:
+        case 0x46:
+            width = node->rect.x - x;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x09:
+        case 0x29:
+        case 0x49:
+            dx = node->rect.x + node->rect.width - x;
+            x = node->rect.x + node->rect.width;
+            width -= dx;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x0C:
+        case 0x1C:
+        case 0x2C:
+            dy = node->rect.y + node->rect.height - y;
+            y = node->rect.y + node->rect.height;
+            height = dy;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x0F:
+        case 0x1F:
+        case 0x2F:
+        case 0x3F:
+        case 0x4F:
+            return;
+        case 0x14:
+            tmp.x = x;
+            tmp.y = node->rect.y + node->rect.height;
+            tmp.width = width;
+            tmp.height = y + height - tmp.y;
+
+            height = tmp.y - y;
+            width = node->rect.width + node->rect.x - x;
+            node->rect.height = y - node->rect.y;
+
+            if (node->next != NULL) {
+                sub_52D480(&(node->next), &tmp);
+            } else {
+                node->next = tig_rect_node_create();
+                node->next->rect = tmp;
+            }
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x28:
+            tmp.x = x;
+            tmp.y = node->rect.y + node->rect.height;
+            tmp.width = width;
+            tmp.height = y + height - tmp.y;
+
+            x = node->rect.x;
+            width += tmp.x - node->rect.x;
+            height = node->rect.y - y + node->rect.height;
+            node->rect.height = y - node->rect.y;
+
+            if (node->next != NULL) {
+                sub_52D480(&(node->next), &tmp);
+            } else {
+                node->next = tig_rect_node_create();
+                node->next->rect = tmp;
+            }
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x30:
+        case 0x31:
+        case 0x34:
+        case 0x36:
+        case 0x38:
+        case 0x39:
+        case 0x3C:
+            node->rect.height = y - node->rect.y;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x41:
+            tmp.x = x;
+            tmp.y = y;
+            tmp.width = width;
+            tmp.height = node->rect.y - y;
+
+            x = node->rect.x;
+            y = node->rect.y;
+            height -= tmp.height;
+            width += tmp.x - node->rect.x;
+            node->rect.y += height;
+            node->rect.height -= height;
+
+            if (node->next != NULL) {
+                sub_52D480(&(node->next), &tmp);
+            } else {
+                node->next = tig_rect_node_create();
+                node->next->rect = tmp;
+            }
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x60:
+        case 0x61:
+            node->rect.width = x - node->rect.x;
+
+            prev = node;
+            node = node->next;
+            break;
+        case 0x63:
+            height = node->rect.y - y;
+
+            prev = node;
+            node = node->next;
+            break;
+        default:
+            prev = node;
+            node = node->next;
+            break;
+        }
+    }
+
+    node = tig_rect_node_create();
+    prev->next = node;
+    node->rect.x = x;
+    node->rect.y = y;
+    node->rect.width = width;
+    node->rect.height = height;
+}
+
 // 0x52DBB0
 int tig_rect_union(const TigRect* a, const TigRect* b, TigRect* r)
 {
