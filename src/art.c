@@ -3155,7 +3155,7 @@ int art_get_video_buffer(unsigned int cache_entry_index, tig_art_id_t art_id, Ti
             system_memory_size = sizeof(TigVideoBuffer*) * tig_art_cache_entries[cache_entry_index].hdr.num_frames;
             tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] = (TigVideoBuffer**)MALLOC(system_memory_size);
 
-            vb_create_info.color_key = tig_color_make(0, 0, 0);
+            vb_create_info.color_key = tig_color_make(0, 255, 0);
             vb_create_info.background_color = vb_create_info.color_key;
 
             if (dword_604718) {
