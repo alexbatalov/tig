@@ -5354,7 +5354,75 @@ int art_blit(int cache_entry_index, TigArtBlitInfo* blit_info)
             }
         } else if ((blit_info->flags & TIG_ART_BLT_BLEND_COLOR_LERP) != 0) {
             // 0x50F3B4
-            // TODO: Incomplete.
+            int tl_r = tig_color_get_red(blit_info->field_14[0]);
+            int tl_g = tig_color_get_green(blit_info->field_14[0]);
+            int tl_b = tig_color_get_blue(blit_info->field_14[0]);
+
+            int tr_r = tig_color_get_red(blit_info->field_14[1]);
+            int tr_g = tig_color_get_green(blit_info->field_14[1]);
+            int tr_b = tig_color_get_blue(blit_info->field_14[1]);
+
+            int br_r = tig_color_get_red(blit_info->field_14[2]);
+            int br_g = tig_color_get_green(blit_info->field_14[2]);
+            int br_b = tig_color_get_blue(blit_info->field_14[2]);
+
+            int bl_r = tig_color_get_red(blit_info->field_14[3]);
+            int bl_g = tig_color_get_green(blit_info->field_14[3]);
+            int bl_b = tig_color_get_blue(blit_info->field_14[3]);
+
+            float vert_start_step_r = (float)(bl_r - tl_r) / blit_info->field_18->height;
+            float vert_start_r = vert_start_step_r * (src_rect.y - blit_info->field_18->y) + tl_r;
+            float vert_end_step_r = (float)(br_r - tr_r) / blit_info->field_18->height;
+            float vert_end_r = vert_end_step_r * (src_rect.y - blit_info->field_18->y) + tr_r;
+
+            float vert_start_step_g = (float)(bl_g - tl_g) / blit_info->field_18->height;
+            float vert_start_g = vert_start_step_g * (src_rect.y - blit_info->field_18->y) + tl_g;
+            float vert_end_step_g = (float)(br_g - tr_g) / blit_info->field_18->height;
+            float vert_end_g = vert_end_step_g * (src_rect.y - blit_info->field_18->y) + tr_g;
+
+            float vert_start_step_b = (float)(bl_b - tl_b) / blit_info->field_18->height;
+            float vert_start_b = vert_start_step_b * (src_rect.y - blit_info->field_18->y) + tl_b;
+            float vert_end_step_b = (float)(br_b - tr_b) / blit_info->field_18->height;
+            float vert_end_b = vert_end_step_b * (src_rect.y - blit_info->field_18->y) + tr_b;
+
+            switch (tig_art_bits_per_pixel) {
+            case 32:
+                for (y = 0; y < dst_rect.height; y++) {
+                    float hor_step_r = (vert_end_r - vert_start_r) / blit_info->field_18->width;
+                    float hor_step_g = (vert_end_g - vert_start_g) / blit_info->field_18->width;
+                    float hor_step_b = (vert_end_b - vert_start_b) / blit_info->field_18->width;
+
+                    float r = vert_start_r + hor_step_r * (src_rect.x - blit_info->field_18->x);
+                    float g = vert_start_g + hor_step_g * (src_rect.x - blit_info->field_18->x);
+                    float b = vert_start_b + hor_step_b * (src_rect.x - blit_info->field_18->x);
+
+                    for (x = 0; x < dst_rect.width; x++) {
+                        if (*src_pixels != 0) {
+                            uint32_t color = tig_color_make((uint8_t)r, (uint8_t)g, (uint8_t)b);
+                            color = tig_color_mul(((uint32_t*)plt)[*src_pixels], color);
+                            *(uint32_t*)dst_pixels = color;
+                        }
+                        src_pixels += src_step;
+                        dst_pixels += 4;
+
+                        r += hor_step_r;
+                        g += hor_step_g;
+                        b += hor_step_b;
+                    }
+                    src_pixels += src_pitch;
+                    dst_pixels += dst_skip;
+
+                    vert_start_r += vert_start_step_r;
+                    vert_end_r += vert_end_step_r;
+
+                    vert_start_g += vert_start_step_g;
+                    vert_end_g += vert_end_step_g;
+
+                    vert_start_b += vert_start_step_b;
+                    vert_end_b += vert_end_step_b;
+                }
+                break;
+            }
         } else {
             // 0x50655B
             if ((blit_info->flags & TIG_ART_BLT_BLEND_ADD) != 0) {
