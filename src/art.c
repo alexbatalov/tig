@@ -3017,101 +3017,205 @@ int art_get_video_buffer(unsigned int cache_entry_index, tig_art_id_t art_id, Ti
     case TIG_ART_TYPE_MISC:
         return TIG_ERR_16;
     case TIG_ART_TYPE_LIGHT:
+        if (!dword_604718) {
+            return TIG_ERR_16;
+        }
         if (sub_504790(art_id) == 0) {
             return TIG_ERR_16;
         }
-        break;
-    case TIG_ART_TYPE_ROOF:
-        // TODO: Incomplete.
         break;
     case TIG_ART_TYPE_TILE:
         art_id = sub_502D30(art_id, sub_504FD0(art_id) & ~1);
         break;
     }
 
-    rotation = tig_art_id_rotation_get(art_id);
-    if (tig_art_mirroring_enabled
-        && (type == TIG_ART_TYPE_CRITTER
-            || type == TIG_ART_TYPE_MONSTER
-            || type == TIG_ART_TYPE_UNIQUE_NPC)
-        && rotation > 0 && rotation < 4) {
-        tig_debug_printf("Error in art_get_video_buffer() - requested rotation %d for mirrored object\n", rotation);
-    }
-
-    if ((type == TIG_ART_TYPE_WALL
-            || type == TIG_ART_TYPE_PORTAL)
-        && (rotation & 1) != 0) {
-        art_id = tig_art_id_rotation_set(art_id, rotation - 1);
-    }
-
-    palette = tig_art_id_palette_get(art_id);
-
-    if (tig_art_cache_entries[cache_entry_index].palette_tbl[palette] == NULL) {
+    if (type == TIG_ART_TYPE_ROOF) {
         palette = 0;
-        art_id = tig_art_id_palette_set(art_id, 0);
-    }
+        rotation = 0;
+        if (tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] == NULL) {
+            system_memory_size = sizeof(TigVideoBuffer*) * 13;
+            tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] = (TigVideoBuffer**)MALLOC(system_memory_size);
 
-    if (tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] == NULL) {
-        system_memory_size = sizeof(TigVideoBuffer*) * tig_art_cache_entries[cache_entry_index].hdr.num_frames;
-        tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] = (TigVideoBuffer**)MALLOC(system_memory_size);
+            vb_create_info.color_key = tig_color_make(0, 255, 0);
+            vb_create_info.background_color = vb_create_info.color_key;
+            if (dword_604718) {
+                vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_TEXTURE;
+                vb_create_info.color_key = 0;
+            } else {
+                vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_COLOR_KEY | TIG_VIDEO_BUFFER_CREATE_VIDEO_MEMORY;
+            }
 
-        vb_create_info.color_key = tig_color_make(0, 0, 0);
-        vb_create_info.background_color = vb_create_info.color_key;
+            for (frame = 0; frame < tig_art_cache_entries[cache_entry_index].hdr.num_frames; frame++) {
+                vb_create_info.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[0][frame].width;
+                vb_create_info.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[0][frame].height;
+                video_memory_size += vb_create_info.width * vb_create_info.height * tig_art_bits_per_pixel;
 
-        if (dword_604718) {
-            vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_TEXTURE;
-            vb_create_info.color_key = 0;
-        } else {
-            vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_COLOR_KEY | TIG_VIDEO_BUFFER_CREATE_VIDEO_MEMORY;
+                rc = tig_video_buffer_create(&vb_create_info, &(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame]));
+                if (rc != TIG_OK) {
+                    while (--frame >= 0) {
+                        tig_video_buffer_destroy(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame]);
+                    }
+                    FREE(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation]);
+                    tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] = NULL;
+                    return rc;
+                }
+            }
+
+            for (; frame < 13; frame++) {
+                vb_create_info.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[0][frame - 9].width;
+                vb_create_info.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[0][frame - 9].height;
+                video_memory_size += vb_create_info.width * vb_create_info.height * tig_art_bits_per_pixel;
+
+                rc = tig_video_buffer_create(&vb_create_info, &(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame]));
+                if (rc != TIG_OK) {
+                    while (--frame >= 0) {
+                        tig_video_buffer_destroy(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame]);
+                    }
+                    FREE(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation]);
+                    tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] = NULL;
+                    return rc;
+                }
+            }
+
+            tig_art_cache_entries[cache_entry_index].field_194[palette][rotation] = 1;
         }
 
-        for (frame = 0; frame < tig_art_cache_entries[cache_entry_index].hdr.num_frames; frame++) {
-            vb_create_info.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].width;
-            vb_create_info.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].height;
-            video_memory_size += vb_create_info.width * vb_create_info.height * tig_art_bytes_per_pixel;
-            rc = tig_video_buffer_create(&vb_create_info, &(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame]));
-            if (rc != TIG_OK) {
-                while (frame > 0) {
-                    tig_video_buffer_destroy(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame - 1]);
-                    frame--;
+        if (tig_art_cache_entries[cache_entry_index].field_194[palette][rotation] == 1) {
+            rect.x = 0;
+            rect.y = 0;
+
+            art_blit_info.flags = 0;
+            art_blit_info.src_rect = &rect;
+            art_blit_info.dst_rect = &rect;
+
+            for (frame = 0; frame < tig_art_cache_entries[cache_entry_index].hdr.num_frames; frame++) {
+                rect.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].width;
+                rect.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].height;
+
+                art_blit_info.art_id = sub_504880(art_id, frame);
+                art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
+
+                if (dword_604718) {
+                    rc = sub_5059F0(cache_entry_index, &art_blit_info);
+                } else {
+                    rc = art_blit(cache_entry_index, &art_blit_info);
                 }
 
-                FREE(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation]);
-                tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] = NULL;
-
-                return rc;
+                if (rc != TIG_OK) {
+                    return rc;
+                }
             }
+
+            for (; frame < 13; frame++) {
+                rect.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame - 9].width;
+                rect.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame - 9].height;
+
+                art_blit_info.art_id = sub_504880(art_id, frame);
+                art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
+
+                if (dword_604718) {
+                    rc = sub_5059F0(cache_entry_index, &art_blit_info);
+                } else {
+                    rc = art_blit(cache_entry_index, &art_blit_info);
+                }
+
+                if (rc != TIG_OK) {
+                    return rc;
+                }
+            }
+
+            tig_art_cache_entries[cache_entry_index].field_194[palette][rotation] = 0;
         }
 
-        tig_art_cache_entries[cache_entry_index].field_194[palette][rotation] = 1;
-    }
+        frame = sub_504840(art_id);
+    } else {
+        rotation = tig_art_id_rotation_get(art_id);
+        if (tig_art_mirroring_enabled
+            && (type == TIG_ART_TYPE_CRITTER
+                || type == TIG_ART_TYPE_MONSTER
+                || type == TIG_ART_TYPE_UNIQUE_NPC)
+            && rotation > 0 && rotation < 4) {
+            tig_debug_printf("Error in art_get_video_buffer() - requested rotation %d for mirrored object\n", rotation);
+        }
 
-    if (tig_art_cache_entries[cache_entry_index].field_194[palette][rotation] == 1) {
-        rect.x = 0;
-        rect.y = 0;
+        if ((type == TIG_ART_TYPE_WALL
+                || type == TIG_ART_TYPE_PORTAL)
+            && (rotation & 1) != 0) {
+            art_id = tig_art_id_rotation_set(art_id, rotation - 1);
+        }
 
-        art_blit_info.flags = 0;
-        art_blit_info.src_rect = &rect;
-        art_blit_info.dst_rect = &rect;
+        palette = tig_art_id_palette_get(art_id);
 
-        for (frame = 0; frame < tig_art_cache_entries[cache_entry_index].hdr.num_frames; frame++) {
-            rect.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].width;
-            rect.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].height;
+        if (tig_art_cache_entries[cache_entry_index].palette_tbl[palette] == NULL) {
+            palette = 0;
+            art_id = tig_art_id_palette_set(art_id, 0);
+        }
 
-            art_blit_info.art_id = tig_art_id_frame_set(art_id, frame);
-            art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
+        if (tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] == NULL) {
+            system_memory_size = sizeof(TigVideoBuffer*) * tig_art_cache_entries[cache_entry_index].hdr.num_frames;
+            tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] = (TigVideoBuffer**)MALLOC(system_memory_size);
+
+            vb_create_info.color_key = tig_color_make(0, 0, 0);
+            vb_create_info.background_color = vb_create_info.color_key;
 
             if (dword_604718) {
-                rc = sub_5059F0(cache_entry_index, &art_blit_info);
+                vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_TEXTURE;
+                vb_create_info.color_key = 0;
             } else {
-                rc = art_blit(cache_entry_index, &art_blit_info);
+                vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_COLOR_KEY | TIG_VIDEO_BUFFER_CREATE_VIDEO_MEMORY;
             }
+
+            for (frame = 0; frame < tig_art_cache_entries[cache_entry_index].hdr.num_frames; frame++) {
+                vb_create_info.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].width;
+                vb_create_info.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].height;
+                video_memory_size += vb_create_info.width * vb_create_info.height * tig_art_bytes_per_pixel;
+                rc = tig_video_buffer_create(&vb_create_info, &(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame]));
+                if (rc != TIG_OK) {
+                    while (--frame >= 0) {
+                        tig_video_buffer_destroy(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame]);
+                    }
+
+                    FREE(tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation]);
+                    tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation] = NULL;
+
+                    return rc;
+                }
+            }
+
+            tig_art_cache_entries[cache_entry_index].field_194[palette][rotation] = 1;
         }
 
-        tig_art_cache_entries[cache_entry_index].field_194[palette][rotation] = 0;
-    }
+        if (tig_art_cache_entries[cache_entry_index].field_194[palette][rotation] == 1) {
+            rect.x = 0;
+            rect.y = 0;
 
-    frame = tig_art_id_frame_get(art_id);
+            art_blit_info.flags = 0;
+            art_blit_info.src_rect = &rect;
+            art_blit_info.dst_rect = &rect;
+
+            for (frame = 0; frame < tig_art_cache_entries[cache_entry_index].hdr.num_frames; frame++) {
+                rect.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].width;
+                rect.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].height;
+
+                art_blit_info.art_id = tig_art_id_frame_set(art_id, frame);
+                art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
+
+                if (dword_604718) {
+                    rc = sub_5059F0(cache_entry_index, &art_blit_info);
+                } else {
+                    rc = art_blit(cache_entry_index, &art_blit_info);
+                }
+
+                if (rc != TIG_OK) {
+                    return rc;
+                }
+            }
+
+            tig_art_cache_entries[cache_entry_index].field_194[palette][rotation] = 0;
+        }
+
+        frame = tig_art_id_frame_get(art_id);
+    }
 
     *video_buffer_ptr = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
 
