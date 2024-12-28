@@ -2587,17 +2587,17 @@ int tig_video_buffer_tint(TigVideoBuffer* video_buffer, TigRect* rect, tig_color
                 switch (mode) {
                 case TIG_VIDEO_BUFFER_TINT_MODE_ADD:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = tig_color_add(*dst, tint_color);
+                        *dst++ = tig_color_add(tint_color, *dst);
                     }
                     break;
                 case TIG_VIDEO_BUFFER_TINT_MODE_SUB:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = tig_color_sub(*dst, tint_color);
+                        *dst++ = tig_color_sub(tint_color, *dst);
                     }
                     break;
                 case TIG_VIDEO_BUFFER_TINT_MODE_MUL:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = tig_color_mul(*dst, tint_color);
+                        *dst++ = tig_color_mul(tint_color, *dst);
                     }
                     break;
                 case TIG_VIDEO_BUFFER_TINT_MODE_GRAYSCALE:
