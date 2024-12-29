@@ -615,8 +615,8 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
     while (v38 >= 0) {
         blt_src_rect.x = rects[v38].x - wins[v38]->frame.x;
         blt_src_rect.y = rects[v38].y - wins[v38]->frame.y;
-        blt_dst_rect.width = rects[v38].width;
-        blt_dst_rect.height = rects[v38].height;
+        blt_src_rect.width = rects[v38].width;
+        blt_src_rect.height = rects[v38].height;
 
         blt_dst_rect.x = rects[v38].x - v45;
         blt_dst_rect.y = rects[v38].y - v47;
