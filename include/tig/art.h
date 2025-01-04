@@ -115,6 +115,7 @@ typedef enum TigArtAmmoType {
     TIG_ART_AMMO_TYPE_BULLET,
     TIG_ART_AMMO_TYPE_CHARGE,
     TIG_ART_AMMO_TYPE_FUEL,
+    TIG_ART_AMMO_TYPE_COUNT,
 } TigArtAmmoType;
 
 // NOTE: Originally named `TIG_Art_Armor` (as mentioned in
@@ -129,6 +130,7 @@ typedef enum TigArtArmorType {
     TIG_ART_ARMOR_TYPE_PLATE_CLASSIC,
     TIG_ART_ARMOR_TYPE_BARBARIAN,
     TIG_ART_ARMOR_TYPE_CITY_DWELLER,
+    TIG_ART_ARMOR_TYPE_COUNT,
 } TigArtArmorType;
 
 typedef enum TigArtArmorCoverage {
@@ -139,6 +141,7 @@ typedef enum TigArtArmorCoverage {
     TIG_ART_ARMOR_COVERAGE_BOOTS,
     TIG_ART_ARMOR_COVERAGE_RING,
     TIG_ART_ARMOR_COVERAGE_MEDALLION,
+    TIG_ART_ARMOR_COVERAGE_COUNT,
 } TigArtArmorCoverage;
 
 // NOTE: Originally named `TIG_Art_Container_Type` (as mentioned in
@@ -152,6 +155,7 @@ typedef enum TigArtContainerType {
     TIG_ART_CONTAINER_TYPE_FURNITURE,
     TIG_ART_CONTAINER_TYPE_BOOKSTAND,
     TIG_ART_CONTAINER_TYPE_MISC,
+    TIG_ART_CONTAINER_TYPE_COUNT,
 } TigArtContainerType;
 
 typedef enum TigArtEyeCandyType {
