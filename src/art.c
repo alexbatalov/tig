@@ -2047,7 +2047,7 @@ int tig_art_unique_npc_id_create(int num, unsigned int a2, unsigned int frame, i
 }
 
 // 0x503E20
-int sub_503E20(tig_art_id_t art_id)
+int tig_art_id_anim_get(tig_art_id_t art_id)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
