@@ -2060,7 +2060,7 @@ int sub_503E20(tig_art_id_t art_id)
 }
 
 // 0x503E50
-tig_art_id_t sub_503E50(tig_art_id_t art_id, int value)
+tig_art_id_t tig_art_id_anim_set(tig_art_id_t art_id, int value)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
