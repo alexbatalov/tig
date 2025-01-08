@@ -1762,7 +1762,7 @@ bool tig_file_close_internal(TigFile* stream)
     bool success = 0;
 
     if ((stream->flags & TIG_FILE_DATABASE) != 0) {
-        if (tig_database_ferror(stream->impl.database_file_stream) == 0) {
+        if (tig_database_fclose(stream->impl.database_file_stream) == 0) {
             success = true;
         }
     } else if ((stream->flags & TIG_FILE_PLAIN) != 0) {
