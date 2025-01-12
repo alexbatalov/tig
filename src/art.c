@@ -70,6 +70,9 @@
 
 #define LIGHT_ID_ROTATION_SHIFT 9
 
+#define ROOF_FADE_SHIFT 12
+#define ROOF_FILL_SHIFT 13
+
 // NOTE: For unknown reason facade num is split into two parts. The base number
 // is stored in bits 17..24. If bit 27 is set, then base number should be added
 // 256.
@@ -2567,15 +2570,15 @@ int sub_504790(tig_art_id_t art_id)
 }
 
 // 0x5047B0
-int tig_art_roof_id_create(unsigned int num, int a2, unsigned int a3, unsigned int a4, tig_art_id_t* art_id_ptr)
+int tig_art_roof_id_create(unsigned int num, int a2, unsigned int fill, unsigned int fade, tig_art_id_t* art_id_ptr)
 {
     int v1;
     int v2;
 
     if (num >= ART_ID_MAX_NUM
         || a2 >= 13
-        || a3 > 1
-        || a4 > 1) {
+        || fill > 1
+        || fade > 1) {
         return TIG_ERR_12;
     }
 
@@ -2591,8 +2594,8 @@ int tig_art_roof_id_create(unsigned int num, int a2, unsigned int a3, unsigned i
     *art_id_ptr = sub_502D30((TIG_ART_TYPE_ROOF << ART_ID_TYPE_SHIFT)
             | ((num & (ART_ID_MAX_NUM - 1)) << ART_ID_NUM_SHIFT)
             | ((a2 & 0x1F) << 14)
-            | ((a3 & 1) << 13)
-            | ((a4 & 1) << 12)
+            | ((fill & 1) << ROOF_FILL_SHIFT)
+            | ((fade & 1) << ROOF_FADE_SHIFT)
             | ((v2 & 3) << 4),
         v1);
 
@@ -2637,51 +2640,59 @@ tig_art_id_t sub_504880(tig_art_id_t art_id, int frame)
 }
 
 // 0x5048D0
-int sub_5048D0(tig_art_id_t art_id)
+unsigned int tig_art_roof_id_fill_get(tig_art_id_t art_id)
 {
-    if (tig_art_type(art_id) == TIG_ART_TYPE_ROOF) {
-        return (art_id >> 13) & 1;
-    } else {
+    if (tig_art_type(art_id) != TIG_ART_TYPE_ROOF) {
         return 0;
     }
+
+    return (art_id >> ROOF_FILL_SHIFT) & 1;
 }
 
 // 0x504900
-tig_art_id_t sub_504900(tig_art_id_t art_id, unsigned int value)
+tig_art_id_t tig_art_roof_id_fill_set(tig_art_id_t art_id, unsigned int value)
 {
-    if (tig_art_type(art_id) == TIG_ART_TYPE_ROOF) {
-        if (value > 1) {
-            tig_debug_println("Range exceeded in art set.");
-            value = 0;
-        }
-        return (art_id & ~0x2000) | (value << 13);
-    } else {
+    if (tig_art_type(art_id) != TIG_ART_TYPE_ROOF) {
         return art_id;
     }
+
+    if (value > 1) {
+        tig_debug_println("Range exceeded in art set.");
+        value = 0;
+    }
+
+    art_id &= ~(1 << ROOF_FILL_SHIFT);
+    art_id |= value << ROOF_FILL_SHIFT;
+
+    return art_id;
 }
 
 // 0x504940
-int sub_504940(tig_art_id_t art_id)
+unsigned int tig_art_roof_id_fade_get(tig_art_id_t art_id)
 {
-    if (tig_art_type(art_id) == TIG_ART_TYPE_ROOF) {
-        return (art_id >> 12) & 1;
-    } else {
+    if (tig_art_type(art_id) != TIG_ART_TYPE_ROOF) {
         return 0;
     }
+
+    return (art_id >> ROOF_FADE_SHIFT) & 1;
 }
 
 // 0x504970
-tig_art_id_t sub_504970(tig_art_id_t art_id, unsigned int value)
+tig_art_id_t tig_art_roof_id_fade_set(tig_art_id_t art_id, unsigned int value)
 {
-    if (tig_art_type(art_id) == TIG_ART_TYPE_ROOF) {
-        if (value > 1) {
-            tig_debug_println("Range exceeded in art set.");
-            value = 0;
-        }
-        return (art_id & ~0x1000) | (value << 12);
-    } else {
+    if (tig_art_type(art_id) != TIG_ART_TYPE_ROOF) {
         return art_id;
     }
+
+    if (value > 1) {
+        tig_debug_println("Range exceeded in art set.");
+        value = 0;
+    }
+
+    art_id &= ~(1 << ROOF_FADE_SHIFT);
+    art_id |= value << ROOF_FADE_SHIFT;
+
+    return art_id;
 }
 
 // 0x5049B0

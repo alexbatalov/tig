@@ -448,13 +448,13 @@ int tig_art_light_id_create(unsigned int num, unsigned int frame, unsigned int r
 int sub_504700(tig_art_id_t art_id);
 tig_art_id_t sub_504730(tig_art_id_t art_id, int rotation);
 int sub_504790(tig_art_id_t art_id);
-int tig_art_roof_id_create(unsigned int num, int a2, unsigned int a3, unsigned int a4, tig_art_id_t* art_id_ptr);
+int tig_art_roof_id_create(unsigned int num, int a2, unsigned int fill, unsigned int fade, tig_art_id_t* art_id_ptr);
 int sub_504840(tig_art_id_t art_id);
 tig_art_id_t sub_504880(tig_art_id_t art_id, int frame);
-int sub_5048D0(tig_art_id_t art_id);
-tig_art_id_t sub_504900(tig_art_id_t art_id, unsigned int value);
-int sub_504940(tig_art_id_t art_id);
-tig_art_id_t sub_504970(tig_art_id_t art_id, unsigned int value);
+unsigned int tig_art_roof_id_fill_get(tig_art_id_t art_id);
+tig_art_id_t tig_art_roof_id_fill_set(tig_art_id_t art_id, unsigned int value);
+unsigned int tig_art_roof_id_fade_get(tig_art_id_t art_id);
+tig_art_id_t tig_art_roof_id_fade_set(tig_art_id_t art_id, unsigned int value);
 int tig_art_facade_id_create(unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4, unsigned int frame, unsigned int a6, tig_art_id_t* art_id_ptr);
 int tig_art_facade_id_num_get(tig_art_id_t art_id);
 int tig_art_facade_id_frame_get(tig_art_id_t art_id);
