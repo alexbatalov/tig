@@ -245,7 +245,7 @@ void sub_52D480(TigRectListNode** node_ptr, TigRect* rect)
 
         if (x >= node->rect.x
             && y + height - 1 >= node->rect.y
-            && x <= node->rect.x + node->rect.width
+            && x < node->rect.x + node->rect.width
             && y + height - 1 < node->rect.y + node->rect.height) {
             flags1 |= 0x01;
         }
@@ -268,7 +268,7 @@ void sub_52D480(TigRectListNode** node_ptr, TigRect* rect)
         if (node->rect.x + node->rect.width - 1 >= x
             && node->rect.y + node->rect.height - 1 >= y
             && node->rect.x + node->rect.width - 1 < x + width
-            && node->rect.y + node->rect.height - 1 <= y + height) {
+            && node->rect.y + node->rect.height - 1 < y + height) {
             flags2 |= 0x02;
         }
 
@@ -402,6 +402,7 @@ void sub_52D480(TigRectListNode** node_ptr, TigRect* rect)
                 tmp.width = width;
                 tmp.y = node->rect.y + node->rect.height;
                 tmp.height = y + height - tmp.y;
+                height = node->rect.y - y;
 
                 if (node->next != NULL) {
                     sub_52D480(&(node->next), &tmp);
@@ -425,7 +426,7 @@ void sub_52D480(TigRectListNode** node_ptr, TigRect* rect)
                 tmp.x = node->rect.x;
                 tmp.width = node->rect.width;
                 tmp.y = height + y;
-                tmp.height = node->rect.y + node->rect.height - (height + y);
+                tmp.height = node->rect.y + node->rect.height - tmp.y;
                 node->rect.height = y - node->rect.y;
 
                 if (node->next != NULL) {
@@ -441,11 +442,13 @@ void sub_52D480(TigRectListNode** node_ptr, TigRect* rect)
             break;
         case 0x03:
         case 0x43:
+            height = node->rect.y - y;
+
             prev = node;
             node = node->next;
             break;
         case 0x06:
-        case 0x46:
+        case 0x16:
             width = node->rect.x - x;
 
             prev = node;
@@ -466,7 +469,7 @@ void sub_52D480(TigRectListNode** node_ptr, TigRect* rect)
         case 0x2C:
             dy = node->rect.y + node->rect.height - y;
             y = node->rect.y + node->rect.height;
-            height = dy;
+            height -= dy;
 
             prev = node;
             node = node->next;
