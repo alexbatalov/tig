@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <fpattern.h>
+#include <fpattern/fpattern.h>
 
 #include "tig/core.h"
 #include "tig/database.h"

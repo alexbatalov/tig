@@ -103,7 +103,6 @@ set(SRCS
 add_library(tig_common INTERFACE)
 
 target_include_directories(tig_common INTERFACE
-    ${FPATTERN_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIRS}
     ${BINK_COMPAT_INCLUDE_DIR}
     ${MSS_COMPAT_INCLUDE_DIR}
@@ -111,7 +110,7 @@ target_include_directories(tig_common INTERFACE
 )
 
 target_link_libraries(tig_common INTERFACE
-    ${FPATTERN_LIBRARY}
+    fpattern::fpattern
     ${ZLIB_LIBRARIES}
     ${BINK_COMPAT_LIBRARY}
     ${MSS_COMPAT_LIBRARY}

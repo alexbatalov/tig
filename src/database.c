@@ -6,7 +6,7 @@
 
 #include <windows.h>
 
-#include <fpattern.h>
+#include <fpattern/fpattern.h>
 #include <zlib.h>
 
 #include "tig/find_file.h"
