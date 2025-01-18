@@ -2696,14 +2696,14 @@ tig_art_id_t tig_art_roof_id_fade_set(tig_art_id_t art_id, unsigned int value)
 }
 
 // 0x5049B0
-int tig_art_facade_id_create(unsigned int num, unsigned int tile_num, unsigned int type, unsigned int flippable, unsigned int frame, unsigned int a6, tig_art_id_t* art_id_ptr)
+int tig_art_facade_id_create(unsigned int num, unsigned int tile_num, unsigned int type, unsigned int flippable, unsigned int frame, unsigned int walkable, tig_art_id_t* art_id_ptr)
 {
     if (num >= FACADE_ID_MAX_NUM
         || tile_num >= TILE_ID_MAX_NUM
         || type >= TILE_ID_MAX_TYPE
         || flippable >= 2
         || frame >= FACADE_ID_MAX_FRAME
-        || a6 >= 2) {
+        || walkable >= 2) {
         return TIG_ERR_12;
     }
 
@@ -2714,7 +2714,7 @@ int tig_art_facade_id_create(unsigned int num, unsigned int tile_num, unsigned i
         | ((num & 0xFF) << FACADE_ID_NUM_LOW_SHIFT)
         | ((tile_num & (TILE_ID_MAX_NUM - 1)) << FACADE_ID_TILE_NUM_SHIFT)
         | ((frame & (FACADE_ID_MAX_FRAME - 1)) << FACADE_ID_FRAME_SHIFT)
-        | (a6 & 1);
+        | (walkable & 1);
 
     return TIG_OK;
 }

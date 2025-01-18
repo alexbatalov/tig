@@ -455,7 +455,7 @@ unsigned int tig_art_roof_id_fill_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_roof_id_fill_set(tig_art_id_t art_id, unsigned int value);
 unsigned int tig_art_roof_id_fade_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_roof_id_fade_set(tig_art_id_t art_id, unsigned int value);
-int tig_art_facade_id_create(unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4, unsigned int frame, unsigned int a6, tig_art_id_t* art_id_ptr);
+int tig_art_facade_id_create(unsigned int num, unsigned int tile_num, unsigned int type, unsigned int flippable, unsigned int frame, unsigned int walkable, tig_art_id_t* art_id_ptr);
 int tig_art_facade_id_num_get(tig_art_id_t art_id);
 int tig_art_facade_id_frame_get(tig_art_id_t art_id);
 int tig_art_facade_id_walkable_get(tig_art_id_t art_id);
