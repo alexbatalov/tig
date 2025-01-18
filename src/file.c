@@ -1625,7 +1625,7 @@ bool tig_file_lock(const char* filename, const void* owner, size_t size)
 {
     char path[_MAX_PATH];
     TigFileRepository* repo;
-    int fd;
+    FILE* stream;
 
     if (filename[0] == '.' || filename[0] == '\\' || filename[1] == ':') {
         strcpy(path, filename);
@@ -1645,8 +1645,8 @@ bool tig_file_lock(const char* filename, const void* owner, size_t size)
         sprintf(path, "%s\\%s", repo->path, filename);
     }
 
-    fd = open(path, 1281, 128);
-    if (fd == -1) {
+    stream = fopen(path, "wbx");
+    if (stream == NULL) {
         return false;
     }
 
@@ -1654,13 +1654,13 @@ bool tig_file_lock(const char* filename, const void* owner, size_t size)
         size = 1024;
     }
 
-    if (write(fd, owner, size) == -1) {
-        close(fd);
+    if (fwrite(owner, size, 1, stream) != 1) {
+        fclose(stream);
         remove(path);
         return false;
     }
 
-    if (close(fd) == -1) {
+    if (fclose(stream) != 0) {
         remove(path);
         return false;
     }
@@ -1923,11 +1923,11 @@ void tig_file_list_add(TigFileList* list, TigFileInfo* info)
 // 0x5310C0
 bool sub_5310C0(const char* filename, const void* owner, size_t size)
 {
-    int fd;
+    FILE* stream;
     uint8_t file_owner[1024];
 
-    fd = open(filename, 0);
-    if (fd == -1) {
+    stream = fopen(filename, "rb");
+    if (stream == NULL) {
         return false;
     }
 
@@ -1935,17 +1935,18 @@ bool sub_5310C0(const char* filename, const void* owner, size_t size)
         size = 1024;
     }
 
-    if (read(fd, file_owner, size) == -1) {
-        close(fd);
+    if (fread(file_owner, size, 1, stream) != 0) {
+        fclose(stream);
         return false;
     }
 
     if (memcmp(owner, file_owner, size) != 0) {
-        close(fd);
+        fclose(stream);
         return false;
     }
 
-    close(fd);
+    fclose(stream);
+
     return true;
 }
 
