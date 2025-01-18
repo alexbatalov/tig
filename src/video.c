@@ -2679,23 +2679,23 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
 
     stream = tig_file_fopen(filename, "rb");
     if (stream == NULL) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if (tig_file_fread(&file_hdr, sizeof(file_hdr), 1, stream) != 1) {
         tig_file_fclose(stream);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if (tig_file_fread(&info_hdr, sizeof(info_hdr), 1, stream) != 1) {
         tig_file_fclose(stream);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if (info_hdr.biCompression != 0
         || (info_hdr.biBitCount != 8 && info_hdr.biBitCount != 24)) {
         // FIXME: Leaking `stream`.
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if (info_hdr.biHeight < 0) {
@@ -2765,7 +2765,7 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
             }
 
             tig_file_fclose(stream);
-            return TIG_ERR_13;
+            return TIG_ERR_IO;
         }
         padding = info_hdr.biWidth % 4;
     } else {
@@ -2798,7 +2798,7 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
                     }
 
                     // FIXME: Leaking `stream`.
-                    return TIG_ERR_13;
+                    return TIG_ERR_IO;
                 }
 
                 r = quads[clr].rgbRed;
@@ -2814,7 +2814,7 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
                 }
 
                 // FIXME: Leaking `stream`.
-                return TIG_ERR_13;
+                return TIG_ERR_IO;
             case 24:
                 if (tig_file_fread(&b, sizeof(b), 1, stream) != 1
                     || tig_file_fread(&g, sizeof(g), 1, stream) != 1
@@ -2826,7 +2826,7 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
                     }
 
                     // FIXME: Leaking `stream`.
-                    return TIG_ERR_13;
+                    return TIG_ERR_IO;
                 }
                 break;
             default:
@@ -2860,7 +2860,7 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
                 }
 
                 // FIXME: Leaking `stream`.
-                return TIG_ERR_13;
+                return TIG_ERR_IO;
             }
         }
 
@@ -3708,7 +3708,7 @@ int tig_video_screenshot_make_internal(int key)
     }
 
     if (index == INT_MAX) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     rc = tig_video_main_surface_lock(&surface_data);
@@ -4151,19 +4151,19 @@ int tig_video_buffer_data_to_bmp(TigVideoBufferData* video_buffer_data, TigRect*
 
     stream = tig_file_fopen(file_name, "wb");
     if (stream == NULL) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if (tig_file_fwrite(&file_hdr, sizeof(file_hdr), 1, stream) != 1) {
         tig_file_fclose(stream);
         tig_file_remove(file_name);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if (tig_file_fwrite(&info_hdr, sizeof(info_hdr), 1, stream) != 1) {
         tig_file_fclose(stream);
         tig_file_remove(file_name);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     src = (uint8_t*)video_buffer_data->surface_data.pixels
@@ -4224,7 +4224,7 @@ int tig_video_buffer_data_to_bmp(TigVideoBufferData* video_buffer_data, TigRect*
             if (tig_file_fwrite(&quad, sizeof(quad), 1, stream) != 1) {
                 // FIXME: Leaking `stream`.
                 free(pixels);
-                return TIG_ERR_13;
+                return TIG_ERR_IO;
             }
         }
 
@@ -4237,7 +4237,7 @@ int tig_video_buffer_data_to_bmp(TigVideoBufferData* video_buffer_data, TigRect*
                 if (tig_file_fwrite(&b, sizeof(b), 1, stream) != 1) {
                     // FIXME: Leaks `stream`.
                     free(pixels);
-                    return TIG_ERR_13;
+                    return TIG_ERR_IO;
                 }
                 curr += 3;
             }
@@ -4247,7 +4247,7 @@ int tig_video_buffer_data_to_bmp(TigVideoBufferData* video_buffer_data, TigRect*
                 if (tig_file_fwrite(&b, sizeof(b), 1, stream) != 1) {
                     // FIXME: Leaks `stream`.
                     free(pixels);
-                    return TIG_ERR_13;
+                    return TIG_ERR_IO;
                 }
             }
         }

@@ -72,7 +72,7 @@ int tig_movie_play(const char* path, unsigned int movie_flags, int sound_track)
     tig_movie_bink = BinkOpen(path, bink_open_flags);
     if (tig_movie_bink == NULL) {
         tig_video_fade(0, 0, 0.0f, 1);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if ((movie_flags & TIG_MOVIE_FADE_IN) != 0) {

@@ -546,14 +546,14 @@ int sub_501EB0(tig_art_id_t art_id, const char* filename)
 
     stream = fopen(filename, "r+b");
     if (stream == NULL) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     rewind(stream);
 
     if (fwrite(&(tig_art_cache_entries[index].hdr), sizeof(TigArtHeader), 1, stream) != 1) {
         fclose(stream);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     fclose(stream);
@@ -575,24 +575,24 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
     size_t bytes_written;
 
     if (tmpnam(path) == NULL) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     in = fopen(filename, "rb");
     if (in == NULL) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     out = fopen(path, "wb");
     if (out == NULL) {
         fclose(in);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if (fread(&hdr, sizeof(hdr), 1, in) != 1) {
         fclose(in);
         fclose(out);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     palette_table[0] = hdr.palette_tbl[0];
@@ -604,7 +604,7 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
     if (fwrite(&hdr, sizeof(hdr), 1, out) != 1) {
         fclose(in);
         fclose(out);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     for (index = 0; index < MAX_PALETTES; index++) {
@@ -612,7 +612,7 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
             if (fread(palette_entries, sizeof(*palette_entries), 256, in) != 256) {
                 fclose(in);
                 fclose(out);
-                return TIG_ERR_13;
+                return TIG_ERR_IO;
             }
         }
 
@@ -620,7 +620,7 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
             if (fwrite(new_palette_entries, sizeof(*new_palette_entries), 256, out) != 256) {
                 fclose(in);
                 fclose(out);
-                return TIG_ERR_13;
+                return TIG_ERR_IO;
             }
         }
 
@@ -628,7 +628,7 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
             if (fwrite(palette_entries, sizeof(*palette_entries), 256, out) != 256) {
                 fclose(in);
                 fclose(out);
-                return TIG_ERR_13;
+                return TIG_ERR_IO;
             }
         }
     }
@@ -643,7 +643,7 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
         if (bytes_read != bytes_written) {
             fclose(in);
             fclose(out);
-            return TIG_ERR_13;
+            return TIG_ERR_IO;
         }
     }
 
@@ -701,7 +701,7 @@ int sub_502290(tig_art_id_t art_id)
 
     index = sub_51AA90(art_id);
     if (index == -1) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     return TIG_OK;
@@ -752,7 +752,7 @@ int tig_art_blit(TigArtBlitInfo* blit_info)
 
     cache_entry_index = sub_51AA90(mut_art_blit_info.art_id);
     if (cache_entry_index == -1) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     type = tig_art_type(mut_art_blit_info.art_id);
@@ -1281,7 +1281,7 @@ int sub_502E00(tig_art_id_t art_id)
 
     cache_index = sub_51AA90(art_id);
     if (cache_index == -1) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     palette = tig_art_id_palette_get(art_id);
@@ -1305,7 +1305,7 @@ int sub_502E50(tig_art_id_t art_id, int x, int y, unsigned int* color_ptr)
 
     cache_index = sub_51AA90(art_id);
     if (cache_index == -1) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     cache_entry = &(tig_art_cache_entries[cache_index]);
@@ -1360,7 +1360,7 @@ int sub_502FD0(tig_art_id_t art_id, int x, int y)
 
     cache_entry_index = sub_51AA90(art_id);
     if (cache_entry_index == -1) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     rotation = tig_art_id_rotation_get(art_id);
@@ -1511,7 +1511,7 @@ int sub_503340(tig_art_id_t art_id, uint8_t* dst, int pitch)
 
     cache_index = sub_51AA90(art_id);
     if (cache_index == -1) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     rotation = tig_art_id_rotation_get(art_id);

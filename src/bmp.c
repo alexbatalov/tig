@@ -28,13 +28,13 @@ int tig_bmp_create(TigBmp* bmp)
 
     stream = tig_file_fopen(bmp->name, "rb");
     if (stream == NULL) {
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     static_assert(sizeof(file_hdr) == 0xE, "wrong size");
     if (tig_file_fread(&file_hdr, sizeof(file_hdr), 1, stream) != 1) {
         tig_file_fclose(stream);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if (file_hdr.bfType != 0x4D42) {
@@ -45,7 +45,7 @@ int tig_bmp_create(TigBmp* bmp)
     static_assert(sizeof(info_hdr) == 0x28, "wrong size");
     if (tig_file_fread(&info_hdr, sizeof(info_hdr), 1, stream) != 1) {
         tig_file_fclose(stream);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     if (info_hdr.biSize != sizeof(info_hdr)
@@ -85,7 +85,7 @@ int tig_bmp_create(TigBmp* bmp)
         if (info_hdr.biBitCount <= 8) {
             if (tig_file_fread(palette, sizeof(RGBQUAD), num_colors, stream) != num_colors) {
                 tig_file_fclose(stream);
-                return TIG_ERR_13;
+                return TIG_ERR_IO;
             }
         }
 
@@ -117,7 +117,7 @@ int tig_bmp_create(TigBmp* bmp)
 
     if (tig_file_fread(bmp->pixels, data_size, 1, stream) != 1) {
         tig_file_fclose(stream);
-        return TIG_ERR_13;
+        return TIG_ERR_IO;
     }
 
     for (y = 0; y < bmp->height / 2; ++y) {
