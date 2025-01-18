@@ -1,6 +1,7 @@
 #ifndef TIG_TYPES_H_
 #define TIG_TYPES_H_
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 
