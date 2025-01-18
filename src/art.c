@@ -32,6 +32,9 @@
 #define TILE_ID_MAX_TYPE 2
 #define TILE_ID_TYPE_SHIFT 8
 
+#define PORTAL_ID_MAX_TYPE 2
+#define PORTAL_ID_TYPE_SHIFT 10
+
 #define WALL_ID_MAX_NUM 256
 #define WALL_ID_NUM_SHIFT 20
 
@@ -2260,10 +2263,10 @@ tig_art_id_t sub_504180(tig_art_id_t art_id, int value)
 }
 
 // 0x5041D0
-int tig_art_portal_id_create(unsigned int num, int a2, int a3, unsigned int frame, int rotation, unsigned int palette, tig_art_id_t* art_id_ptr)
+int tig_art_portal_id_create(unsigned int num, int type, int a3, unsigned int frame, int rotation, unsigned int palette, tig_art_id_t* art_id_ptr)
 {
     if (num >= ART_ID_MAX_NUM
-        || a2 >= 2
+        || type >= 2
         || frame >= ART_ID_MAX_FRAME
         || rotation >= MAX_ROTATIONS
         || palette >= MAX_PALETTES
@@ -2275,7 +2278,7 @@ int tig_art_portal_id_create(unsigned int num, int a2, int a3, unsigned int fram
         | ((num & (ART_ID_MAX_NUM - 1)) << ART_ID_NUM_SHIFT)
         | ((frame & (ART_ID_MAX_FRAME - 1)) << ART_ID_FRAME_SHIFT)
         | ((rotation & (MAX_ROTATIONS - 1)) << ART_ID_ROTATION_SHIFT)
-        | ((a2 & 1) << 10)
+        | ((type & (PORTAL_ID_MAX_TYPE - 1)) << PORTAL_ID_TYPE_SHIFT)
         | ((palette & (MAX_PALETTES - 1)) << ART_ID_PALETTE_SHIFT)
         | a3;
 
@@ -2283,10 +2286,10 @@ int tig_art_portal_id_create(unsigned int num, int a2, int a3, unsigned int fram
 }
 
 // 0x504260
-int sub_504260(tig_art_id_t art_id)
+int tig_art_portal_id_type_get(tig_art_id_t art_id)
 {
     if (tig_art_type(art_id) == TIG_ART_TYPE_PORTAL) {
-        return (art_id >> 10) & 1;
+        return (art_id >> PORTAL_ID_TYPE_SHIFT) & (PORTAL_ID_MAX_TYPE - 1);
     } else {
         return 0;
     }

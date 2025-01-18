@@ -45,6 +45,11 @@ typedef enum TigArtTileType {
     TIG_ART_TILE_TYPE_OUTDOOR,
 } TigArtTileType;
 
+typedef enum TigArtPortalType {
+    TIG_ART_PORTAL_TYPE_WINDOW,
+    TIG_ART_PORTAL_TYPE_DOOR,
+} TigArtPortalType;
+
 // NOTE: Originally named `TIG_Art_Scenery_Category` (as mentioned in
 // `arcanum3.dat/oemes/scenery.mes`).
 typedef enum TigArtSceneryType {
@@ -427,8 +432,8 @@ int sub_5040D0(tig_art_id_t art_id);
 tig_art_id_t sub_504100(tig_art_id_t art_id, int value);
 int sub_504150(tig_art_id_t art_id);
 tig_art_id_t sub_504180(tig_art_id_t art_id, int value);
-int tig_art_portal_id_create(unsigned int num, int a2, int a3, unsigned int frame, int a5, unsigned int a6, tig_art_id_t* art_id_ptr);
-int sub_504260(tig_art_id_t art_id);
+int tig_art_portal_id_create(unsigned int num, int type, int a3, unsigned int frame, int a5, unsigned int a6, tig_art_id_t* art_id_ptr);
+int tig_art_portal_id_type_get(tig_art_id_t art_id);
 int tig_art_scenery_id_create(unsigned int num, int type, unsigned int frame, int rotation, unsigned int palette, tig_art_id_t* art_id_ptr);
 int tig_art_scenery_id_type_get(tig_art_id_t art_id);
 int tig_art_interface_id_create(unsigned int num, unsigned int frame, unsigned char a3, unsigned int a4, tig_art_id_t* art_id_ptr);
