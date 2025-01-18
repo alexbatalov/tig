@@ -32,6 +32,7 @@
 #define TILE_ID_MAX_TYPE 2
 #define TILE_ID_TYPE_SHIFT 8
 
+#define CRITTER_ID_ARMOR_SHIFT 20
 #define CRITTER_ID_RACE_SHIFT 24
 #define CRITTER_ID_GENDER_SHIFT 27
 
@@ -101,6 +102,7 @@
 #define EYE_CANDY_ID_ROTATION_SHIFT 9
 #define EYE_CANDY_ID_TYPE_SHIFT 6
 
+#define MONSTER_ID_ARMOR_SHIFT 20
 #define MONSTER_ID_SPECIE_SHIFT 23
 
 #define MAX_PALETTES 4
@@ -2172,34 +2174,34 @@ tig_art_id_t tig_art_critter_id_gender_set(tig_art_id_t art_id, int value)
 }
 
 // 0x504030
-int sub_504030(tig_art_id_t art_id)
+int tig_art_critter_id_armor_get(tig_art_id_t art_id)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
-        return (art_id >> 20) & 0xF;
+        return (art_id >> CRITTER_ID_ARMOR_SHIFT) & 0xF;
     case TIG_ART_TYPE_MONSTER:
-        return (art_id >> 20) & 7;
+        return (art_id >> MONSTER_ID_ARMOR_SHIFT) & 7;
     default:
         return 0;
     }
 }
 
 // 0x504060
-tig_art_id_t sub_504060(tig_art_id_t art_id, int value)
+tig_art_id_t tig_art_critter_id_armor_set(tig_art_id_t art_id, int value)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
-        if (value >= 9) {
+        if (value >= TIG_ART_ARMOR_TYPE_COUNT) {
             tig_debug_println("Range exceeded in art set.");
             value = 0;
         }
-        return (art_id & ~0xF00000) | (value << 20);
+        return (art_id & ~0xF00000) | (value << CRITTER_ID_ARMOR_SHIFT);
     case TIG_ART_TYPE_MONSTER:
         if (value >= 8) {
             tig_debug_println("Range exceeded in art set.");
             value = 0;
         }
-        return (art_id & ~0x700000) | (value << 20);
+        return (art_id & ~0x700000) | (value << MONSTER_ID_ARMOR_SHIFT);
     default:
         return art_id;
     }
