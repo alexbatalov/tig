@@ -2007,28 +2007,28 @@ int tig_art_critter_id_create(unsigned int a1, int a2, int a3, unsigned int a4, 
 }
 
 // 0x503CD0
-int tig_art_monster_id_create(int specie, int a2, unsigned int a3, unsigned int a4, int rotation, int a6, int a7, unsigned int palette, tig_art_id_t* art_id_ptr)
+int tig_art_monster_id_create(int specie, int armor, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr)
 {
     if (specie >= TIG_ART_MONSTER_SPECIE_COUNT
-        || a2 >= 8
-        || a3 >= 2
-        || a4 >= 0x20
+        || armor >= 8
+        || shield >= 2
+        || frame >= 0x20
         || rotation >= MAX_ROTATIONS
-        || a6 >= 32
-        || a7 >= 16
+        || anim >= 32
+        || weapon >= 16
         || palette >= MAX_PALETTES) {
         return TIG_ERR_12;
     }
 
     *art_id_ptr = (TIG_ART_TYPE_MONSTER << ART_ID_TYPE_SHIFT)
         | ((specie & (TIG_ART_MONSTER_SPECIE_COUNT - 1)) << MONSTER_ID_SPECIE_SHIFT)
-        | ((a2 & 7) << 20)
-        | ((a3 & 1) << 19)
-        | ((a4 & 0x1F) << 12)
+        | ((armor & 7) << MONSTER_ID_ARMOR_SHIFT)
+        | ((shield & 1) << CRITTER_ID_SHIELD_SHIFT)
+        | ((frame & 0x1F) << ART_ID_FRAME_SHIFT)
         | ((rotation & (MAX_ROTATIONS - 1)) << ART_ID_ROTATION_SHIFT)
-        | ((a6 & 0x1F) << 6)
+        | ((anim & 0x1F) << 6)
         | ((palette & (MAX_PALETTES - 1)) << ART_ID_PALETTE_SHIFT)
-        | (a7 & 0xF);
+        | (weapon & 0xF);
 
     return TIG_OK;
 }

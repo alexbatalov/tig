@@ -430,7 +430,7 @@ tig_art_id_t tig_art_wall_id_variation_set(tig_art_id_t art_id, int value);
 int tig_art_id_damaged_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_damaged_set(tig_art_id_t art_id, int value);
 int tig_art_critter_id_create(unsigned int a1, int a2, int a3, unsigned int a4, unsigned int a5, int rotation, int a7, int a8, unsigned int a9, tig_art_id_t* art_id_ptr);
-int tig_art_monster_id_create(int specie, int a2, unsigned int a3, unsigned int a4, int rotation, int a6, int a7, unsigned int a8, tig_art_id_t* art_id_ptr);
+int tig_art_monster_id_create(int specie, int armor, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr);
 int tig_art_unique_npc_id_create(int num, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr);
 int tig_art_id_anim_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_anim_set(tig_art_id_t art_id, int value);
