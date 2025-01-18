@@ -9,7 +9,7 @@ extern "C" {
 
 typedef int tig_sound_handle_t;
 
-#define TIG_SOUND_HANDLE_INVALID ((tig_sound_handle_t)-1)
+#define TIG_SOUND_HANDLE_INVALID ((tig_sound_handle_t)(-1))
 
 typedef enum TigSoundType {
     TIG_SOUND_TYPE_EFFECT,

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-#define TIG_BUTTON_HANDLE_INVALID ((tig_button_handle_t)-1)
+#define TIG_BUTTON_HANDLE_INVALID ((tig_button_handle_t)(-1))
 
 typedef enum TigButtonState {
     TIG_BUTTON_STATE_PRESSED,

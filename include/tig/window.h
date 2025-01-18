@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-#define TIG_WINDOW_HANDLE_INVALID ((tig_window_handle_t)-1)
+#define TIG_WINDOW_HANDLE_INVALID ((tig_window_handle_t)(-1))
 
 #define TIG_WINDOW_TOP (-2)
 

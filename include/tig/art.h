@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-#define TIG_ART_ID_INVALID ((tig_art_id_t)-1)
+#define TIG_ART_ID_INVALID ((tig_art_id_t)(-1))
 
 #define TIG_ART_SYSTEM_MOUSE 0
 #define TIG_ART_SYSTEM_BUTTON 1
