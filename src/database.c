@@ -1,10 +1,7 @@
 #include "tig/database.h"
 
-#include <io.h>
 #include <stdarg.h>
 #include <stdio.h>
-
-#include <windows.h>
 
 #include <fpattern/fpattern.h>
 #include <zlib.h>
@@ -31,7 +28,7 @@ typedef struct TigDatabaseFileHandle {
     unsigned int flags;
     TigDatabase* database;
     TigDatabaseEntry* entry;
-    HANDLE hFile;
+    FILE* underlying_stream;
     int pos;
     int compressed_pos;
     int ungotten;
@@ -633,7 +630,7 @@ int tig_database_fseek(TigDatabaseFileHandle* stream, int offset, int origin)
     }
 
     if ((stream->entry->flags & TIG_DATABASE_ENTRY_PLAIN) != 0) {
-        if (SetFilePointer(stream->hFile, stream->entry->offset + pos, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
+        if (fseek(stream->underlying_stream, stream->entry->offset + pos, SEEK_SET) != 0) {
             stream->flags |= TIG_DATABASE_FILE_ERROR;
             return 1;
         }
@@ -641,7 +638,7 @@ int tig_database_fseek(TigDatabaseFileHandle* stream, int offset, int origin)
         unsigned int bytes_to_skip;
 
         if (pos < stream->pos) {
-            if (SetFilePointer(stream->hFile, stream->entry->offset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
+            if (fseek(stream->underlying_stream, stream->entry->offset, SEEK_SET) != 0) {
                 stream->flags |= TIG_DATABASE_FILE_ERROR;
                 return 1;
             }
@@ -813,7 +810,7 @@ bool tig_database_fclose_internal(TigDatabaseFileHandle* stream)
         stream->database->open_file_handles_head = curr->next;
     }
 
-    CloseHandle(stream->hFile);
+    fclose(stream->underlying_stream);
 
     if ((stream->entry->flags & TIG_DATABASE_ENTRY_COMPRESSED) != 0) {
         inflateEnd(&(stream->decompression_context->zstrm));
@@ -834,18 +831,12 @@ bool tig_database_fopen_internal(TigDatabase* database, TigDatabaseEntry* entry,
 
     memset(stream, 0, sizeof(*stream));
 
-    stream->hFile = CreateFileA(database->path,
-        GENERIC_READ,
-        TRUE,
-        NULL,
-        CREATE_NEW | CREATE_ALWAYS,
-        FILE_FLAG_RANDOM_ACCESS,
-        NULL);
-    if (stream->hFile == INVALID_HANDLE_VALUE) {
+    stream->underlying_stream = fopen(database->path, "rb");
+    if (stream->underlying_stream == NULL) {
         return false;
     }
 
-    if (SetFilePointer(stream->hFile, entry->offset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
+    if (fseek(stream->underlying_stream, entry->offset, SEEK_SET) != 0) {
         return false;
     }
 
@@ -865,7 +856,7 @@ bool tig_database_fopen_internal(TigDatabase* database, TigDatabaseEntry* entry,
 
         if (inflateInit(&(stream->decompression_context->zstrm)) != Z_OK) {
             FREE(stream->decompression_context);
-            CloseHandle(stream->hFile);
+            fclose(stream->underlying_stream);
             return false;
         }
     }
@@ -906,13 +897,11 @@ int tig_database_fgetc_internal(TigDatabaseFileHandle* stream)
 // 0x53D0A0
 bool tig_database_fread_internal(void* buffer, size_t size, TigDatabaseFileHandle* stream)
 {
-    DWORD bytes_to_read;
-    DWORD bytes_read;
+    size_t bytes_to_read;
     int rc;
 
     if ((stream->entry->flags & TIG_DATABASE_ENTRY_PLAIN) != 0) {
-        bytes_to_read = (DWORD)size;
-        if (!ReadFile(stream->hFile, buffer, bytes_to_read, &bytes_read, NULL)) {
+        if (fread(buffer, size, 1, stream->underlying_stream) != 1) {
             stream->flags |= TIG_DATABASE_FILE_ERROR;
             return false;
         }
@@ -928,12 +917,11 @@ bool tig_database_fread_internal(void* buffer, size_t size, TigDatabaseFileHandl
                     bytes_to_read = DECOMPRESSION_BUFFER_SIZE;
                 }
 
-                if (!ReadFile(stream->hFile, stream->decompression_context->buffer, bytes_to_read, &bytes_read, NULL)) {
+                if (fread(stream->decompression_context->buffer, bytes_to_read, 1, stream->underlying_stream) != 1) {
                     stream->flags |= TIG_DATABASE_FILE_ERROR;
                     return false;
                 }
 
-                // FIXME: Wrong, should be `bytes_read`.
                 stream->compressed_pos += bytes_to_read;
                 stream->decompression_context->zstrm.avail_in = bytes_to_read;
                 stream->decompression_context->zstrm.next_in = (Bytef*)stream->decompression_context->buffer;
@@ -947,8 +935,6 @@ bool tig_database_fread_internal(void* buffer, size_t size, TigDatabaseFileHandl
         }
     }
 
-    // FIXME: This is wrong. This statement assumes we've read exactly what
-    // we have requested, but it may not be the case.
     stream->pos += size;
 
     return true;
