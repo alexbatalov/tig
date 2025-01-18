@@ -2747,7 +2747,7 @@ int tig_art_facade_id_frame_get(tig_art_id_t art_id)
 }
 
 // 0x504AC0
-int sub_504AC0(tig_art_id_t art_id)
+int tig_art_facade_id_walkable_get(tig_art_id_t art_id)
 {
     if (tig_art_type(art_id) != TIG_ART_TYPE_FACADE) {
         return 0;

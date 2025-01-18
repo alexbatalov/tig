@@ -458,7 +458,7 @@ tig_art_id_t tig_art_roof_id_fade_set(tig_art_id_t art_id, unsigned int value);
 int tig_art_facade_id_create(unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4, unsigned int frame, unsigned int a6, tig_art_id_t* art_id_ptr);
 int tig_art_facade_id_num_get(tig_art_id_t art_id);
 int tig_art_facade_id_frame_get(tig_art_id_t art_id);
-int sub_504AC0(tig_art_id_t art_id);
+int tig_art_facade_id_walkable_get(tig_art_id_t art_id);
 int tig_art_eye_candy_id_create(unsigned int num, unsigned int frame, int a3, int translucency, int type, unsigned int palette, int scale, tig_art_id_t* art_id_ptr);
 int tig_art_eye_candy_id_type_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_eye_candy_id_type_set(tig_art_id_t art_id, int value);
