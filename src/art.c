@@ -1979,29 +1979,30 @@ tig_art_id_t tig_art_id_damaged_set(tig_art_id_t art_id, int value)
 }
 
 // 0x503C00
-int tig_art_critter_id_create(unsigned int a1, int a2, int a3, unsigned int a4, unsigned int a5, int rotation, int a7, int a8, unsigned int palette, tig_art_id_t* art_id_ptr)
+int tig_art_critter_id_create(unsigned int gender, int race, int armor, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr)
 {
-    if (a1 >= 2
-        || a2 >= 8
-        || a3 >= 16
-        || a4 >= 2
-        || a5 >= 0x20
+    if (gender >= 2
+        || race >= 8
+        || armor >= 16
+        || shield >= 2
+        || frame >= 0x20
         || rotation >= MAX_ROTATIONS
-        || a7 >= 32
-        || a8 >= 16
+        || anim >= 32
+        || weapon >= 16
         || palette >= MAX_PALETTES) {
         return TIG_ERR_12;
     }
 
     *art_id_ptr = (TIG_ART_TYPE_CRITTER << ART_ID_TYPE_SHIFT)
-        | ((a1 & 1) << 27)
-        | ((a2 & 7) << 24)
-        | ((a3 & 0xF) << 20)
-        | ((a4 & 1) << 19)
+        | ((gender & 1) << CRITTER_ID_GENDER_SHIFT)
+        | ((race & 7) << CRITTER_ID_RACE_SHIFT)
+        | ((armor & 0xF) << CRITTER_ID_ARMOR_SHIFT)
+        | ((shield & 1) << CRITTER_ID_SHIELD_SHIFT)
+        | ((frame & 0x1F) << ART_ID_FRAME_SHIFT)
         | ((rotation & (MAX_ROTATIONS - 1)) << ART_ID_ROTATION_SHIFT)
-        | ((a7 & 0x1F) << 6)
+        | ((anim & 0x1F) << 6)
         | ((palette & (MAX_PALETTES - 1)) << ART_ID_PALETTE_SHIFT)
-        | (a8 & 0xF);
+        | (weapon & 0xF);
 
     return TIG_OK;
 }
