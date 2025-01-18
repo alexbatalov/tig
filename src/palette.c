@@ -49,7 +49,7 @@ int tig_palette_init(TigInitInfo* init_info)
         break;
     default:
         tig_debug_println("Unknown BPP in tig_palette_init()\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     tig_palette_bpp = init_info->bpp;

@@ -169,7 +169,7 @@ int tig_button_destroy(tig_button_handle_t button_handle)
 
     if (button_handle == TIG_BUTTON_HANDLE_INVALID) {
         tig_debug_printf("tig_button_destroy: ERROR: Attempt to reference Empty ButtonID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     button_index = tig_button_handle_to_index(button_handle);
@@ -198,7 +198,7 @@ int tig_button_data(tig_button_handle_t button_handle, TigButtonData* button_dat
 
     if (button_handle == TIG_BUTTON_HANDLE_INVALID) {
         tig_debug_printf("tig_button_data: ERROR: Attempt to reference Empty ButtonID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     button_index = tig_button_handle_to_index(button_handle);
@@ -367,16 +367,16 @@ int tig_button_state_get(tig_button_handle_t button_handle, int* state)
 
     if (button_handle == TIG_BUTTON_HANDLE_INVALID) {
         tig_debug_printf("tig_button_state_get: ERROR: Attempt to reference Empty ButtonID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     button_index = tig_button_handle_to_index(button_handle);
     if (state == NULL) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if ((buttons[button_index].usage & TIG_BUTTON_USAGE_FREE) != 0) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     *state = buttons[button_index].state;
@@ -655,7 +655,7 @@ int tig_button_radio_group_create(int count, tig_button_handle_t* button_handles
     TigButton* btn;
 
     if (!(selected >= 0 && selected < count)) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     // Find new group identifier.
@@ -674,7 +674,7 @@ int tig_button_radio_group_create(int count, tig_button_handle_t* button_handles
         btn = &(buttons[button_index]);
 
         if ((btn->usage & TIG_BUTTON_USAGE_FREE) != 0) {
-            return TIG_ERR_12;
+            return TIG_ERR_INVALID_PARAM;
         }
 
         btn->usage |= TIG_BUTTON_USAGE_RADIO;
@@ -744,7 +744,7 @@ int tig_button_show(tig_button_handle_t button_handle)
     btn = &(buttons[button_index]);
 
     if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) == 0) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     btn->flags &= ~TIG_BUTTON_FLAG_HIDDEN;
@@ -772,7 +772,7 @@ int tig_button_hide(tig_button_handle_t button_handle)
         if ((btn->usage & TIG_BUTTON_USAGE_FORCE_HIDDEN) != 0) {
             btn->usage &= ~TIG_BUTTON_USAGE_FORCE_HIDDEN;
         }
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     btn->flags |= TIG_BUTTON_FLAG_HIDDEN;
@@ -789,11 +789,11 @@ int tig_button_is_hidden(tig_button_handle_t button_handle, bool* hidden)
     int button_index;
 
     if (button_handle == TIG_BUTTON_HANDLE_INVALID) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (hidden == NULL) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     button_index = tig_button_handle_to_index(button_handle);
@@ -816,11 +816,11 @@ int tig_button_show_force(tig_button_handle_t button_handle)
     btn = &(buttons[button_index]);
 
     if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) == 0) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if ((btn->usage & TIG_BUTTON_USAGE_FORCE_HIDDEN) == 0) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     btn->flags &= ~TIG_BUTTON_FLAG_HIDDEN;
@@ -846,7 +846,7 @@ int tig_button_hide_force(tig_button_handle_t button_handle)
     btn = &(buttons[button_index]);
 
     if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) != 0) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     btn->flags |= TIG_BUTTON_FLAG_HIDDEN;

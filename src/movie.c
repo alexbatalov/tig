@@ -54,7 +54,7 @@ int tig_movie_play(const char* path, unsigned int movie_flags, int sound_track)
 
     if (path == NULL) {
         tig_video_fade(0, 0, 0.0f, 1);
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     tig_video_main_surface_get(&tig_movie_surface);

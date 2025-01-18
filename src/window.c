@@ -262,7 +262,7 @@ int tig_window_destroy(tig_window_handle_t window_handle)
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_destroy: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (!tig_window_initialized) {
@@ -304,7 +304,7 @@ int tig_window_button_destroy(tig_window_handle_t window_handle)
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_button_destroy: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (!tig_window_initialized) {
@@ -332,7 +332,7 @@ int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMe
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_message_filter_set: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (!tig_window_initialized) {
@@ -340,14 +340,14 @@ int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMe
     }
 
     if (func == NULL) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
     win = &(windows[window_index]);
 
     if ((win->flags & TIG_WINDOW_FLAG_0x02) == 0) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     win->message_filter = func;
@@ -363,7 +363,7 @@ int tig_window_data(tig_window_handle_t window_handle, TigWindowData* window_dat
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_data: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (!tig_window_initialized) {
@@ -652,7 +652,7 @@ int tig_window_fill(tig_window_handle_t window_handle, TigRect* rect, int color)
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_fill: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (!tig_window_initialized) {
@@ -700,7 +700,7 @@ int tig_window_line(tig_window_handle_t window_handle, TigLine* line, int color)
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_line: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (!tig_window_initialized) {
@@ -827,7 +827,7 @@ int tig_window_blit(TigWindowBlitInfo* win_blit_info)
         vb_blit_info.dst_video_buffer = win_blit_info->dst_video_buffer;
         break;
     default:
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     vb_blit_info.flags = win_blit_info->vb_blit_flags;
@@ -857,7 +857,7 @@ int tig_window_blit_art(tig_window_handle_t window_handle, TigArtBlitInfo* blit_
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_blit_art: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -894,7 +894,7 @@ int tig_window_scroll(tig_window_handle_t window_handle, int dx, int dy)
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_scroll: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -953,7 +953,7 @@ int tig_window_scroll_rect(tig_window_handle_t window_handle, TigRect* rect, int
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_scroll_rect: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -1011,7 +1011,7 @@ int tig_window_copy(tig_window_handle_t dst_window_handle, TigRect* dst_rect, ti
 
     if (dst_window_handle == TIG_WINDOW_HANDLE_INVALID || src_window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_copy: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     dst_window_index = tig_window_handle_to_index(dst_window_handle);
@@ -1049,7 +1049,7 @@ int tig_window_copy_from_vbuffer(tig_window_handle_t dst_window_handle, TigRect*
 
     if (dst_window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_copy_from_vbuffer: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     dst_window_index = tig_window_handle_to_index(dst_window_handle);
@@ -1089,7 +1089,7 @@ int tig_window_copy_to_vbuffer(tig_window_handle_t src_window_handle, TigRect* s
 {
     if (src_window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_copy_to_vbuffer: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     int src_window_index = tig_window_handle_to_index(src_window_handle);
@@ -1114,7 +1114,7 @@ int tig_window_copy_from_bmp(tig_window_handle_t window_handle, TigRect* dst_rec
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_copy_from_bmp: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -1143,7 +1143,7 @@ int tig_window_tint(tig_window_handle_t window_handle, TigRect* rect, int a3, in
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_tint: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (!tig_window_initialized) {
@@ -1183,7 +1183,7 @@ int tig_window_text_write(tig_window_handle_t window_handle, const char* str, Ti
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_text_write: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -1193,7 +1193,7 @@ int tig_window_text_write(tig_window_handle_t window_handle, const char* str, Ti
         || rect->y < win->bounds.y
         || rect->x + rect->width > win->bounds.x + win->bounds.width
         || rect->y + rect->height > win->bounds.y + win->bounds.height) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     rc = tig_font_write(win->video_buffer, str, rect, &dirty_rect);
@@ -1346,7 +1346,7 @@ int tig_window_button_add(tig_window_handle_t window_handle, tig_button_handle_t
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_button_add: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -1370,7 +1370,7 @@ int tig_window_button_remove(tig_window_handle_t window_handle, tig_button_handl
 
     if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_button_remove: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -1389,7 +1389,7 @@ int tig_window_button_remove(tig_window_handle_t window_handle, tig_button_handl
         }
     }
 
-    return TIG_ERR_12;
+    return TIG_ERR_INVALID_PARAM;
 }
 
 // 0x51E640
@@ -1443,7 +1443,7 @@ int tig_window_get_at_position(int x, int y, tig_window_handle_t* window_handle_
         }
     }
 
-    return TIG_ERR_12;
+    return TIG_ERR_INVALID_PARAM;
 }
 
 // 0x51E790

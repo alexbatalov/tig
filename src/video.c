@@ -160,7 +160,7 @@ int tig_video_init(TigInitInfo* init_info)
 
     if ((init_info->flags & TIG_INITIALIZE_WINDOWED) != 0) {
         if (init_info->default_window_proc == NULL) {
-            return TIG_ERR_12;
+            return TIG_ERR_INVALID_PARAM;
         }
 
         tig_message_set_default_window_proc(init_info->default_window_proc);
@@ -837,7 +837,7 @@ int tig_video_set_gamma(float gamma)
     }
 
     if (gamma < 0.0 || gamma >= 2.0) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     for (index = 0; index < 256; index++) {
@@ -2169,7 +2169,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
             } else {
                 tig_video_buffer_unlock(blit_info->dst_video_buffer);
                 tig_video_buffer_unlock(blit_info->src_video_buffer);
-                return TIG_ERR_12;
+                return TIG_ERR_INVALID_PARAM;
             }
         } else {
             if ((blit_info->flags & TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_LERP) != 0) {
@@ -2294,7 +2294,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
             } else {
                 tig_video_buffer_unlock(blit_info->dst_video_buffer);
                 tig_video_buffer_unlock(blit_info->src_video_buffer);
-                return TIG_ERR_12;
+                return TIG_ERR_INVALID_PARAM;
             }
         }
 
@@ -2391,7 +2391,7 @@ int tig_video_buffer_get_pixel_color(TigVideoBuffer* video_buffer, int x, int y,
         || y < video_buffer->frame.y
         || x >= video_buffer->frame.x + video_buffer->frame.width
         || y >= video_buffer->frame.y + video_buffer->frame.height) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     rc = tig_video_buffer_lock(video_buffer);
@@ -2475,7 +2475,7 @@ int tig_video_buffer_tint(TigVideoBuffer* video_buffer, TigRect* rect, tig_color
     int y;
 
     if (mode >= TIG_VIDEO_BUFFER_TINT_MODE_COUNT) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (tint_color == tig_color_make(0, 0, 0)
@@ -2749,7 +2749,7 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
         }
 
         tig_file_fclose(stream);
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (info_hdr.biBitCount == 8) {

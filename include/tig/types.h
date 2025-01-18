@@ -47,7 +47,7 @@ typedef void* TigPalette;
 #define TIG_ERR_7 7
 #define TIG_ERR_10 10
 #define TIG_ERR_11 11
-#define TIG_ERR_12 12
+#define TIG_ERR_INVALID_PARAM 12
 #define TIG_ERR_13 13
 #define TIG_ERR_14 14
 #define TIG_ERR_16 16

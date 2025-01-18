@@ -87,7 +87,7 @@ int tig_message_init(TigInitInfo* init_info)
     }
 
     if (init_info->message_handler == NULL) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     tig_message_handler = init_info->message_handler;
@@ -186,7 +186,7 @@ int tig_message_set_key_handler(TigMessageKeyboardCallback* callback, int key)
 
     if (key < 0) {
         // Bad key code.
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (callback == NULL) {
@@ -199,7 +199,7 @@ int tig_message_set_key_handler(TigMessageKeyboardCallback* callback, int key)
 
         if (index >= MAX_KEY_HANDLERS) {
             // Not found.
-            return TIG_ERR_12;
+            return TIG_ERR_INVALID_PARAM;
         }
 
         // Reorder subsequent slots.

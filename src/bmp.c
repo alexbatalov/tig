@@ -21,7 +21,7 @@ int tig_bmp_create(TigBmp* bmp)
     int index;
 
     if (bmp == NULL) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     bmp->pixels = NULL;
@@ -162,7 +162,7 @@ int tig_bmp_copy_to_video_buffer(TigBmp* bmp, const TigRect* src_rect, TigVideoB
         || src_rect->y < 0
         || src_rect->x + src_rect->width > bmp->width
         || src_rect->y + src_rect->height > bmp->height) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     rc = tig_video_buffer_lock(video_buffer);
@@ -181,7 +181,7 @@ int tig_bmp_copy_to_video_buffer(TigBmp* bmp, const TigRect* src_rect, TigVideoB
         || dst_rect->x + dst_rect->width > video_buffer_data.width
         || dst_rect->y + dst_rect->height > video_buffer_data.height) {
         tig_video_buffer_unlock(video_buffer);
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (src_rect->width == dst_rect->width && src_rect->height == dst_rect->height) {
@@ -406,7 +406,7 @@ int tig_bmp_copy_to_bmp(TigBmp* src, TigBmp* dst)
     int y;
 
     if (src->bpp != 8) {
-        return TIG_ERR_12;
+        return TIG_ERR_INVALID_PARAM;
     }
 
     if (dst->width <= 0) {
