@@ -25,7 +25,7 @@ protected:
 
     const char* build_path(const char* file_name)
     {
-        static char path[_MAX_PATH];
+        static char path[TIG_MAX_PATH];
         sprintf(path, "%s\\%s", arcanum_dir, file_name);
         return path;
     }

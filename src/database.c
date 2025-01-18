@@ -726,10 +726,10 @@ void tig_database_set_pack_funcs(TigDatabaseOutputFunc* error_func, TigDatabaseO
 // 0x53CCE0
 void sub_53CCE0(TigDatabase* database)
 {
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     TigFindFileData ffd;
     FILE* stream;
-    char file_name[_MAX_PATH];
+    char file_name[TIG_MAX_PATH];
     size_t file_name_length;
     int file_name_segments_count;
     unsigned int index;

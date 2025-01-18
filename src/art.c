@@ -463,7 +463,7 @@ int sub_5006E0(tig_art_id_t art_id, TigPalette palette)
     TigArtHeader hdr;
     art_size_t size;
     TigPalette palette_tbl[MAX_PALETTES];
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     int rc;
 
     rc = tig_art_build_path(art_id, path);
@@ -566,7 +566,7 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
     FILE* in;
     FILE* out;
     TigArtHeader hdr;
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     uint32_t palette_entries[256];
     uint8_t buffer[10000];
     uint32_t* palette_table[MAX_PALETTES];
@@ -2868,7 +2868,7 @@ bool sub_504CC0(const char* name)
     int num_rotations;
     int rotation;
     int palette;
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     uint32_t palette_entries[MAX_PALETTES][256];
 
     for (rotation = 0; rotation < MAX_ROTATIONS; ++rotation) {
@@ -5688,7 +5688,7 @@ int art_blit(int cache_entry_index, TigArtBlitInfo* blit_info)
 // 0x51AA90
 unsigned int sub_51AA90(tig_art_id_t art_id)
 {
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     int cache_entry_index;
 
     if (tig_art_build_path(art_id, path) != TIG_OK) {

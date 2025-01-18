@@ -106,7 +106,7 @@ typedef enum TigVideoBufferTintMode {
 typedef struct TigVideoBufferSaveToBmpInfo {
     /* 0000 */ unsigned int flags;
     /* 0004 */ TigVideoBuffer* video_buffer;
-    /* 0008 */ char path[_MAX_PATH];
+    /* 0008 */ char path[TIG_MAX_PATH];
     /* 010C */ TigRect* rect;
 } TigVideoBufferSaveToBmpInfo;
 

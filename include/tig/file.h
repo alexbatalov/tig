@@ -23,7 +23,7 @@ extern "C" {
 typedef struct TigFile TigFile;
 
 typedef struct TigFileInfo {
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     unsigned int attributes;
     size_t size;
     time_t modify_time;

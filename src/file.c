@@ -110,7 +110,7 @@ bool tig_file_rmdir(const char* path)
 bool sub_52E040(const char* path)
 {
     bool success;
-    char pattern[_MAX_PATH];
+    char pattern[TIG_MAX_PATH];
     TigFileList list;
     unsigned int index;
 
@@ -149,7 +149,7 @@ bool sub_52E040(const char* path)
 // 0x52E1B0
 bool tig_file_is_empty_directory(const char* path)
 {
-    char pattern[_MAX_PATH];
+    char pattern[TIG_MAX_PATH];
     TigFileList list;
     bool is_empty;
 
@@ -179,8 +179,8 @@ bool tig_file_is_directory(const char* path)
 // 0x52E260
 bool sub_52E260(const char* dst, const char* src)
 {
-    char path1[_MAX_PATH];
-    char path2[_MAX_PATH];
+    char path1[TIG_MAX_PATH];
+    char path2[TIG_MAX_PATH];
     TigFileList list;
     unsigned int index;
 
@@ -221,8 +221,8 @@ bool sub_52E260(const char* dst, const char* src)
 // 0x52E430
 bool sub_52E430(const char* dst, const char* src)
 {
-    char path1[_MAX_PATH];
-    char path2[_MAX_PATH];
+    char path1[TIG_MAX_PATH];
+    char path2[TIG_MAX_PATH];
     TigFile* stream1;
     TigFile* stream2;
     bool success;
@@ -267,9 +267,9 @@ bool sub_52E430(const char* dst, const char* src)
 // 0x52E550
 bool sub_52E550(const char* src, const char* dst)
 {
-    char path1[_MAX_PATH];
-    char path2[_MAX_PATH];
-    char path3[_MAX_PATH];
+    char path1[TIG_MAX_PATH];
+    char path2[TIG_MAX_PATH];
+    char path3[TIG_MAX_PATH];
     TigFile* stream1;
     TigFile* stream2;
     int type;
@@ -435,7 +435,7 @@ bool sub_52E900(TigFile* dst_stream, TigFile* src_stream, size_t size)
 // 0x52E9C0
 bool sub_52E9C0(const char* path, TigFile* stream1, TigFile* stream2)
 {
-    char pattern[_MAX_PATH];
+    char pattern[TIG_MAX_PATH];
     TigFileList list;
     unsigned int index;
     int v1;
@@ -566,7 +566,7 @@ bool tig_file_repository_add(const char* path)
     TigFileRepository* repo;
     TigFindFileData ffd;
     TigDatabase* database;
-    char cache_path[_MAX_PATH];
+    char cache_path[TIG_MAX_PATH];
 
     prev = NULL;
     curr = tig_file_repositories_head;
@@ -659,7 +659,7 @@ bool tig_file_repository_remove(const char* file_name)
     TigFileRepository* prev;
     TigFileRepository* next;
     bool removed = false;
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
 
     prev = NULL;
     repo = tig_file_repositories_head;
@@ -698,7 +698,7 @@ bool tig_file_repository_remove_all()
 {
     TigFileRepository* curr;
     TigFileRepository* next;
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
 
     curr = tig_file_repositories_head;
     while (curr != NULL) {
@@ -741,7 +741,7 @@ bool tig_file_repository_guid(const char* path, GUID* guid)
 // 0x52F100
 int tig_file_mkdir_ex(const char* path)
 {
-    char temp_path[_MAX_PATH];
+    char temp_path[TIG_MAX_PATH];
     size_t temp_path_length;
     TigFileRepository* repo;
     char* pch;
@@ -784,7 +784,7 @@ int tig_file_mkdir_ex(const char* path)
 // 0x52F230
 int tig_file_rmdir_ex(const char* path)
 {
-    char temp_path[_MAX_PATH];
+    char temp_path[TIG_MAX_PATH];
     TigFileRepository* repo;
     int rc = -1;
 
@@ -848,7 +848,7 @@ bool tig_file_extract(const char* filename, char* path)
     TigFileRepository* first_directory_repo;
     TigFileRepository* repo;
     TigFindFileData ffd;
-    char tmp[_MAX_PATH];
+    char tmp[TIG_MAX_PATH];
     unsigned int ignored;
 
     first_directory_repo = NULL;
@@ -942,14 +942,14 @@ bool tig_file_extract(const char* filename, char* path)
 // 0x52F760
 void tig_file_list_create(TigFileList* list, const char* pattern)
 {
-    char mutable_pattern[_MAX_PATH];
+    char mutable_pattern[TIG_MAX_PATH];
     size_t pattern_length;
     TigFileInfo info;
     TigFindFileData directory_ffd;
     TigFileRepository* repo;
     unsigned int ignored;
     TigDatabaseFindFileData database_ffd;
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     char fname[_MAX_FNAME];
     char ext[_MAX_EXT];
 
@@ -1054,7 +1054,7 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
     TigFileRepository* repo;
     TigDatabaseEntry* database_entry;
     unsigned int ignored;
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     char fname[_MAX_FNAME];
     char ext[_MAX_EXT];
 
@@ -1129,7 +1129,7 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
     TigFileRepository* repo;
     TigDatabaseEntry* database_entry;
     unsigned int ignored;
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     char fname[_MAX_FNAME];
     char ext[_MAX_EXT];
 
@@ -1190,7 +1190,7 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
 int tig_file_remove(const char* file_name)
 {
     TigFileRepository* repo;
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     TigDatabaseEntry* database_entry;
 
     if (file_name[0] == '.' || file_name[0] == '\\' || file_name[1] == ':') {
@@ -1231,8 +1231,8 @@ int tig_file_remove(const char* file_name)
 int tig_file_rename(const char* old_file_name, const char* new_file_name)
 {
     TigFileRepository* repo;
-    char old_path[_MAX_PATH];
-    char new_path[_MAX_PATH];
+    char old_path[TIG_MAX_PATH];
+    char new_path[TIG_MAX_PATH];
 
     if (old_file_name[0] == '.' || old_file_name[0] == '\\' || old_file_name[1] == ':') {
         return rename(old_file_name, new_file_name);
@@ -1623,7 +1623,7 @@ void sub_5308C0(int a1, int a2)
 // 0x5308E0
 bool tig_file_lock(const char* filename, const void* owner, size_t size)
 {
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     TigFileRepository* repo;
     FILE* stream;
 
@@ -1674,7 +1674,7 @@ bool tig_file_unlock(const char* filename, const void* owner, size_t size)
     bool unlocked = true;
     char drive[_MAX_DRIVE];
     char dir[_MAX_DIR];
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     TigFileList file_list;
     unsigned int index;
 
@@ -1700,7 +1700,7 @@ bool tig_file_unlock(const char* filename, const void* owner, size_t size)
 // 0x530AE0
 bool tig_file_locked_by(const char* filename, const void* owner, size_t size)
 {
-    char path[_MAX_PATH];
+    char path[TIG_MAX_PATH];
     TigFileRepository* repo;
 
     if (filename[0] == '.' || filename[0] == '\\' || filename[1] == ':') {
@@ -1788,7 +1788,7 @@ int tig_file_open_internal(const char* path, const char* mode, TigFile* stream)
     TigFileRepository* repo;
     TigFileRepository* writeable_repo;
     TigDatabaseEntry* database_entry;
-    char mutable_path[_MAX_PATH];
+    char mutable_path[TIG_MAX_PATH];
 
     stream->flags &= ~(TIG_FILE_DATABASE | TIG_FILE_PLAIN);
 
@@ -2037,7 +2037,7 @@ bool tig_file_copy_internal(TigFile* dst, TigFile* src)
 // 0x531320
 int tig_file_rmdir_recursively(const char* path)
 {
-    char mutable_path[_MAX_PATH];
+    char mutable_path[TIG_MAX_PATH];
     TigFindFileData ffd;
 
     strcpy(mutable_path, path);
