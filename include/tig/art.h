@@ -54,6 +54,12 @@ typedef enum TigArtCritterRace {
     TIG_ART_CRITTER_RACE_COUNT,
 } TigArtCritterRace;
 
+typedef enum TigArtCritterGender {
+    TIG_ART_CRITTER_GENDER_FEMALE,
+    TIG_ART_CRITTER_GENDER_MALE,
+    TIG_ART_CRITTER_GENDER_COUNT,
+} TigArtCritterGender;
+
 typedef enum TigArtPortalType {
     TIG_ART_PORTAL_TYPE_WINDOW,
     TIG_ART_PORTAL_TYPE_DOOR,
@@ -433,8 +439,8 @@ tig_art_id_t tig_art_critter_id_race_set(tig_art_id_t art_id, int value);
 int tig_art_monster_id_specie_get(tig_art_id_t art_id);
 int sub_503F50(int a1);
 int sub_503F60(tig_art_id_t art_id);
-int sub_503FB0(tig_art_id_t art_id);
-tig_art_id_t sub_503FE0(tig_art_id_t art_id, int value);
+int tig_art_critter_id_gender_get(tig_art_id_t art_id);
+tig_art_id_t tig_art_critter_id_gender_set(tig_art_id_t art_id, int value);
 int sub_504030(tig_art_id_t art_id);
 tig_art_id_t sub_504060(tig_art_id_t art_id, int value);
 int sub_5040D0(tig_art_id_t art_id);

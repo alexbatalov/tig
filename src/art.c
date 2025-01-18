@@ -33,6 +33,7 @@
 #define TILE_ID_TYPE_SHIFT 8
 
 #define CRITTER_ID_RACE_SHIFT 24
+#define CRITTER_ID_GENDER_SHIFT 27
 
 #define PORTAL_ID_MAX_TYPE 2
 #define PORTAL_ID_TYPE_SHIFT 10
@@ -2144,27 +2145,27 @@ int sub_503F60(tig_art_id_t art_id)
 }
 
 // 0x503FB0
-int sub_503FB0(tig_art_id_t art_id)
+int tig_art_critter_id_gender_get(tig_art_id_t art_id)
 {
     if (tig_art_type(art_id) == TIG_ART_TYPE_CRITTER) {
-        return (art_id >> 27) & 1;
+        return (art_id >> CRITTER_ID_GENDER_SHIFT) & 1;
     } else {
         return 0;
     }
 }
 
 // 0x503FE0
-tig_art_id_t sub_503FE0(tig_art_id_t art_id, int value)
+tig_art_id_t tig_art_critter_id_gender_set(tig_art_id_t art_id, int value)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
     case TIG_ART_TYPE_MONSTER:
     case TIG_ART_TYPE_UNIQUE_NPC:
-        if (value >= 2) {
+        if (value >= TIG_ART_CRITTER_GENDER_COUNT) {
             tig_debug_println("Range exceeded in art set.");
             value = 0;
         }
-        return (art_id & ~0x8000000) | (value << 27);
+        return (art_id & ~0x8000000) | (value << CRITTER_ID_GENDER_SHIFT);
     default:
         return art_id;
     }
