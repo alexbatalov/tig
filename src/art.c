@@ -2208,7 +2208,7 @@ tig_art_id_t tig_art_critter_id_armor_set(tig_art_id_t art_id, int value)
 }
 
 // 0x5040D0
-int sub_5040D0(tig_art_id_t art_id)
+int tig_art_critter_id_weapon_get(tig_art_id_t art_id)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
@@ -2221,7 +2221,7 @@ int sub_5040D0(tig_art_id_t art_id)
 }
 
 // 0x504100
-tig_art_id_t sub_504100(tig_art_id_t art_id, int value)
+tig_art_id_t tig_art_critter_id_weapon_set(tig_art_id_t art_id, int value)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
