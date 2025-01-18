@@ -32,6 +32,7 @@
 #define TILE_ID_MAX_TYPE 2
 #define TILE_ID_TYPE_SHIFT 8
 
+#define CRITTER_ID_SHIELD_SHIFT 19
 #define CRITTER_ID_ARMOR_SHIFT 20
 #define CRITTER_ID_RACE_SHIFT 24
 #define CRITTER_ID_GENDER_SHIFT 27
@@ -2238,20 +2239,20 @@ tig_art_id_t tig_art_critter_id_weapon_set(tig_art_id_t art_id, int value)
 }
 
 // 0x504150
-int sub_504150(tig_art_id_t art_id)
+int tig_art_critter_id_shield_get(tig_art_id_t art_id)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
     case TIG_ART_TYPE_MONSTER:
     case TIG_ART_TYPE_UNIQUE_NPC:
-        return (art_id >> 19) & 1;
+        return (art_id >> CRITTER_ID_SHIELD_SHIFT) & 1;
     default:
         return 0;
     }
 }
 
 // 0x504180
-tig_art_id_t sub_504180(tig_art_id_t art_id, int value)
+tig_art_id_t tig_art_critter_id_shield_set(tig_art_id_t art_id, int value)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
@@ -2261,7 +2262,7 @@ tig_art_id_t sub_504180(tig_art_id_t art_id, int value)
             tig_debug_println("Range exceeded in art set.");
             value = 0;
         }
-        return (art_id & ~0x80000) | (value << 19);
+        return (art_id & ~0x80000) | (value << CRITTER_ID_SHIELD_SHIFT);
     default:
         return art_id;
     }
