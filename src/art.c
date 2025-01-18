@@ -2034,26 +2034,26 @@ int tig_art_monster_id_create(int specie, int a2, unsigned int a3, unsigned int 
 }
 
 // 0x503D80
-int tig_art_unique_npc_id_create(int num, unsigned int a2, unsigned int frame, int rotation, int a5, int a6, unsigned int palette, tig_art_id_t* art_id_ptr)
+int tig_art_unique_npc_id_create(int num, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr)
 {
     if (num >= UNIQUE_NPC_ID_MAX_NUM
-        || a2 >= 2
+        || shield >= 2
         || frame >= ART_ID_MAX_FRAME
         || rotation >= MAX_ROTATIONS
-        || a5 >= 32
-        || a6 >= 16
+        || anim >= 32
+        || weapon >= 16
         || palette >= MAX_PALETTES) {
         return TIG_ERR_12;
     }
 
     *art_id_ptr = (TIG_ART_TYPE_UNIQUE_NPC << ART_ID_TYPE_SHIFT)
         | ((num & (UNIQUE_NPC_ID_MAX_NUM - 1)) << UNIQUE_NPC_ID_NUM_SHIFT)
-        | ((a2 & 1) << 19)
+        | ((shield & 1) << CRITTER_ID_SHIELD_SHIFT)
         | ((frame & (ART_ID_MAX_FRAME - 1)) << ART_ID_FRAME_SHIFT)
         | ((rotation & (MAX_ROTATIONS - 1)) << ART_ID_ROTATION_SHIFT)
-        | ((a5 & 0x1F) << 6)
+        | ((anim & 0x1F) << 6)
         | ((palette & (MAX_PALETTES - 1)) << ART_ID_PALETTE_SHIFT)
-        | (a6 & 0xF);
+        | (weapon & 0xF);
 
     return TIG_OK;
 }
