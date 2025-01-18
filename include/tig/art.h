@@ -45,6 +45,15 @@ typedef enum TigArtTileType {
     TIG_ART_TILE_TYPE_OUTDOOR,
 } TigArtTileType;
 
+typedef enum TigArtCritterRace {
+    TIG_ART_CRITTER_RACE_HUMAN,
+    TIG_ART_CRITTER_RACE_DWARF,
+    TIG_ART_CRITTER_RACE_HALFLING,
+    TIG_ART_CRITTER_RACE_HALF_ORC,
+    TIG_ART_CRITTER_RACE_ELF,
+    TIG_ART_CRITTER_RACE_COUNT,
+} TigArtCritterRace;
+
 typedef enum TigArtPortalType {
     TIG_ART_PORTAL_TYPE_WINDOW,
     TIG_ART_PORTAL_TYPE_DOOR,
@@ -419,8 +428,8 @@ int tig_art_monster_id_create(int specie, int a2, unsigned int a3, unsigned int 
 int tig_art_unique_npc_id_create(int num, unsigned int a2, unsigned int frame, int a4, int a5, int a6, unsigned int a7, tig_art_id_t* art_id_ptr);
 int tig_art_id_anim_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_anim_set(tig_art_id_t art_id, int value);
-int sub_503EA0(tig_art_id_t art_id);
-tig_art_id_t sub_503ED0(tig_art_id_t art_id, int value);
+int tig_art_critter_id_race_get(tig_art_id_t art_id);
+tig_art_id_t tig_art_critter_id_race_set(tig_art_id_t art_id, int value);
 int tig_art_monster_id_specie_get(tig_art_id_t art_id);
 int sub_503F50(int a1);
 int sub_503F60(tig_art_id_t art_id);
