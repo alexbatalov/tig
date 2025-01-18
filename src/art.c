@@ -1081,10 +1081,10 @@ tig_art_id_t tig_art_id_rotation_set(tig_art_id_t art_id, int rotation)
             }
 
             art_id = tig_art_wall_id_p_piece_set(art_id, v1);
-            if ((old_cardinal_direction == 0 || old_cardinal_direction == 3)
-                    && (cardinal_direction == 1 || cardinal_direction == 2)
-                || (old_cardinal_direction == 1 || old_cardinal_direction == 2)
-                    && (cardinal_direction == 0 || cardinal_direction == 3)) {
+            if (((old_cardinal_direction == 0 || old_cardinal_direction == 3)
+                    && (cardinal_direction == 1 || cardinal_direction == 2))
+                || ((old_cardinal_direction == 1 || old_cardinal_direction == 2)
+                    && (cardinal_direction == 0 || cardinal_direction == 3))) {
                 v2 = tig_art_id_damaged_get(art_id);
                 v3 = 0;
                 if ((v2 & 0x400) != 0) {
