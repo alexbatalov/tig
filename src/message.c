@@ -33,6 +33,9 @@ static TigMessageListNode* tig_message_node_acquire();
 static void tig_message_node_reserve();
 static void tig_message_node_release(TigMessageListNode* node);
 
+// 0x62B1A8
+static bool tig_message_key_triggers[MAX_KEY_HANDLERS];
+
 // 0x62B1F0
 static TigMessageKeyboardHandler tig_message_key_handlers[MAX_KEY_HANDLERS];
 
@@ -128,12 +131,12 @@ void tig_message_ping()
 
     for (index = 0; index < tig_message_key_handlers_count; index++) {
         if (tig_kb_is_key_pressed(tig_message_key_handlers[index].key)) {
-            if (!dword_62B1A8[index]) {
-                dword_62B1A8[index] = true;
+            if (!tig_message_key_triggers[index]) {
+                tig_message_key_triggers[index] = true;
                 tig_message_key_handlers[index].callback(tig_message_key_handlers[index].key);
             }
         } else {
-            dword_62B1A8[index] = false;
+            tig_message_key_triggers[index] = false;
         }
     }
 
@@ -204,8 +207,9 @@ int tig_message_set_key_handler(TigMessageKeyboardCallback* callback, int key)
 
         // Reorder subsequent slots.
         while (index + 1 < tig_message_key_handlers_count) {
-            dword_62B1A8[index] = dword_62B1A8[index + 1];
+            tig_message_key_triggers[index] = tig_message_key_triggers[index + 1];
             tig_message_key_handlers[index] = tig_message_key_handlers[index + 1];
+            index++;
         }
 
         tig_message_key_handlers_count--;
@@ -219,7 +223,7 @@ int tig_message_set_key_handler(TigMessageKeyboardCallback* callback, int key)
 
     tig_message_key_handlers[tig_message_key_handlers_count].key = key;
     tig_message_key_handlers[tig_message_key_handlers_count].callback = callback;
-    dword_62B1A8[tig_message_key_handlers_count] = false;
+    tig_message_key_triggers[tig_message_key_handlers_count] = false;
     tig_message_key_handlers_count++;
 
     return TIG_OK;

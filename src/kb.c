@@ -32,9 +32,6 @@ static LPDIRECTINPUTDEVICEA tig_kb_device;
 // 0x62B1A0
 static bool tig_kb_initialized;
 
-// 0x62B1A8
-int dword_62B1A8[16];
-
 // 0x52B2F0
 int tig_kb_init(TigInitInfo* init_info)
 {
