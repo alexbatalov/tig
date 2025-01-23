@@ -273,7 +273,7 @@ int tig_menu_do_select(const char* title, const char** menu_items, int num_menu_
 
     font_data.str = title;
     font_data.width = 0;
-    sub_535390(&font_data);
+    tig_font_measure(&font_data);
 
     title_rect.width = font_data.width;
     title_rect.height = font_data.height;
@@ -519,7 +519,7 @@ int tig_menu_bar_create(TigMenuBarCreateInfo* create_info)
     // Calculate menu bar height.
     font_data.str = bar->drop_downs[0];
     font_data.width = 0;
-    sub_535390(&font_data);
+    tig_font_measure(&font_data);
     height = font_data.height;
 
     // Prepare drop down buttons template.
@@ -534,7 +534,7 @@ int tig_menu_bar_create(TigMenuBarCreateInfo* create_info)
     // Prepare drop button button title font.
     font_data.str = NULL;
     font_data.width = 0;
-    sub_535390(&font_data);
+    tig_font_measure(&font_data);
 
     font_data.color = tig_menu_colors.text_color;
     tig_font_create(&font_data, &font);
@@ -546,7 +546,7 @@ int tig_menu_bar_create(TigMenuBarCreateInfo* create_info)
     for (index = 0; index < bar->num_drop_downs; index++) {
         font_data.str = bar->drop_downs[index];
         font_data.width = 0;
-        sub_535390(&font_data);
+        tig_font_measure(&font_data);
 
         text_rect.x = x;
         text_rect.y = create_info->y;
@@ -688,7 +688,7 @@ void refresh_menu_items(tig_window_handle_t window_handle, int x, int y, const c
 
         font_data.str = NULL;
         font_data.width = 0;
-        sub_535390(&font_data);
+        tig_font_measure(&font_data);
         font_data.color = color;
 
         tig_font_create(&font_data, &font);
@@ -725,7 +725,7 @@ int calculate_drop_down_item_size(const char* title, const char** menu_items, in
     if (title != NULL) {
         font_desc.str = title;
         font_desc.width = 0;
-        sub_535390(&font_desc);
+        tig_font_measure(&font_desc);
         width = font_desc.width;
     } else {
         width = 0;
@@ -734,7 +734,7 @@ int calculate_drop_down_item_size(const char* title, const char** menu_items, in
     for (index = 0; index < num_menu_items; index++) {
         font_desc.str = menu_items[index];
         font_desc.width = 0;
-        sub_535390(&font_desc);
+        tig_font_measure(&font_desc);
         if (width < font_desc.width) {
             width = font_desc.width;
         }

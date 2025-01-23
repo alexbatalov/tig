@@ -103,7 +103,7 @@ void tig_font_pop()
 }
 
 // 0x535390
-void sub_535390(TigFont* font)
+void tig_font_measure(TigFont* font)
 {
     const char* str;
     int width;

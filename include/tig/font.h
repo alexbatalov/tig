@@ -42,7 +42,7 @@ void tig_font_create(TigFont* font, tig_font_handle_t* font_handle_ptr);
 void tig_font_destroy(tig_font_handle_t font_handle);
 int tig_font_push(tig_font_handle_t font_handle);
 void tig_font_pop();
-void sub_535390(TigFont* font);
+void tig_font_measure(TigFont* font);
 int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect* rect, TigRect* dirty_rect);
 
 #ifdef __cplusplus

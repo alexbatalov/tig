@@ -90,7 +90,7 @@ static void refresh_button_text(int index, bool hovering)
     font_desc.str = buttons[index].str;
     font_desc.width = 0;
     font_desc.height = 0;
-    sub_535390(&font_desc);
+    tig_font_measure(&font_desc);
 
     text_rect.x = buttons[index].x - font_desc.width / 2;
     text_rect.y = buttons[index].y - font_desc.height / 2;
@@ -223,7 +223,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
         font_desc.str = buttons[btn].str;
         font_desc.width = 0;
         font_desc.height = 0;
-        sub_535390(&font_desc);
+        tig_font_measure(&font_desc);
 
         TigRect text_rect;
         text_rect.x = buttons[btn].x - font_desc.width / 2;
