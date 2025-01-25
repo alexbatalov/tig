@@ -12,42 +12,43 @@
 extern "C" {
 #endif
 
-typedef enum TigVideoBufferCreateFlags {
-    TIG_VIDEO_BUFFER_CREATE_COLOR_KEY = 0x0001,
-    TIG_VIDEO_BUFFER_CREATE_VIDEO_MEMORY = 0x0002,
-    TIG_VIDEO_BUFFER_CREATE_SYSTEM_MEMORY = 0x0004,
-    TIG_VIDEO_BUFFER_CREATE_3D = 0x0008,
-    TIG_VIDEO_BUFFER_CREATE_TEXTURE = 0x0010,
-} TigVideoBufferCreateFlags;
+typedef unsigned int TigVideoBufferCreateFlags;
 
-typedef enum TigVideoBufferFlags {
-    TIG_VIDEO_BUFFER_LOCKED = 0x0001,
-    TIG_VIDEO_BUFFER_COLOR_KEY = 0x0002,
-    TIG_VIDEO_BUFFER_VIDEO_MEMORY = 0x0004,
-    TIG_VIDEO_BUFFER_SYSTEM_MEMORY = 0x0008,
-    TIG_VIDEO_BUFFER_3D = 0x0010,
-    TIG_VIDEO_BUFFER_TEXTURE = 0x0020,
-} TigVideoBufferFlags;
+#define TIG_VIDEO_BUFFER_CREATE_COLOR_KEY 0x0001
+#define TIG_VIDEO_BUFFER_CREATE_VIDEO_MEMORY 0x0002
+#define TIG_VIDEO_BUFFER_CREATE_SYSTEM_MEMORY 0x0004
+#define TIG_VIDEO_BUFFER_CREATE_RENDER_TARGET 0x0008
+#define TIG_VIDEO_BUFFER_CREATE_TEXTURE 0x0010
 
-typedef enum TigVideoBufferBlitFlags {
-    TIG_VIDEO_BUFFER_BLIT_FLIP_X = 0x0001,
-    TIG_VIDEO_BUFFER_BLIT_FLIP_Y = 0x0002,
-    TIG_VIDEO_BUFFER_BLIT_BLEND_ADD = 0x0004,
-    TIG_VIDEO_BUFFER_BLIT_BLEND_MUL = 0x0010,
-    TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_AVG = 0x0020,
-    TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_CONST = 0x0040,
-    TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_SRC = 0x0080,
-    TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_LERP = 0x0100,
-    TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_CONST = 0x0200,
-    TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_LERP = 0x0400,
-    TIG_VIDEO_BUFFER_BLIT_FLIP_ANY = TIG_VIDEO_BUFFER_BLIT_FLIP_X | TIG_VIDEO_BUFFER_BLIT_FLIP_Y,
-} TigVideoBufferBlitFlags;
+typedef unsigned int TigVideoBufferFlags;
+
+#define TIG_VIDEO_BUFFER_LOCKED 0x0001
+#define TIG_VIDEO_BUFFER_COLOR_KEY 0x0002
+#define TIG_VIDEO_BUFFER_VIDEO_MEMORY 0x0004
+#define TIG_VIDEO_BUFFER_SYSTEM_MEMORY 0x0008
+#define TIG_VIDEO_BUFFER_RENDER_TARGET 0x0010
+#define TIG_VIDEO_BUFFER_TEXTURE 0x0020
+
+typedef unsigned int TigVideoBufferBlitFlags;
+
+#define TIG_VIDEO_BUFFER_BLIT_FLIP_X 0x0001
+#define TIG_VIDEO_BUFFER_BLIT_FLIP_Y 0x0002
+#define TIG_VIDEO_BUFFER_BLIT_BLEND_ADD 0x0004
+#define TIG_VIDEO_BUFFER_BLIT_BLEND_MUL 0x0010
+#define TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_AVG 0x0020
+#define TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_CONST 0x0040
+#define TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_SRC 0x0080
+#define TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_LERP 0x0100
+#define TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_CONST 0x0200
+#define TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_LERP 0x0400
+
+#define TIG_VIDEO_BUFFER_BLIT_FLIP_ANY (TIG_VIDEO_BUFFER_BLIT_FLIP_X | TIG_VIDEO_BUFFER_BLIT_FLIP_Y)
 
 // Opaque handle.
 typedef struct TigVideoBuffer TigVideoBuffer;
 
 typedef struct TigVideoBufferCreateInfo {
-    /* 0000 */ unsigned int flags;
+    /* 0000 */ TigVideoBufferCreateFlags flags;
     /* 0004 */ int width;
     /* 0008 */ int height;
     /* 000C */ unsigned int background_color;
@@ -57,7 +58,7 @@ typedef struct TigVideoBufferCreateInfo {
 static_assert(sizeof(TigVideoBufferCreateInfo) == 0x14, "wrong size");
 
 typedef struct TigVideoBufferData {
-    /* 0000 */ unsigned int flags;
+    /* 0000 */ TigVideoBufferFlags flags;
     /* 0004 */ int width;
     /* 0008 */ int height;
     /* 000C */ int pitch;
@@ -75,7 +76,7 @@ typedef struct TigVideoBufferData {
 static_assert(sizeof(TigVideoBufferData) == 0x20, "wrong size");
 
 typedef struct TigVideoBufferBlitInfo {
-    /* 0000 */ unsigned int flags;
+    /* 0000 */ TigVideoBufferBlitFlags flags;
     /* 0004 */ TigVideoBuffer* src_video_buffer;
     /* 0008 */ TigRect* src_rect;
     /* 000C */ uint8_t alpha[4];

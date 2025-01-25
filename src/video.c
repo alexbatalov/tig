@@ -882,7 +882,7 @@ int tig_video_buffer_create(TigVideoBufferCreateInfo* vb_create_info, TigVideoBu
     }
 
     if (tig_video_3d_initialized) {
-        if ((vb_create_info->flags & TIG_VIDEO_BUFFER_CREATE_3D) != 0) {
+        if ((vb_create_info->flags & TIG_VIDEO_BUFFER_CREATE_RENDER_TARGET) != 0) {
             caps |= DDSCAPS_3DDEVICE;
         }
 
@@ -930,7 +930,7 @@ int tig_video_buffer_create(TigVideoBufferCreateInfo* vb_create_info, TigVideoBu
         caps &= ~DDSCAPS_LOCALVIDMEM;
         caps |= DDSCAPS_NONLOCALVIDMEM;
         if (!tig_video_surface_create(tig_video_state.ddraw, texture_width, texture_height, caps, &(video_buffer->surface))) {
-            if ((vb_create_info->flags & TIG_VIDEO_BUFFER_CREATE_3D) != 0) {
+            if ((vb_create_info->flags & TIG_VIDEO_BUFFER_CREATE_RENDER_TARGET) != 0) {
                 tig_debug_printf("tig_video_buffer_create: Error trying to create surface for 3D, flushing...\n");
                 tig_art_flush();
 
@@ -978,8 +978,8 @@ int tig_video_buffer_create(TigVideoBufferCreateInfo* vb_create_info, TigVideoBu
         tig_video_buffer_set_color_key(*video_buffer_ptr, vb_create_info->color_key);
     }
 
-    if ((vb_create_info->flags & TIG_VIDEO_BUFFER_CREATE_3D) != 0) {
-        video_buffer->flags |= TIG_VIDEO_BUFFER_3D;
+    if ((vb_create_info->flags & TIG_VIDEO_BUFFER_CREATE_RENDER_TARGET) != 0) {
+        video_buffer->flags |= TIG_VIDEO_BUFFER_RENDER_TARGET;
     }
 
     if ((vb_create_info->flags & TIG_VIDEO_BUFFER_CREATE_TEXTURE) != 0) {
@@ -1659,7 +1659,7 @@ int sub_520FB0(TigVideoBuffer* video_buffer, unsigned int flags)
         return TIG_ERR_16;
     }
 
-    if ((data.flags & TIG_VIDEO_BUFFER_3D) == 0) {
+    if ((data.flags & TIG_VIDEO_BUFFER_RENDER_TARGET) == 0) {
         return TIG_ERR_16;
     }
 
@@ -1742,7 +1742,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
         blit_src_rect.height -= tmp_rect.height - blit_dst_rect.height;
     }
 
-    if ((blit_info->dst_video_buffer->flags & TIG_VIDEO_BUFFER_3D) != 0
+    if ((blit_info->dst_video_buffer->flags & TIG_VIDEO_BUFFER_RENDER_TARGET) != 0
         && (blit_info->src_video_buffer->flags & TIG_VIDEO_BUFFER_TEXTURE) != 0) {
         DDSURFACEDESC2 ddsd;
         HRESULT hr;
@@ -2022,7 +2022,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
         return TIG_OK;
     }
 
-    if ((blit_info->dst_video_buffer->flags & TIG_VIDEO_BUFFER_3D) != 0
+    if ((blit_info->dst_video_buffer->flags & TIG_VIDEO_BUFFER_RENDER_TARGET) != 0
         && (blit_info->flags & (TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_LERP | TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_CONST)) != 0) {
         // NOTE: What for?
         tig_debug_printf("$");

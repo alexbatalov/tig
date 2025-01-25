@@ -216,7 +216,7 @@ int tig_window_create(TigWindowData* window_data, tig_window_handle_t* window_ha
     }
 
     if ((window_data->flags & TIG_WINDOW_HAVE_FLUSH) != 0) {
-        vb_create_info.flags |= TIG_VIDEO_BUFFER_CREATE_3D;
+        vb_create_info.flags |= TIG_VIDEO_BUFFER_CREATE_RENDER_TARGET;
     }
 
     vb_create_info.width = window_data->rect.width;
