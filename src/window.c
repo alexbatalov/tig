@@ -189,8 +189,8 @@ int tig_window_create(TigWindowData* window_data, tig_window_handle_t* window_ha
 
     win->flags = window_data->flags;
 
-    if ((window_data->flags & TIG_WINDOW_FLAG_0x04) != 0) {
-        win->flags |= TIG_WINDOW_FLAG_0x02;
+    if ((window_data->flags & TIG_WINDOW_MODAL) != 0) {
+        win->flags |= TIG_WINDOW_MESSAGE_FILTER;
     }
 
     win->message_filter = window_data->message_filter;
@@ -205,7 +205,7 @@ int tig_window_create(TigWindowData* window_data, tig_window_handle_t* window_ha
 
     vb_create_info.flags = 0;
 
-    if ((window_data->flags & TIG_WINDOW_HAVE_TRANSPARENCY) != 0) {
+    if ((window_data->flags & TIG_WINDOW_TRANSPARENT) != 0) {
         vb_create_info.flags |= TIG_VIDEO_BUFFER_CREATE_COLOR_KEY;
     }
 
@@ -215,7 +215,7 @@ int tig_window_create(TigWindowData* window_data, tig_window_handle_t* window_ha
         vb_create_info.flags |= TIG_VIDEO_BUFFER_CREATE_SYSTEM_MEMORY;
     }
 
-    if ((window_data->flags & TIG_WINDOW_HAVE_FLUSH) != 0) {
+    if ((window_data->flags & TIG_WINDOW_RENDER_TARGET) != 0) {
         vb_create_info.flags |= TIG_VIDEO_BUFFER_CREATE_RENDER_TARGET;
     }
 
@@ -230,7 +230,7 @@ int tig_window_create(TigWindowData* window_data, tig_window_handle_t* window_ha
     }
 
     if ((tig_window_ctx_flags & TIG_INITIALIZE_SCRATCH_BUFFER) != 0) {
-        if ((window_data->flags & TIG_WINDOW_HAVE_TRANSPARENCY) != 0) {
+        if ((window_data->flags & TIG_WINDOW_TRANSPARENT) != 0) {
             vb_create_info.flags &= ~TIG_VIDEO_BUFFER_CREATE_COLOR_KEY;
 
             rc = tig_video_buffer_create(&vb_create_info, &(win->secondary_video_buffer));
@@ -284,7 +284,7 @@ int tig_window_destroy(tig_window_handle_t window_handle)
     tig_video_buffer_destroy(win->video_buffer);
 
     if ((tig_window_ctx_flags & TIG_INITIALIZE_SCRATCH_BUFFER) != 0
-        && (win->flags & TIG_WINDOW_HAVE_TRANSPARENCY) != 0) {
+        && (win->flags & TIG_WINDOW_TRANSPARENT) != 0) {
         tig_video_buffer_destroy(win->secondary_video_buffer);
     }
 
@@ -346,7 +346,7 @@ int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMe
     window_index = tig_window_handle_to_index(window_handle);
     win = &(windows[window_index]);
 
-    if ((win->flags & TIG_WINDOW_FLAG_0x02) == 0) {
+    if ((win->flags & TIG_WINDOW_MESSAGE_FILTER) == 0) {
         return TIG_ERR_INVALID_PARAM;
     }
 
@@ -519,7 +519,7 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
                     // TODO: Not sure how to represent it one to one.
                     bool cont;
                     TigVideoBuffer* src_video_buffer = win->video_buffer;
-                    if ((win->flags & TIG_WINDOW_HAVE_TRANSPARENCY) == 0) {
+                    if ((win->flags & TIG_WINDOW_TRANSPARENT) == 0) {
                         cont = true;
                     } else if ((tig_window_ctx_flags & TIG_INITIALIZE_SCRATCH_BUFFER) != 0) {
                         sub_51D050(&dirty_rect,
@@ -545,7 +545,7 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
                         blt_src_rect.width = dirty_rect.width;
                         blt_src_rect.height = dirty_rect.height;
 
-                        if ((win->flags & TIG_WINDOW_HAVE_TRANSPARENCY) != 0
+                        if ((win->flags & TIG_WINDOW_TRANSPARENT) != 0
                             && (tig_window_ctx_flags & TIG_INITIALIZE_SCRATCH_BUFFER) != 0) {
                             vb_blit_info.flags = 0;
                             vb_blit_info.src_video_buffer = win->video_buffer;
@@ -1249,9 +1249,9 @@ void push_window_stack(tig_window_handle_t window_handle)
 
     window_index = tig_window_handle_to_index(window_handle);
 
-    if ((windows[window_index].flags & (TIG_WINDOW_FLAG_0x08 | TIG_WINDOW_FLAG_0x04)) != 0) {
+    if ((windows[window_index].flags & (TIG_WINDOW_ALWAYS_ON_TOP | TIG_WINDOW_MODAL)) != 0) {
         tig_window_stack[tig_window_num_windows++] = window_handle;
-    } else if ((windows[window_index].flags & (TIG_WINDOW_FLAG_0x80 | TIG_WINDOW_FLAG_0x04)) != 0) {
+    } else if ((windows[window_index].flags & (TIG_WINDOW_ALWAYS_ON_BOTTOM | TIG_WINDOW_MODAL)) != 0) {
         memcpy(&(tig_window_stack[1]),
             &(tig_window_stack[0]),
             sizeof(tig_window_handle_t) * tig_window_num_windows);
@@ -1266,7 +1266,7 @@ void push_window_stack(tig_window_handle_t window_handle)
             prev_window_handle = tig_window_stack[prev_index];
             prev_window_index = tig_window_handle_to_index(prev_window_handle);
 
-            if ((windows[prev_window_index].flags & (TIG_WINDOW_FLAG_0x08 | TIG_WINDOW_FLAG_0x04)) == 0) {
+            if ((windows[prev_window_index].flags & (TIG_WINDOW_ALWAYS_ON_TOP | TIG_WINDOW_MODAL)) == 0) {
                 break;
             }
         }
@@ -1430,7 +1430,7 @@ int tig_window_get_at_position(int x, int y, tig_window_handle_t* window_handle_
             && y >= win->frame.y
             && x <= win->frame.x + win->frame.width
             && y <= win->frame.y + win->frame.height) {
-            if ((win->flags & TIG_WINDOW_HAVE_TRANSPARENCY) != 0) {
+            if ((win->flags & TIG_WINDOW_TRANSPARENT) != 0) {
                 if (tig_video_buffer_get_pixel_color(win->video_buffer, x - win->frame.x, y - win->frame.y, &color) == TIG_OK
                     && color == win->color_key) {
                     continue;
@@ -1467,7 +1467,7 @@ bool tig_window_filter_message(TigMessage* msg)
         window_index = tig_window_handle_to_index(window_handle);
         win = &(windows[window_index]);
         if ((win->flags & TIG_WINDOW_HIDDEN) == 0
-            && (win->flags & TIG_WINDOW_FLAG_0x02) != 0) {
+            && (win->flags & TIG_WINDOW_MESSAGE_FILTER) != 0) {
             flags[cnt] = win->flags;
             filters[cnt] = win->message_filter;
             cnt++;
@@ -1476,7 +1476,7 @@ bool tig_window_filter_message(TigMessage* msg)
 
     for (index = 0; index < cnt; index++) {
         if ((filters[index](msg) && msg->type != TIG_MESSAGE_PING)
-            || ((flags[index] & TIG_WINDOW_FLAG_0x04) != 0 && msg->type != TIG_MESSAGE_PING)) {
+            || ((flags[index] & TIG_WINDOW_MODAL) != 0 && msg->type != TIG_MESSAGE_PING)) {
             return true;
         }
     }
@@ -1619,7 +1619,7 @@ int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModal
 
     tig_window_modal_dialog_info = *modal_info;
 
-    window_data.flags = TIG_WINDOW_FLAG_0x04 | TIG_WINDOW_FLAG_0x08;
+    window_data.flags = TIG_WINDOW_MODAL | TIG_WINDOW_ALWAYS_ON_TOP;
     window_data.rect.width = MODAL_DIALOG_WIDTH;
     window_data.rect.height = MODAL_DIALOG_HEIGHT;
     window_data.message_filter = tig_window_modal_dialog_message_filter;

@@ -12,21 +12,21 @@ extern "C" {
 
 #define TIG_WINDOW_TOP (-2)
 
-typedef enum TigWindowFlags {
-    TIG_WINDOW_HAVE_TRANSPARENCY = 1 << 0,
-    TIG_WINDOW_FLAG_0x02 = 1 << 1,
-    TIG_WINDOW_FLAG_0x04 = 1 << 2,
-    TIG_WINDOW_FLAG_0x08 = 1 << 3,
-    TIG_WINDOW_VIDEO_MEMORY = 1 << 4,
-    TIG_WINDOW_HIDDEN = 1 << 5,
-    TIG_WINDOW_HAVE_FLUSH = 1 << 6,
-    TIG_WINDOW_FLAG_0x80 = 1 << 7,
-} TigWindowFlags;
+typedef unsigned int TigWindowFlags;
+
+#define TIG_WINDOW_TRANSPARENT 0x0001
+#define TIG_WINDOW_MESSAGE_FILTER 0x0002
+#define TIG_WINDOW_MODAL 0x0004
+#define TIG_WINDOW_ALWAYS_ON_TOP 0x0008
+#define TIG_WINDOW_VIDEO_MEMORY 0x0010
+#define TIG_WINDOW_HIDDEN 0x0020
+#define TIG_WINDOW_RENDER_TARGET 0x0040
+#define TIG_WINDOW_ALWAYS_ON_BOTTOM 0x0080
 
 typedef bool(TigWindowMessageFilterFunc)(TigMessage* msg);
 
 typedef struct TigWindowData {
-    /* 0000 */ unsigned int flags;
+    /* 0000 */ TigWindowFlags flags;
     /* 0004 */ TigRect rect;
     /* 0014 */ unsigned int background_color;
     /* 0018 */ unsigned int color_key;

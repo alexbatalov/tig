@@ -817,7 +817,7 @@ bool tig_menu_drop_down_create(const char** menu_items, int num_menu_items, int 
     window_data.rect.y = y;
     window_data.rect.width = drop_down->item_width + 2;
     window_data.rect.height = num_menu_items * item_height + 2;
-    window_data.flags = TIG_WINDOW_FLAG_0x02 | TIG_WINDOW_FLAG_0x04;
+    window_data.flags = TIG_WINDOW_MESSAGE_FILTER | TIG_WINDOW_MODAL;
     window_data.background_color = tig_menu_colors.background_color;
     window_data.message_filter = tig_menu_drop_down_message_filter;
 
