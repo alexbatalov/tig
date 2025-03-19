@@ -1019,7 +1019,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
         if (height < 0) {
             height = 0;
         }
-        if (width > 0 && height > 0) {
+        if (width > 0 || height > 0) {
             rc = tig_art_anim_data(tig_mouse_cursor_art_id, &art_anim_data);
             if (rc != TIG_OK) {
                 if (!hidden) {
@@ -1032,7 +1032,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
                 dst_rect.x = tig_mouse_cursor_art_frame_bounds.width;
                 dst_rect.y = 0;
                 dst_rect.width = width;
-                dst_rect.height = width + tig_mouse_cursor_art_frame_bounds.height;
+                dst_rect.height = height + tig_mouse_cursor_art_frame_bounds.height;
                 tig_video_buffer_fill(tig_mouse_cursor_trans_video_buffer,
                     &dst_rect,
                     art_anim_data.color_key);
