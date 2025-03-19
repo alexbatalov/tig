@@ -446,8 +446,8 @@ bool sub_52E9C0(const char* path, TigFile* stream1, TigFile* stream2)
 
     for (index = 0; index < list.count; index++) {
         if ((list.entries[index].attributes & TIG_FILE_ATTRIBUTE_SUBDIR) != 0) {
-            if (strcmp(list.entries[index].path, ".") == 0
-                || strcmp(list.entries[index].path, "..") == 0) {
+            if (strcmp(list.entries[index].path, ".") != 0
+                && strcmp(list.entries[index].path, "..") != 0) {
                 v1 = 1;
                 if (tig_file_fwrite(&v1, sizeof(v1), 1, stream1) != 1) {
                     // FIXME: Leaks `list`.
@@ -492,6 +492,12 @@ bool sub_52E9C0(const char* path, TigFile* stream1, TigFile* stream2)
             }
 
             if (tig_file_fputs(list.entries[index].path, stream1) < 0) {
+                // FIXME: Leaks `list`.
+                return false;
+            }
+
+            v1 = (int)list.entries[index].size;
+            if (tig_file_fwrite(&v1, sizeof(v1), 1, stream1) != 1) {
                 // FIXME: Leaks `list`.
                 return false;
             }
