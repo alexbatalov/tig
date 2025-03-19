@@ -9,15 +9,15 @@ extern "C" {
 
 #define TIG_FONT_HANDLE_INVALID ((tig_font_handle_t)0)
 
-typedef enum TigFontFlags {
-    TIG_FONT_SCALE = 0x01,
-    TIG_FONT_UNDERLINE = 0x02,
-    TIG_FONT_SHADOW = 0x08,
-    TIG_FONT_CENTERED = 0x10,
-    TIG_FONT_STRIKE_THROUGH = 0x20,
-    TIG_FONT_NO_ALPHA_BLEND = 0x80,
-    TIG_FONT_BLEND_ADD = 0x100,
-} TigFontFlags;
+typedef uint32_t TigFontFlags;
+
+#define TIG_FONT_SCALE          0x0001u
+#define TIG_FONT_UNDERLINE      0x0002u
+#define TIG_FONT_SHADOW         0x0008u
+#define TIG_FONT_CENTERED       0x0010u
+#define TIG_FONT_STRIKE_THROUGH 0x0020u
+#define TIG_FONT_NO_ALPHA_BLEND 0x0080u
+#define TIG_FONT_BLEND_ADD      0x0100u
 
 typedef struct TigFont {
     /* 0000 */ TigFontFlags flags;
