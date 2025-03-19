@@ -946,7 +946,7 @@ void tig_database_print_info(const char* fmt, ...)
     char buffer[1024];
 
     va_list args;
-    va_start(fmt, args);
+    va_start(args, fmt);
 
     if (tig_database_pack_info_func != NULL) {
         vsprintf(buffer, fmt, args);
@@ -962,7 +962,7 @@ void tig_database_print_error(const char* fmt, ...)
     char buffer[1024];
 
     va_list args;
-    va_start(fmt, args);
+    va_start(args, fmt);
 
     if (tig_database_pack_error_func != NULL) {
         vsprintf(buffer, fmt, args);
