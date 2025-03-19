@@ -75,9 +75,9 @@ static unsigned char* mono_dest;
 // 0x4FEB10
 int tig_debug_init(TigInitInfo* init_info)
 {
-    (void)init_info;
-
     time_t now;
+
+    (void)init_info;
 
     tig_debug_init_backends();
     tig_memory_set_output_func(tig_debug_println);

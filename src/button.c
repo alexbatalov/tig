@@ -55,9 +55,9 @@ static bool busy;
 // 0x537B00
 int tig_button_init(TigInitInfo* init_info)
 {
-    (void)init_info;
-
     int button_index;
+
+    (void)init_info;
 
     for (button_index = 0; button_index < MAX_BUTTONS; button_index++) {
         buttons[button_index].usage = TIG_BUTTON_USAGE_FREE;

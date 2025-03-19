@@ -527,9 +527,9 @@ bool sub_52E9C0(const char* path, TigFile* stream1, TigFile* stream2)
 // 0x52ECA0
 int tig_file_init(TigInitInfo* init_info)
 {
-    (void)init_info;
-
     TigFindFileData ffd;
+
+    (void)init_info;
 
     if (tig_find_first_file("tig.dat", &ffd)) {
         tig_file_repository_add("tig.dat");

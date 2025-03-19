@@ -157,10 +157,10 @@ static bool tig_menu_presenting_drop_down;
 // 0x538F60
 int tig_menu_init(TigInitInfo* init_info)
 {
-    (void)init_info;
-
     TigMenuColors colors;
     int menu_bar_index;
+
+    (void)init_info;
 
     for (menu_bar_index = 0; menu_bar_index < MAX_MENU_BARS; menu_bar_index++) {
         tig_menu_bars[menu_bar_index].usage = TIG_MENU_BAR_UNUSED;

@@ -1162,8 +1162,6 @@ int tig_video_buffer_fill(TigVideoBuffer* video_buffer, TigRect* rect, int color
 // 0x520660
 int tig_video_buffer_line(TigVideoBuffer* video_buffer, TigLine* line, TigRect* a3, unsigned int color)
 {
-    (void)a3;
-
     int pattern = 0;
     bool reversed;
     TigDrawLineModeInfo mode_info;
@@ -1183,6 +1181,8 @@ int tig_video_buffer_line(TigVideoBuffer* video_buffer, TigLine* line, TigRect* 
     int y2;
     int x;
     int y;
+
+    (void)a3;
 
     if (tig_video_buffer_lock(video_buffer) != TIG_OK) {
         return TIG_ERR_7;

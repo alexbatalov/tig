@@ -24,9 +24,9 @@ static HBINK tig_movie_bink;
 // 0x5314F0
 int tig_movie_init(TigInitInfo* init_info)
 {
-    (void)init_info;
-
     HDIGDRIVER drvr;
+
+    (void)init_info;
 
     // COMPAT: Load `binkw32.dll`.
     bink_compat_init();

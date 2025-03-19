@@ -27,9 +27,9 @@ static tig_font_handle_t tig_font_default_font;
 // 0x5351D0
 int tig_font_init(TigInitInfo* init_info)
 {
-    (void)init_info;
-
     TigFont font_data;
+
+    (void)init_info;
 
     tig_font_stack_index = -1;
     tig_font_shadow_color = tig_color_make(10, 10, 10);
