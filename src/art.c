@@ -2120,7 +2120,7 @@ tig_art_id_t tig_art_critter_id_race_set(tig_art_id_t art_id, int value)
 int tig_art_monster_id_specie_get(tig_art_id_t art_id)
 {
     if (tig_art_type(art_id) == TIG_ART_TYPE_MONSTER) {
-        return (art_id >> MONSTER_ID_SPECIE_SHIFT) & (TIG_ART_MONSTER_SPECIE_COUNT);
+        return (art_id >> MONSTER_ID_SPECIE_SHIFT) & (TIG_ART_MONSTER_SPECIE_COUNT - 1);
     }
 
     return 0;
