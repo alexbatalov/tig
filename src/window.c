@@ -1087,14 +1087,16 @@ int sub_51DF60(tig_window_handle_t dst_window_handle, TigRect* dst_rect, TigVide
 // 0x51DF80
 int tig_window_copy_to_vbuffer(tig_window_handle_t src_window_handle, TigRect* src_rect, TigVideoBuffer* dst_video_buffer, TigRect* dst_rect)
 {
+    int src_window_index;
+    TigVideoBufferBlitInfo vb_blit_info;
+
     if (src_window_handle == TIG_WINDOW_HANDLE_INVALID) {
         tig_debug_printf("tig_window_copy_to_vbuffer: ERROR: Attempt to reference Empty WinID!\n");
         return TIG_ERR_INVALID_PARAM;
     }
 
-    int src_window_index = tig_window_handle_to_index(src_window_handle);
+    src_window_index = tig_window_handle_to_index(src_window_handle);
 
-    TigVideoBufferBlitInfo vb_blit_info;
     vb_blit_info.flags = 0;
     vb_blit_info.src_video_buffer = windows[src_window_index].video_buffer;
     vb_blit_info.src_rect = src_rect;
@@ -1487,13 +1489,15 @@ bool tig_window_filter_message(TigMessage* msg)
 // 0x51E850
 int sub_51E850(tig_window_handle_t window_handle)
 {
+    int window_index;
+
     if (!pop_window_stack(window_handle)) {
         return TIG_ERR_16;
     }
 
     push_window_stack(window_handle);
 
-    int window_index = tig_window_handle_to_index(window_handle);
+    window_index = tig_window_handle_to_index(window_handle);
     if ((windows[window_index].flags & TIG_WINDOW_HIDDEN) == 0) {
         tig_window_set_needs_display_in_rect(&(windows[window_index].frame));
     }
