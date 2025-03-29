@@ -61,7 +61,7 @@ static_assert(sizeof(TigFileIgnore) == 0xC, "wrong size");
 static bool sub_52E840(const char* dst, const char* src);
 static bool sub_52E8D0(TigFile* dst_stream, TigFile* src_stream);
 static bool sub_52E900(TigFile* dst_stream, TigFile* src_stream, size_t size);
-static bool sub_52E9C0(const char* path, TigFile* stream1, TigFile* stream2);
+static bool tig_file_archive_worker(const char* path, TigFile* stream1, TigFile* stream2);
 static TigFile* tig_file_create();
 static void tig_file_destroy(TigFile* stream);
 static bool tig_file_close_internal(TigFile* stream);
@@ -219,59 +219,59 @@ bool sub_52E260(const char* dst, const char* src)
 }
 
 // 0x52E430
-bool sub_52E430(const char* dst, const char* src)
+bool tig_file_archive(const char* dst, const char* src)
 {
-    char path1[TIG_MAX_PATH];
-    char path2[TIG_MAX_PATH];
-    TigFile* stream1;
-    TigFile* stream2;
+    char index_path[TIG_MAX_PATH];
+    char data_path[TIG_MAX_PATH];
+    TigFile* index_stream;
+    TigFile* data_stream;
     bool success;
-    int v1;
+    int type;
 
     if (!tig_file_is_directory(src)) {
         return false;
     }
 
-    sprintf(path1, "%s.tfai", dst);
-    stream1 = tig_file_fopen(path1, "wb");
-    if (stream1 == NULL) {
+    sprintf(index_path, "%s.tfai", dst);
+    index_stream = tig_file_fopen(index_path, "wb");
+    if (index_stream == NULL) {
         return false;
     }
 
-    sprintf(path2, "%s.tfaf", dst);
-    stream2 = tig_file_fopen(path2, "wb");
-    if (stream2 == NULL) {
-        tig_file_fclose(stream1);
+    sprintf(data_path, "%s.tfaf", dst);
+    data_stream = tig_file_fopen(data_path, "wb");
+    if (data_stream == NULL) {
+        tig_file_fclose(index_stream);
         return false;
     }
 
-    success = sub_52E9C0(src, stream1, stream2);
+    success = tig_file_archive_worker(src, index_stream, data_stream);
     if (success) {
-        v1 = 3;
-        if (tig_file_fwrite(&v1, sizeof(v1), 1, stream1) != 1) {
+        type = 3;
+        if (tig_file_fwrite(&type, sizeof(type), 1, index_stream) != 1) {
             success = false;
         }
     }
 
-    tig_file_fclose(stream2);
-    tig_file_fclose(stream1);
+    tig_file_fclose(data_stream);
+    tig_file_fclose(index_stream);
 
     if (!success) {
-        tig_file_remove(path2);
-        tig_file_remove(path1);
+        tig_file_remove(data_path);
+        tig_file_remove(index_path);
     }
 
     return success;
 }
 
 // 0x52E550
-bool sub_52E550(const char* src, const char* dst)
+bool tig_file_unarchive(const char* src, const char* dst)
 {
     char path1[TIG_MAX_PATH];
     char path2[TIG_MAX_PATH];
     char path3[TIG_MAX_PATH];
-    TigFile* stream1;
-    TigFile* stream2;
+    TigFile* index_stream;
+    TigFile* data_stream;
     int type;
     int size;
     char* pch;
@@ -280,14 +280,14 @@ bool sub_52E550(const char* src, const char* dst)
     tig_file_mkdir(dst);
 
     sprintf(path1, "%s.tfai", src);
-    stream1 = tig_file_fopen(path1, "rb");
-    if (stream1 == NULL) {
+    index_stream = tig_file_fopen(path1, "rb");
+    if (index_stream == NULL) {
         return false;
     }
 
     sprintf(path1, "%s.tfaf", src);
-    stream2 = tig_file_fopen(path1, "rb");
-    if (stream2 == NULL) {
+    data_stream = tig_file_fopen(path1, "rb");
+    if (data_stream == NULL) {
         // FIXME: Leaks `stream1`.
         return false;
     }
@@ -295,19 +295,19 @@ bool sub_52E550(const char* src, const char* dst)
     strcpy(path2, dst);
     strcat(path2, "\\");
 
-    while (tig_file_fread(&type, sizeof(type), 1, stream1) == 1) {
+    while (tig_file_fread(&type, sizeof(type), 1, index_stream) == 1) {
         if (type == 0) {
-            if (tig_file_fread(&size, sizeof(size), 1, stream1) != 1) {
+            if (tig_file_fread(&size, sizeof(size), 1, index_stream) != 1) {
                 break;
             }
 
-            if (tig_file_fread(path1, size, 1, stream1) != 1) {
+            if (tig_file_fread(path1, size, 1, index_stream) != 1) {
                 break;
             }
 
             path1[size] = '\0';
 
-            if (tig_file_fread(&size, sizeof(size), 1, stream1) != 1) {
+            if (tig_file_fread(&size, sizeof(size), 1, index_stream) != 1) {
                 break;
             }
 
@@ -317,18 +317,18 @@ bool sub_52E550(const char* src, const char* dst)
                 break;
             }
 
-            if (!sub_52E900(tmp_stream, stream2, size)) {
+            if (!sub_52E900(tmp_stream, data_stream, size)) {
                 tig_file_fclose(tmp_stream);
                 break;
             }
 
             tig_file_fclose(tmp_stream);
         } else if (type == 1) {
-            if (tig_file_fread(&size, sizeof(size), 1, stream1) != 1) {
+            if (tig_file_fread(&size, sizeof(size), 1, index_stream) != 1) {
                 break;
             }
 
-            if (tig_file_fread(path1, size, 1, stream1) != 1) {
+            if (tig_file_fread(path1, size, 1, index_stream) != 1) {
                 break;
             }
 
@@ -349,14 +349,14 @@ bool sub_52E550(const char* src, const char* dst)
             }
             pch[1] = '\0';
         } else if (type == 3) {
-            tig_file_fclose(stream2);
-            tig_file_fclose(stream1);
+            tig_file_fclose(data_stream);
+            tig_file_fclose(index_stream);
             return true;
         }
     }
 
-    tig_file_fclose(stream2);
-    tig_file_fclose(stream1);
+    tig_file_fclose(data_stream);
+    tig_file_fclose(index_stream);
     return false;
 }
 
@@ -433,12 +433,13 @@ bool sub_52E900(TigFile* dst_stream, TigFile* src_stream, size_t size)
 }
 
 // 0x52E9C0
-bool sub_52E9C0(const char* path, TigFile* stream1, TigFile* stream2)
+bool tig_file_archive_worker(const char* path, TigFile* index_stream, TigFile* data_stream)
 {
     char pattern[TIG_MAX_PATH];
     TigFileList list;
     unsigned int index;
-    int v1;
+    int type;
+    int size;
     TigFile* tmp_stream;
 
     sprintf(pattern, "%s\\*.*", path);
@@ -448,56 +449,56 @@ bool sub_52E9C0(const char* path, TigFile* stream1, TigFile* stream2)
         if ((list.entries[index].attributes & TIG_FILE_ATTRIBUTE_SUBDIR) != 0) {
             if (strcmp(list.entries[index].path, ".") != 0
                 && strcmp(list.entries[index].path, "..") != 0) {
-                v1 = 1;
-                if (tig_file_fwrite(&v1, sizeof(v1), 1, stream1) != 1) {
+                type = 1;
+                if (tig_file_fwrite(&type, sizeof(type), 1, index_stream) != 1) {
                     // FIXME: Leaks `list`.
                     return false;
                 }
 
-                v1 = (int)strlen(list.entries[index].path);
-                if (tig_file_fwrite(&v1, sizeof(v1), 1, stream1) != 1) {
+                size = (int)strlen(list.entries[index].path);
+                if (tig_file_fwrite(&size, sizeof(size), 1, index_stream) != 1) {
                     // FIXME: Leaks `list`.
                     return false;
                 }
 
-                if (tig_file_fputs(list.entries[index].path, stream1) < 0) {
+                if (tig_file_fputs(list.entries[index].path, index_stream) < 0) {
                     // FIXME: Leaks `list`.
                     return false;
                 }
 
                 sprintf(pattern, "%s\\%s", path, list.entries[index].path);
 
-                if (!sub_52E9C0(pattern, stream1, stream2)) {
+                if (!tig_file_archive_worker(pattern, index_stream, data_stream)) {
                     // FIXME: Leaks `list`.
                     return false;
                 }
 
-                v1 = 2;
-                if (tig_file_fwrite(&v1, sizeof(v1), 1, stream1) != 1) {
+                type = 2;
+                if (tig_file_fwrite(&type, sizeof(type), 1, index_stream) != 1) {
                     // FIXME: Leaks `list`.
                     return false;
                 }
             }
         } else {
-            v1 = 0;
-            if (tig_file_fwrite(&v1, sizeof(v1), 1, stream1) != 1) {
+            type = 0;
+            if (tig_file_fwrite(&type, sizeof(type), 1, index_stream) != 1) {
                 // FIXME: Leaks `list`.
                 return false;
             }
 
-            v1 = (int)strlen(list.entries[index].path);
-            if (tig_file_fwrite(&v1, sizeof(v1), 1, stream1) != 1) {
+            size = (int)strlen(list.entries[index].path);
+            if (tig_file_fwrite(&size, sizeof(size), 1, index_stream) != 1) {
                 // FIXME: Leaks `list`.
                 return false;
             }
 
-            if (tig_file_fputs(list.entries[index].path, stream1) < 0) {
+            if (tig_file_fputs(list.entries[index].path, index_stream) < 0) {
                 // FIXME: Leaks `list`.
                 return false;
             }
 
-            v1 = (int)list.entries[index].size;
-            if (tig_file_fwrite(&v1, sizeof(v1), 1, stream1) != 1) {
+            size = (int)list.entries[index].size;
+            if (tig_file_fwrite(&size, sizeof(size), 1, index_stream) != 1) {
                 // FIXME: Leaks `list`.
                 return false;
             }
@@ -510,7 +511,7 @@ bool sub_52E9C0(const char* path, TigFile* stream1, TigFile* stream2)
                 return false;
             }
 
-            if (!sub_52E8D0(stream2, tmp_stream)) {
+            if (!sub_52E8D0(data_stream, tmp_stream)) {
                 // FIXME: Leaks `tmp_stream`.
                 // FIXME: Leaks `list`.
                 return false;
