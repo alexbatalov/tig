@@ -53,59 +53,56 @@ typedef void* TigPalette;
 #define TIG_ERR_14 14
 #define TIG_ERR_16 16
 
-typedef enum TigInitFlags {
-    // Display FPS counter in the top-left corner of the window.
-    //
-    // NOTE: The counter is rendered using GDI which severely affects
-    // performance.
-    TIG_INITIALIZE_FPS = 0x0001,
+typedef unsigned int TigInitFlags;
 
-    // Use double buffering.
-    TIG_INITIALIZE_DOUBLE_BUFFER = 0x0002,
+// Display FPS counter in the top-left corner of the window.
+//
+// NOTE: The counter is rendered using GDI which severely affects
+// performance.
+#define TIG_INITIALIZE_FPS 0x0001u
 
-    // Use video memory (otherwise only system memory is used).
-    TIG_INITIALIZE_VIDEO_MEMORY = 0x0004,
+// Use double buffering.
+#define TIG_INITIALIZE_DOUBLE_BUFFER 0x0002u
 
-    // Not used and never checked.
-    TIG_INITIALIZE_0x0008 = 0x0008,
+// Use video memory (otherwise only system memory is used).
+#define TIG_INITIALIZE_VIDEO_MEMORY 0x0004u
 
-    // Use intermediary buffer when rendering windows with color key.
-    TIG_INITIALIZE_SCRATCH_BUFFER = 0x0010,
+// Use intermediary buffer when rendering windows with color key.
+#define TIG_INITIALIZE_SCRATCH_BUFFER 0x0010u
 
-    // Use windowed mode (otherwise fullscreen).
-    //
-    // NOTE: This flag is disabled in the game and enabled in the editor. So it
-    // might have a different meaning.
-    TIG_INITIALIZE_WINDOWED = 0x0020,
+// Use windowed mode (otherwise fullscreen).
+//
+// NOTE: This flag is disabled in the game and enabled in the editor. So it
+// might have a different meaning.
+#define TIG_INITIALIZE_WINDOWED 0x0020u
 
-    // Use `TigInitInfo::message_handler`.
-    TIG_INITIALIZE_MESSAGE_HANDLER = 0x0040,
+// Use `TigInitInfo::message_handler`.
+#define TIG_INITIALIZE_MESSAGE_HANDLER 0x0040u
 
-    // TODO: Something with window positioning, unclear.
-    TIG_INITIALIZE_0x0080 = 0x0080,
+// TODO: Something with window positioning, unclear.
+#define TIG_INITIALIZE_0x0080 0x0080u
 
-    // Respect settings provided in `TigInitInfo::x` and `TigInitInfo::y`
-    // (otherwise the window is centered in the screen).
-    TIG_INITIALIZE_POSITIONED = 0x0100,
+// Respect settings provided in `TigInitInfo::x` and `TigInitInfo::y`
+// (otherwise the window is centered in the screen).
+#define TIG_INITIALIZE_POSITIONED 0x0100u
 
-    TIG_INITIALIZE_3D_SOFTWARE_DEVICE = 0x0200,
-    TIG_INITIALIZE_3D_HARDWARE_DEVICE = 0x0400,
-    TIG_INITIALIZE_3D_REF_DEVICE = 0x0800,
+#define TIG_INITIALIZE_3D_SOFTWARE_DEVICE 0x0200u
+#define TIG_INITIALIZE_3D_HARDWARE_DEVICE 0x0400u
+#define TIG_INITIALIZE_3D_REF_DEVICE 0x0800u
 
-    // Use `TigInitInfo::mss_redist_path` to set Miles Sound System redist path.
-    TIG_INITIALIZE_SET_MSS_REDIST_PATH = 0x1000,
+// Use `TigInitInfo::mss_redist_path` to set Miles Sound System redist path.
+#define TIG_INITIALIZE_SET_MSS_REDIST_PATH 0x1000u
 
-    // Completely disables sound system.
-    TIG_INITIALIZE_NO_SOUND = 0x2000,
+// Completely disables sound system.
+#define TIG_INITIALIZE_NO_SOUND 0x2000u
 
-    // Use `TigInitInfo::window_name` to set window name (otherwise it's set to
-    // the executable name).
-    TIG_INITIALIZE_SET_WINDOW_NAME = 0x4000,
+// Use `TigInitInfo::window_name` to set window name (otherwise it's set to
+// the executable name).
+#define TIG_INITIALIZE_SET_WINDOW_NAME 0x4000u
 
-    TIG_INITIALIZE_ANY_3D = TIG_INITIALIZE_3D_SOFTWARE_DEVICE
-        | TIG_INITIALIZE_3D_HARDWARE_DEVICE
-        | TIG_INITIALIZE_3D_REF_DEVICE,
-} TigInitFlags;
+#define TIG_INITIALIZE_ANY_3D (TIG_INITIALIZE_3D_SOFTWARE_DEVICE \
+    | TIG_INITIALIZE_3D_HARDWARE_DEVICE \
+    | TIG_INITIALIZE_3D_REF_DEVICE)
 
 typedef int(TigArtFilePathResolver)(tig_art_id_t art_id, char* path);
 typedef tig_art_id_t(TigArtIdResetFunc)(tig_art_id_t art_id);
