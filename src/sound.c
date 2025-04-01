@@ -523,7 +523,7 @@ int tig_sound_play_streamed_once(tig_sound_handle_t sound_handle, const char* na
 int tig_sound_get_loops(tig_sound_handle_t sound_handle)
 {
     if (!tig_sound_initialized) {
-        // NOTE: Probably `TIG_NOT_INITIALIZED`.
+        // NOTE: Probably `TIG_ERR_NOT_INITIALIZED`.
         return 1;
     }
 

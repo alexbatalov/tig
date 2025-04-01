@@ -51,7 +51,7 @@ TEST(TigRectTest, Intersection)
 
     a = { 1, 2, 3, 4 };
     b = { 5, 6, 7, 8 };
-    EXPECT_EQ(tig_rect_intersection(&a, &b, &c), TIG_ERR_4);
+    EXPECT_EQ(tig_rect_intersection(&a, &b, &c), TIG_ERR_NO_INTERSECTION);
 }
 
 TEST(TigRectTest, Union)
@@ -402,7 +402,7 @@ TEST(TigLineTest, LineIntersectionVerticalLineThru)
     TigRect a = { 3, 7, 10, 10 };
     TigLine b = { 5, 3, 5, 19 };
 
-    EXPECT_EQ(tig_line_intersection(&a, &b), TIG_ERR_4);
+    EXPECT_EQ(tig_line_intersection(&a, &b), TIG_ERR_NO_INTERSECTION);
     EXPECT_EQ(b.x1, 5);
     EXPECT_EQ(b.y1, 3);
     EXPECT_EQ(b.x2, 5);
@@ -454,7 +454,7 @@ TEST(TigLineTest, LineIntersectionHorizontalLineThru)
     TigRect a = { 3, 7, 10, 10 };
     TigLine b = { 0, 10, 15, 10 };
 
-    EXPECT_EQ(tig_line_intersection(&a, &b), TIG_ERR_4);
+    EXPECT_EQ(tig_line_intersection(&a, &b), TIG_ERR_NO_INTERSECTION);
     EXPECT_EQ(b.x1, 0);
     EXPECT_EQ(b.y1, 10);
     EXPECT_EQ(b.x2, 15);

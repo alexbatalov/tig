@@ -93,7 +93,7 @@ void tig_message_set_default_window_proc(WNDPROC func);
 
 // Pulls next message from the game's message queue and returns `TIG_OK`.
 //
-// If the queue is empty returns `TIG_ERR_10`.
+// If the queue is empty returns `TIG_ERR_MESSAGE_QUEUE_EMPTY`.
 int tig_message_dequeue(TigMessage* message);
 
 // Adds `TIG_MESSAGE_QUIT` message to the game's message queue and

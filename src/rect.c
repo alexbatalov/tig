@@ -122,7 +122,7 @@ int tig_rect_intersection(const TigRect* a, const TigRect* b, TigRect* r)
     }
 
     if (width <= 0) {
-        return TIG_ERR_4;
+        return TIG_ERR_NO_INTERSECTION;
     }
 
     if (a->height + a->y <= b->height + b->y) {
@@ -132,7 +132,7 @@ int tig_rect_intersection(const TigRect* a, const TigRect* b, TigRect* r)
     }
 
     if (height <= 0) {
-        return TIG_ERR_4;
+        return TIG_ERR_NO_INTERSECTION;
     }
 
     r->x = x;
@@ -713,7 +713,7 @@ int tig_line_intersection(const TigRect* rect, TigLine* line)
     line->y2 = (int)y2;
 
     if (!intersects) {
-        return TIG_ERR_4;
+        return TIG_ERR_NO_INTERSECTION;
     }
 
     return TIG_OK;

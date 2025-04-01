@@ -326,26 +326,26 @@ int tig_dxinput_init(TigInitInfo* init_info)
     HRESULT hr;
 
     if (direct_input != NULL) {
-        return TIG_ALREADY_INITIALIZED;
+        return TIG_ERR_ALREADY_INITIALIZED;
     }
 
 #ifndef HAVE_DINPUT
     dinput_dll = LoadLibraryA("dinput.dll");
     if (dinput_dll == NULL) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     DirectInputCreateA = (DIRECTINPUTCREATEA)GetProcAddress(dinput_dll, "DirectInputCreateA");
     if (DirectInputCreateA == NULL) {
         FreeLibrary(dinput_dll);
         dinput_dll = NULL;
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 #endif /* HAVE_DINPUT */
 
     hr = DirectInputCreateA(init_info->instance, DIRECTINPUT_VERSION, &direct_input, NULL);
     if (FAILED(hr)) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     return TIG_OK;
@@ -373,7 +373,7 @@ void tig_dxinput_exit()
 int tig_dxinput_get_instance(LPDIRECTINPUTA* direct_input_ptr)
 {
     if (direct_input == NULL) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     *direct_input_ptr = direct_input;

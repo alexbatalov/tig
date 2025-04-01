@@ -61,7 +61,7 @@ void tig_mouse_set_button(int button, bool pressed);
 
 // Obtains current mouse state and returns `TIG_OK`.
 //
-// Returns `TIG_NOT_INITIALIZED` if mouse system was not initialized.
+// Returns `TIG_ERR_NOT_INITIALIZED` if mouse system was not initialized.
 int tig_mouse_get_state(TigMouseState* mouse_state);
 
 // Hides mouse cursor.

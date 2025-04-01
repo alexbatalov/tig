@@ -114,7 +114,7 @@ int tig_init(TigInitInfo* init_info)
     int rc;
 
     if (tig_initialized) {
-        return TIG_ALREADY_INITIALIZED;
+        return TIG_ERR_ALREADY_INITIALIZED;
     }
 
     for (index = 0; index < NUM_INIT_FUNCS; ++index) {

@@ -39,7 +39,7 @@ int tig_bmp_create(TigBmp* bmp)
 
     if (file_hdr.bfType != 0x4D42) {
         tig_file_fclose(stream);
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     static_assert(sizeof(info_hdr) == 0x28, "wrong size");
@@ -55,7 +55,7 @@ int tig_bmp_create(TigBmp* bmp)
             && info_hdr.biBitCount != 24)
         || info_hdr.biCompression != BI_RGB) {
         tig_file_fclose(stream);
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     bmp->bpp = info_hdr.biBitCount;
@@ -77,7 +77,7 @@ int tig_bmp_create(TigBmp* bmp)
             break;
         default:
             tig_file_fclose(stream);
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
     }
 
@@ -341,10 +341,10 @@ int tig_bmp_create_from_video_buffer(TigVideoBuffer* video_buffer, int a2, TigBm
     TigVideoBufferData video_buffer_data;
     int x;
     int y;
-    int rc = TIG_ERR_16;
+    int rc = TIG_ERR_GENERIC;
 
     if (tig_video_buffer_lock(video_buffer) != TIG_OK) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     if (tig_video_buffer_data(video_buffer, &video_buffer_data) == TIG_OK) {
@@ -391,7 +391,7 @@ int tig_bmp_create_from_video_buffer(TigVideoBuffer* video_buffer, int a2, TigBm
     }
 
     if (tig_video_buffer_unlock(video_buffer) != TIG_OK) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     return rc;
@@ -445,7 +445,7 @@ int tig_bmp_copy_to_window(TigBmp* bmp, const TigRect* src_rect, tig_window_hand
     TigVideoBuffer* video_buffer;
 
     if (tig_window_vbid_get(window_handle, &video_buffer)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return tig_bmp_copy_to_video_buffer(bmp, src_rect, video_buffer, dst_rect);

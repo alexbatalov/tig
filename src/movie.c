@@ -61,7 +61,7 @@ int tig_movie_play(const char* path, unsigned int movie_flags, int sound_track)
     tig_movie_flags = BinkDDSurfaceType(tig_movie_surface);
     if (tig_movie_flags == -1 || tig_movie_flags == 0) {
         tig_video_fade(0, 0, 0.0f, 1);
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (sound_track != 0) {

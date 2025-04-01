@@ -118,20 +118,20 @@ int tig_net_xfer_send_as(const char* path, const char* alias, int client_id, int
     TigNetXferInfoPacket info_pkt;
 
     if (strcmp(path + strlen(path) - 5, ".RECV") == 0) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (!tig_net_xfer_get_free_slot(&xfer)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (!tig_file_exists(path, &file_info)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     xfer->stream = tig_file_fopen(path, "rb");
     if (xfer->stream == NULL) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     xfer->flags = TIG_NET_XFER_ACTIVE;
@@ -286,7 +286,7 @@ int sub_534FC0(int id)
     TigNetXferInfoPacket info_pkt;
 
     if (!tig_net_xfer_find(id, &xfer)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     info_pkt.type = TIG_NET_XFER_INFO_TYPE_START;
@@ -344,7 +344,7 @@ int tig_net_xfer_status(int id, char* path, int* progress)
     TigNetXfer* xfer;
 
     if (!tig_net_xfer_find(id, &xfer)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (path != NULL) {

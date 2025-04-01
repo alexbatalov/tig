@@ -99,7 +99,7 @@ int tig_sound_play_streamed_once(tig_sound_handle_t sound_handle, const char* na
 // loops the sound was configured with in the first place.
 //
 // NOTE: The returned value is 1 if SOUND subsystem is not initialized. This 1
-// likely means `TIG_NOT_INITIALIZED` error code.
+// likely means `TIG_ERR_NOT_INITIALIZED` error code.
 int tig_sound_get_loops(tig_sound_handle_t sound_handle);
 
 // Sets the number of loops of a specified sound.

@@ -172,7 +172,7 @@ static bool tig_mouse_initialized;
 int tig_mouse_init(TigInitInfo* init_info)
 {
     if (tig_mouse_initialized) {
-        return TIG_ALREADY_INITIALIZED;
+        return TIG_ERR_ALREADY_INITIALIZED;
     }
 
     tig_mouse_max_x = init_info->width - 1;
@@ -203,29 +203,29 @@ int tig_mouse_device_init()
     int rc;
 
     if (tig_dxinput_get_instance(&direct_input) != TIG_OK) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     hr = IDirectInput_CreateDevice(direct_input, &GUID_SysMouse, &tig_mouse_device, NULL);
     if (FAILED(hr)) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     hr = IDirectInputDevice_SetDataFormat(tig_mouse_device, &c_dfDIMouse);
     if (FAILED(hr)) {
         tig_mouse_device_exit();
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     if (tig_video_platform_window_get(&wnd) != TIG_OK) {
         tig_mouse_device_exit();
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     hr = IDirectInputDevice_SetCooperativeLevel(tig_mouse_device, wnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
     if (FAILED(hr)) {
         tig_mouse_device_exit();
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     rc = tig_art_misc_id_create(TIG_ART_SYSTEM_MOUSE, 0, &art_id);
@@ -235,13 +235,13 @@ int tig_mouse_device_init()
 
     if (!tig_mouse_cursor_create_video_buffers(art_id, 0, 0)) {
         tig_mouse_device_exit();
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (!tig_mouse_cursor_set_art_frame(art_id, 0, 0)) {
         tig_mouse_cursor_destroy_video_buffers();
         tig_mouse_device_exit();
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     dword_6046E8 = 0;
@@ -647,7 +647,7 @@ bool tig_mouse_device_update_state()
 int tig_mouse_get_state(TigMouseState* mouse_state)
 {
     if (!tig_mouse_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     tig_mouse_ping();
@@ -907,7 +907,7 @@ int tig_mouse_cursor_set_art_id(tig_art_id_t art_id)
                     tig_mouse_show();
                 }
 
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             if (!tig_mouse_cursor_set_art_frame(art_id, 0, 0)) {
@@ -920,7 +920,7 @@ int tig_mouse_cursor_set_art_id(tig_art_id_t art_id)
                     tig_mouse_show();
                 }
 
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             tig_video_buffer_destroy(old_opaque_video_buffer);
@@ -931,7 +931,7 @@ int tig_mouse_cursor_set_art_id(tig_art_id_t art_id)
                     tig_mouse_show();
                 }
 
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         }
 
@@ -1025,7 +1025,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
                 if (!hidden) {
                     tig_mouse_show();
                 }
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             if (width != 0) {
@@ -1101,7 +1101,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
             if (!hidden) {
                 tig_mouse_show();
             }
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
 
         if (!tig_mouse_cursor_set_art_frame(tig_mouse_cursor_art_id, dx, dy)) {
@@ -1113,7 +1113,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
             if (!hidden) {
                 tig_mouse_show();
             }
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
 
         tig_video_buffer_destroy(old_opaque_video_buffer);

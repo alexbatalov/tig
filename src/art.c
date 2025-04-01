@@ -404,7 +404,7 @@ int tig_art_init(TigInitInfo* init_info)
     size_t available_memory;
 
     if (tig_art_initialized) {
-        return TIG_ALREADY_INITIALIZED;
+        return TIG_ERR_ALREADY_INITIALIZED;
     }
 
     tig_art_cache_entries_capacity = 512;
@@ -502,7 +502,7 @@ int tig_art_set_fps(tig_art_id_t art_id, int fps)
 
     index = sub_51AA90(art_id);
     if (index == -1) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     tig_art_cache_entries[index].hdr.fps = fps;
@@ -518,7 +518,7 @@ int tig_art_set_action_frame(tig_art_id_t art_id, short action_frame)
 
     index = sub_51AA90(art_id);
     if (index == -1) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     tig_art_cache_entries[index].hdr.action_frame = action_frame;
@@ -535,11 +535,11 @@ int sub_501EB0(tig_art_id_t art_id, const char* filename)
 
     index = sub_51AA90(art_id);
     if (index == -1) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if ((tig_art_cache_entries[index].flags & TIG_ART_CACHE_ENTRY_MODIFIED) == 0) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     tig_art_cache_entries[index].flags &= ~TIG_ART_CACHE_ENTRY_MODIFIED;
@@ -650,7 +650,7 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
     fclose(in);
     fclose(out);
     if (!CopyFileA(path, filename, FALSE)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     remove(path);
@@ -678,11 +678,11 @@ int tig_art_exists(tig_art_id_t art_id)
 {
     char path[TIG_MAX_PATH];
     if (tig_art_build_path(art_id, path) != TIG_OK) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (!tig_file_exists(path, NULL)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -1286,7 +1286,7 @@ int sub_502E00(tig_art_id_t art_id)
 
     palette = tig_art_id_palette_get(art_id);
     if (tig_art_cache_entries[cache_index].hdr.palette_tbl[palette] == 0) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -1380,7 +1380,7 @@ int sub_502FD0(tig_art_id_t art_id, int x, int y)
 
     index = y * tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].width + x;
     if (tig_art_cache_entries[cache_entry_index].pixels_tbl[rotation][frame][index] < 2) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -1395,7 +1395,7 @@ int tig_art_anim_data(tig_art_id_t art_id, TigArtAnimData* data)
 
     cache_index = sub_51AA90(art_id);
     if (cache_index == -1) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     cache_entry = &(tig_art_cache_entries[cache_index]);
@@ -1448,7 +1448,7 @@ int tig_art_frame_data(tig_art_id_t art_id, TigArtFrameData* data)
 
     cache_index = sub_51AA90(art_id);
     if (cache_index == -1) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     rotation = tig_art_id_rotation_get(art_id);
@@ -1628,7 +1628,7 @@ int tig_art_size(tig_art_id_t art_id, int* width_ptr, int* height_ptr)
 
     cache_entry_index = sub_51AA90(art_id);
     if (cache_entry_index == -1) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     art = &(tig_art_cache_entries[cache_entry_index]);
@@ -3020,29 +3020,29 @@ int art_get_video_buffer(unsigned int cache_entry_index, tig_art_id_t art_id, Ti
     art_size_t video_memory_size = 0;
 
     if (sub_51F860() != TIG_OK) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     type = tig_art_type(art_id);
     switch (type) {
     case TIG_ART_TYPE_ITEM:
         if (tig_art_item_id_disposition_get(art_id) != 0) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
         break;
     case TIG_ART_TYPE_INTERFACE:
         if (sub_504390(art_id) == 0) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
         break;
     case TIG_ART_TYPE_MISC:
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     case TIG_ART_TYPE_LIGHT:
         if (!dword_604718) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
         if (sub_504790(art_id) == 0) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
         break;
     case TIG_ART_TYPE_TILE:
@@ -5890,7 +5890,7 @@ int tig_art_build_path(unsigned int art_id, char* path)
         }
     }
 
-    return TIG_ERR_16;
+    return TIG_ERR_GENERIC;
 }
 
 // 0x51B0A0
@@ -6143,25 +6143,25 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
 
     stream = tig_file_fopen(filename, "rb");
     if (stream == NULL) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (tig_file_fread(hdr, sizeof(TigArtHeader), 1, stream) != 1) {
         tig_file_fclose(stream);
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     // Only 8-bpp palette-indexed ART files are supported.
     if (hdr->bpp != 8) {
         tig_file_fclose(stream);
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (a5) {
         current_palette_index = tig_art_id_palette_get(art_id);
         if (hdr->palette_tbl[current_palette_index] != NULL) {
             tig_file_fclose(stream);
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
         current_palette = palette_tbl[0];
     }
@@ -6176,7 +6176,7 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
         if (saved_palette_tbl[palette] != NULL) {
             if (tig_file_fread(temp_palette_entries, sizeof(uint32_t), 256, stream) != 256) {
                 sub_51BE50(stream, hdr, palette_tbl);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             if (a5) {
@@ -6229,7 +6229,7 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
 
         if (tig_file_fread(hdr->frames_tbl[rotation], sizeof(TigArtFileFrameData), hdr->num_frames, stream) != hdr->num_frames) {
             sub_51BE50(stream, hdr, palette_tbl);
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
     }
 
@@ -6257,7 +6257,7 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
                 // Pixels are not compressed, read everything in one go.
                 if (tig_file_fread(bytes, 1, hdr->frames_tbl[index][frame].data_size, stream) != hdr->frames_tbl[index][frame].data_size) {
                     sub_51BE50(stream, hdr, palette_tbl);
-                    return TIG_ERR_16;
+                    return TIG_ERR_GENERIC;
                 }
                 bytes += hdr->frames_tbl[index][frame].data_size;
             } else if (hdr->frames_tbl[index][frame].data_size > 0) {
@@ -6270,20 +6270,20 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
                 while (cnt < hdr->frames_tbl[index][frame].data_size) {
                     if (tig_file_fread(&value, 1, 1, stream) != 1) {
                         sub_51BE50(stream, hdr, palette_tbl);
-                        return TIG_ERR_16;
+                        return TIG_ERR_GENERIC;
                     }
 
                     len = value & 0x7F;
                     if ((value & 0x80) != 0) {
                         if (tig_file_fread(bytes, 1, len, stream) != len) {
                             sub_51BE50(stream, hdr, palette_tbl);
-                            return TIG_ERR_16;
+                            return TIG_ERR_GENERIC;
                         }
                         cnt += 1 + len;
                     } else {
                         if (tig_file_fread(&color, 1, 1, stream) != 1) {
                             sub_51BE50(stream, hdr, palette_tbl);
-                            return TIG_ERR_16;
+                            return TIG_ERR_GENERIC;
                         }
 
                         memset(bytes, color, len);
@@ -6417,13 +6417,13 @@ int sub_51BFB0(FILE* stream, uint8_t* pixels, int width, int height, int pitch, 
 
     data_size = sub_51C080(stream, pixels, width, height, pitch);
     if (data_size == -1) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (data_size >= width * height) {
         for (index = 0; index < height; ++index) {
             if (fwrite(pixels, 1, width, stream) != (size_t)width) {
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             pixels += pitch;
@@ -6610,7 +6610,7 @@ int sub_51C3C0(FILE* stream, uint8_t* pixels, int width, int height, int pitch, 
         for (x = 0; x < width; x++) {
             if (pixels[x] >= 4) {
                 FREE(v2);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             *v4 |= (pixels[x] << v2[index]);
@@ -6623,7 +6623,7 @@ int sub_51C3C0(FILE* stream, uint8_t* pixels, int width, int height, int pitch, 
 
         if (fwrite(v3, 1, v1, stream) != (size_t)v1) {
             FREE(v2);
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
 
         pixels += pitch;
@@ -6706,7 +6706,7 @@ int sub_51C4E0(int a1, TigBmp* bmp, TigRect* content_rect, int* pitch_ptr, int* 
     sub_51C6D0(bmp->pixels, &rect, bmp->pitch, content_rect);
 
     if (content_rect->width == 0 || content_rect->height == 0) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     *pitch_ptr = bmp->pitch;
@@ -6824,7 +6824,7 @@ int sub_51C890(int frame, TigBmp* bmp, TigRect* content_rect, int* pitch_ptr, in
 
         sub_51C6D0(bmp->pixels, &r1, *pitch_ptr, content_rect);
         if (content_rect->width == 0 || content_rect->height == 0) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
 
         *width_ptr = content_rect->width;
@@ -6846,7 +6846,7 @@ int sub_51C890(int frame, TigBmp* bmp, TigRect* content_rect, int* pitch_ptr, in
 
         sub_51C6D0(bmp->pixels, &r1, *pitch_ptr, content_rect);
         if (content_rect->width == 0 || content_rect->height == 0) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
 
         *width_ptr = content_rect->width;

@@ -265,7 +265,7 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
         remainder = str;
 
         if (!tig_font_glyph_data(tig_font_stack[tig_font_stack_index]->art_id, ' ', &glyph_width, &glyph_height, &glyph_dx, &glyph_dy)) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
 
         max_y = rect->y;
@@ -372,7 +372,7 @@ int sub_535850(TigVideoBuffer* video_buffer, const char* str, int length, TigArt
                 str[pos] - 31);
 
             if (!tig_font_glyph_data(glyph_art_id, str[pos], &glyph_width, &glyph_height, &glyph_dx, &glyph_dy)) {
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             if (str[pos] != '\t') {

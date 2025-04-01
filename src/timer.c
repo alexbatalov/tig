@@ -24,7 +24,7 @@ int tig_timer_init(TigInitInfo* init_info)
     (void)init_info;
 
     if (timeBeginPeriod(RESOLUTION) != TIMERR_NOERROR) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;

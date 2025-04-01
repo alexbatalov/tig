@@ -31,27 +31,58 @@ typedef struct TigBmp TigBmp;
 // video mode). Be sure to cast appropriately.
 typedef void* TigPalette;
 
-#define TIG_OK 0
-#define TIG_NOT_INITIALIZED 1
-#define TIG_ALREADY_INITIALIZED 2
+typedef enum TigError {
+    // No error.
+    TIG_OK = 0,
 
-// Indicates that subsystem has run out of free handles or used all slots
-// reserved for appropriate objects.
-#define TIG_ERR_OUT_OF_HANDLES 3
+    // Indicates that the subsystem has not been initialized.
+    TIG_ERR_NOT_INITIALIZED = 1,
 
-#define TIG_ERR_4 4
+    // Indicates that the subsystem is already initialized.
+    TIG_ERR_ALREADY_INITIALIZED = 2,
 
-// Indicates that memory allocation have failed.
-#define TIG_ERR_OUT_OF_MEMORY 5
+    // Indicates that the subsystem has run out of free handles or has used all
+    // slots reserved for appropriate objects. This typically means that
+    // resources are exhausted.
+    TIG_ERR_OUT_OF_HANDLES = 3,
 
-#define TIG_ERR_6 6
-#define TIG_ERR_7 7
-#define TIG_ERR_10 10
-#define TIG_ERR_11 11
-#define TIG_ERR_INVALID_PARAM 12
-#define TIG_ERR_IO 13
-#define TIG_ERR_14 14
-#define TIG_ERR_16 16
+    // Indicates that two rects have no intersection.
+    TIG_ERR_NO_INTERSECTION = 4,
+
+    // Indicates that memory allocation has failed.
+    TIG_ERR_OUT_OF_MEMORY = 5,
+
+    // Indicates that the screen surface is already locked.
+    //
+    // This error occurs when an attempt is made to lock a screen surface that
+    // is already locked for access.
+    TIG_ERR_ALREADY_LOCKED = 6,
+
+    // Indicates that an underlying DirectX operation has failed.
+    TIG_ERR_DIRECTX = 7,
+
+    // Indicates that the internal message queue is empty.
+    //
+    // This error occurs when an attempt is made to dequeue next `TigMessage`
+    // from the queue.
+    TIG_ERR_MESSAGE_QUEUE_EMPTY = 10,
+
+    // Indicates that a blit to screen operation has failed.
+    TIG_ERR_BLIT = 11,
+
+    // Indicates that some function parameter is invalid (i.e. out of range,
+    // bad value, etc.).
+    TIG_ERR_INVALID_PARAM = 12,
+
+    // Indicates an I/O operation error.
+    TIG_ERR_IO = 13,
+
+    // Indicates a network error.
+    TIG_ERR_NET = 14,
+
+    // Indicates a generic error.
+    TIG_ERR_GENERIC = 16,
+} TigError;
 
 typedef unsigned int TigInitFlags;
 

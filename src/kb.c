@@ -38,11 +38,11 @@ int tig_kb_init(TigInitInfo* init_info)
     (void)init_info;
 
     if (tig_kb_initialized) {
-        return TIG_ALREADY_INITIALIZED;
+        return TIG_ERR_ALREADY_INITIALIZED;
     }
 
     if (!tig_kb_device_init()) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     tig_kb_initialized = true;

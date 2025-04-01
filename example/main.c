@@ -39,7 +39,7 @@ static int art_file_path_resolver(tig_art_id_t art_id, char* path)
     }
 
     path[0] = '\0';
-    return TIG_ERR_16;
+    return TIG_ERR_GENERIC;
 }
 
 static int sound_file_path_resolver(int sound_id, char* path)
@@ -59,7 +59,7 @@ static int sound_file_path_resolver(int sound_id, char* path)
     }
 
     path[0] = '\0';
-    return TIG_ERR_16;
+    return TIG_ERR_GENERIC;
 }
 
 static void do_movie(const char* movie)

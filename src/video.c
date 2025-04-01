@@ -167,12 +167,12 @@ int tig_video_init(TigInitInfo* init_info)
     }
 
     if (!tig_video_platform_window_init(init_info)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (!tig_video_ddraw_init(init_info)) {
         tig_video_platform_window_exit();
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     tig_video_show_fps = (init_info->flags & TIG_INITIALIZE_FPS) != 0;
@@ -202,7 +202,7 @@ void tig_video_exit()
 int tig_video_platform_window_get(HWND* wnd_ptr)
 {
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     *wnd_ptr = tig_video_state.wnd;
@@ -214,7 +214,7 @@ int tig_video_platform_window_get(HWND* wnd_ptr)
 int tig_video_instance_get(HINSTANCE* instance_ptr)
 {
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     *instance_ptr = tig_video_state.instance;
@@ -226,7 +226,7 @@ int tig_video_instance_get(HINSTANCE* instance_ptr)
 int tig_video_main_surface_get(LPDIRECTDRAWSURFACE7* surface_ptr)
 {
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     *surface_ptr = tig_video_state.main_surface;
@@ -282,11 +282,11 @@ void tig_video_display_fps()
 int tig_video_main_surface_lock(void** surface_data_ptr)
 {
     if (tig_video_main_surface_locked) {
-        return TIG_ERR_6;
+        return TIG_ERR_ALREADY_LOCKED;
     }
 
     if (!tig_video_surface_lock(tig_video_state.main_surface, &(tig_video_state.current_surface_desc), surface_data_ptr)) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     tig_video_main_surface_locked = true;
@@ -317,7 +317,7 @@ int tig_video_blit(TigVideoBuffer* src_video_buffer, TigRect* src_rect, TigRect*
     DWORD flags;
 
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     rc = tig_rect_intersection(dst_rect, &stru_610388, &clamped_dst_rect);
@@ -385,7 +385,7 @@ int tig_video_blit(TigVideoBuffer* src_video_buffer, TigRect* src_rect, TigRect*
 
     if (FAILED(hr)) {
         tig_debug_printf("DirectX error %d in tig_video_blit()\n", hr);
-        return TIG_ERR_11;
+        return TIG_ERR_BLIT;
     }
 
     return TIG_OK;
@@ -398,7 +398,7 @@ int tig_video_fill(const TigRect* rect, tig_color_t color)
     TigRect clamped_rect;
 
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     rc = tig_rect_intersection(rect != NULL ? rect : &stru_610388,
@@ -414,7 +414,7 @@ int tig_video_fill(const TigRect* rect, tig_color_t color)
     }
 
     if (tig_video_surface_fill(tig_video_state.main_surface, &clamped_rect, color) != TIG_OK) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -427,7 +427,7 @@ int sub_51F860()
 
     hr = IDirectDrawSurface7_IsLost(tig_video_state.main_surface);
     if (FAILED(hr)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -445,13 +445,13 @@ int sub_51F880()
 
     hr = IDirectDraw7_TestCooperativeLevel(tig_video_state.ddraw);
     if (FAILED(hr)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     hr = IDirectDraw7_RestoreAllSurfaces(tig_video_state.ddraw);
     if (FAILED(hr)) {
         tig_video_print_dd_result(hr);
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     tig_mouse_cursor_refresh();
@@ -473,7 +473,7 @@ int tig_video_flip()
             hr = IDirectDrawSurface7_Flip(tig_video_state.primary_surface, NULL, 1);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             src_rect.left = stru_610388.x;
@@ -489,7 +489,7 @@ int tig_video_flip()
                 DDBLTFAST_WAIT);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         } else {
             src_rect.left = stru_610388.x;
@@ -505,7 +505,7 @@ int tig_video_flip()
                 NULL);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         }
     }
@@ -548,7 +548,7 @@ int tig_video_screenshot_make()
 int sub_51FA40(TigRect* rect)
 {
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     *rect = stru_610388;
@@ -560,7 +560,7 @@ int sub_51FA40(TigRect* rect)
 int tig_video_get_bpp(int* bpp)
 {
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     *bpp = tig_video_bpp;
@@ -574,7 +574,7 @@ int tig_video_get_palette(unsigned int* colors)
     int index;
 
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     if (tig_video_bpp == 8) {
@@ -592,7 +592,7 @@ int tig_video_get_palette(unsigned int* colors)
 int tig_video_get_pitch(int* pitch)
 {
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     *pitch = (int)tig_video_state.current_surface_desc.lPitch;
@@ -604,11 +604,11 @@ int tig_video_get_pitch(int* pitch)
 int tig_video_3d_check_initialized()
 {
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     if (!tig_video_3d_initialized) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -618,11 +618,11 @@ int tig_video_3d_check_initialized()
 int tig_video_3d_check_hardware()
 {
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     if (!tig_video_3d_is_hardware) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -632,12 +632,12 @@ int tig_video_3d_check_hardware()
 int tig_video_3d_begin_scene()
 {
     if (sub_51F860() != TIG_OK) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (tig_video_3d_initialized) {
         if (FAILED(IDirect3DDevice7_BeginScene(tig_video_state.d3d_device))) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
     }
 
@@ -649,12 +649,12 @@ int tig_video_3d_begin_scene()
 int tig_video_3d_end_scene()
 {
     if (!tig_video_3d_scene_started) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (tig_video_3d_initialized) {
         if (FAILED(IDirect3DDevice7_EndScene(tig_video_state.d3d_device))) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
     }
 
@@ -671,7 +671,7 @@ int tig_video_get_video_memory_status(size_t* total_memory, size_t* available_me
     HRESULT hr;
 
     if (!tig_video_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     ddscaps2.dwCaps = tig_video_3d_initialized
@@ -698,7 +698,7 @@ int tig_video_get_video_memory_status(size_t* total_memory, size_t* available_me
 int tig_video_check_gamma_control()
 {
     if (!tig_video_state.have_gamma_control) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -712,11 +712,11 @@ int tig_video_fade(int color, int steps, float duration, unsigned int flags)
     LPDDGAMMARAMP dest_gamma_ramp;
 
     if (!tig_video_state.have_gamma_control) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (tig_video_get_gamma_ramp(&curr_gamma_ramp) != TIG_OK) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if ((flags & 0x1) != 0) {
@@ -738,7 +738,7 @@ int tig_video_fade(int color, int steps, float duration, unsigned int flags)
 
     if (steps < 1 || duration < 1.0) {
         if (tig_video_set_gamma_ramp(dest_gamma_ramp) != TIG_OK) {
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
     } else {
         int duration_per_step = (int)((double)duration / (double)steps);
@@ -756,7 +756,7 @@ int tig_video_fade(int color, int steps, float duration, unsigned int flags)
                 curr_gamma_ramp.blue[index] = (WORD)((dest_gamma_ramp->blue[index] - curr_gamma_ramp.blue[index]) / (steps - step));
 
                 if (tig_video_set_gamma_ramp(&curr_gamma_ramp) != TIG_OK) {
-                    return TIG_ERR_16;
+                    return TIG_ERR_GENERIC;
                 }
             }
 
@@ -775,11 +775,11 @@ int tig_video_get_gamma_ramp(LPDDGAMMARAMP gamma_ramp)
     int index;
 
     if (!tig_video_state.have_gamma_control) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (FAILED(IDirectDrawGammaControl_GetGammaRamp(tig_video_state.gamma_control, 0, gamma_ramp))) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     value = 0;
@@ -804,7 +804,7 @@ int tig_video_set_gamma_ramp(LPDDGAMMARAMP gamma_ramp)
     int index;
 
     if (!tig_video_state.have_gamma_control) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     for (index = 0; index < 256; index++) {
@@ -814,7 +814,7 @@ int tig_video_set_gamma_ramp(LPDDGAMMARAMP gamma_ramp)
     }
 
     if (FAILED(IDirectDrawGammaControl_SetGammaRamp(tig_video_state.gamma_control, 0, gamma_ramp))) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -829,7 +829,7 @@ int tig_video_set_gamma(float gamma)
     unsigned int blue;
 
     if (!tig_video_state.have_gamma_control) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (gamma == tig_video_gamma) {
@@ -1009,7 +1009,7 @@ int tig_video_buffer_create(TigVideoBufferCreateInfo* vb_create_info, TigVideoBu
 int tig_video_buffer_destroy(TigVideoBuffer* video_buffer)
 {
     if (video_buffer == NULL) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (tig_video_3d_viewport == video_buffer) {
@@ -1026,7 +1026,7 @@ int tig_video_buffer_destroy(TigVideoBuffer* video_buffer)
 int tig_video_buffer_data(TigVideoBuffer* video_buffer, TigVideoBufferData* video_buffer_data)
 {
     if (video_buffer == NULL) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     video_buffer_data->flags = video_buffer->flags;
@@ -1056,7 +1056,7 @@ int tig_video_buffer_data(TigVideoBuffer* video_buffer, TigVideoBufferData* vide
 int tig_video_buffer_set_color_key(TigVideoBuffer* video_buffer, int color_key)
 {
     if ((video_buffer->flags & TIG_VIDEO_BUFFER_COLOR_KEY) == 0) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     DDCOLORKEY ddck;
@@ -1066,7 +1066,7 @@ int tig_video_buffer_set_color_key(TigVideoBuffer* video_buffer, int color_key)
     HRESULT hr = IDirectDrawSurface7_SetColorKey(video_buffer->surface, DDCKEY_SRCBLT, &ddck);
     if (FAILED(hr)) {
         tig_video_print_dd_result(hr);
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     video_buffer->color_key = color_key;
@@ -1079,7 +1079,7 @@ int tig_video_buffer_lock(TigVideoBuffer* video_buffer)
 {
     if (video_buffer->lock_count == 0) {
         if (!tig_video_surface_lock(video_buffer->surface, &(video_buffer->surface_desc), &(video_buffer->surface_data.pixels))) {
-            return TIG_ERR_7;
+            return TIG_ERR_DIRECTX;
         }
 
         video_buffer->pitch = video_buffer->surface_desc.lPitch;
@@ -1153,7 +1153,7 @@ int tig_video_buffer_outline(TigVideoBuffer* video_buffer, TigRect* rect, int co
 int tig_video_buffer_fill(TigVideoBuffer* video_buffer, TigRect* rect, int color)
 {
     if (!tig_video_surface_fill(video_buffer->surface, rect, color)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -1185,7 +1185,7 @@ int tig_video_buffer_line(TigVideoBuffer* video_buffer, TigLine* line, TigRect* 
     (void)a3;
 
     if (tig_video_buffer_lock(video_buffer) != TIG_OK) {
-        return TIG_ERR_7;
+        return TIG_ERR_DIRECTX;
     }
 
     if (line->y2 <= line->y1) {
@@ -1636,7 +1636,7 @@ int tig_video_buffer_line(TigVideoBuffer* video_buffer, TigLine* line, TigRect* 
     }
 
     if (tig_video_buffer_unlock(video_buffer) != TIG_OK) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -1652,15 +1652,15 @@ int sub_520FB0(TigVideoBuffer* video_buffer, unsigned int flags)
     }
 
     if (!tig_video_3d_initialized) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (tig_video_buffer_data(video_buffer, &data) != TIG_OK) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if ((data.flags & TIG_VIDEO_BUFFER_RENDER_TARGET) == 0) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     return TIG_OK;
@@ -1760,7 +1760,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
         hr = IDirectDrawSurface7_GetSurfaceDesc(blit_info->src_video_buffer->surface, &ddsd);
         if (FAILED(hr)) {
             tig_video_print_dd_result(hr);
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
 
         if ((blit_info->flags & TIG_VIDEO_BUFFER_BLIT_BLEND_ADD) != 0) {
@@ -1774,7 +1774,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 D3DBLEND_ONE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             hr = IDirect3DDevice7_SetRenderState(tig_video_state.d3d_device,
@@ -1782,7 +1782,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 D3DBLEND_ONE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             hr = IDirect3DDevice7_SetRenderState(tig_video_state.d3d_device,
@@ -1790,7 +1790,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 TRUE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         } else if ((blit_info->flags & TIG_VIDEO_BUFFER_BLIT_BLEND_MUL) != 0) {
             alpha[3] = 0xFF000000;
@@ -1803,7 +1803,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 D3DBLEND_ZERO);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             hr = IDirect3DDevice7_SetRenderState(tig_video_state.d3d_device,
@@ -1811,7 +1811,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 D3DBLEND_SRCCOLOR);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             hr = IDirect3DDevice7_SetRenderState(tig_video_state.d3d_device,
@@ -1819,7 +1819,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 TRUE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         } else if ((blit_info->flags & TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_CONST) != 0
             || (blit_info->flags & TIG_VIDEO_BUFFER_BLIT_BLEND_ALPHA_LERP) != 0) {
@@ -1845,7 +1845,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 D3DBLEND_SRCALPHA);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             hr = IDirect3DDevice7_SetRenderState(tig_video_state.d3d_device,
@@ -1853,7 +1853,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 D3DBLEND_INVSRCALPHA);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             hr = IDirect3DDevice7_SetRenderState(tig_video_state.d3d_device,
@@ -1861,7 +1861,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 TRUE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             hr = IDirect3DDevice7_SetRenderState(tig_video_state.d3d_device,
@@ -1869,7 +1869,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 TRUE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         } else {
             alpha[3] = 0xFF000000;
@@ -1882,7 +1882,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 FALSE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
 
             hr = IDirect3DDevice7_SetRenderState(tig_video_state.d3d_device,
@@ -1890,7 +1890,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 FALSE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         }
 
@@ -1908,7 +1908,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 TRUE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         } else if ((blit_info->flags & TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_LERP) != 0) {
             color[0] = (tig_color_red_platform_to_rgb_table[(tig_color_red_mask & blit_info->field_10) >> tig_color_red_shift])
@@ -1938,7 +1938,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 TRUE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         } else {
             color[3] = 0x00FFFFFF;
@@ -1951,7 +1951,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 FALSE);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         }
 
@@ -2005,7 +2005,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
         hr = IDirect3DDevice7_SetTexture(tig_video_state.d3d_device, 0, blit_info->src_video_buffer->surface);
         if (FAILED(hr)) {
             tig_video_print_dd_result(hr);
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
 
         hr = IDirect3DDevice7_DrawPrimitive(tig_video_state.d3d_device,
@@ -2016,7 +2016,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
             0);
         if (FAILED(hr)) {
             tig_video_print_dd_result(hr);
-            return TIG_ERR_16;
+            return TIG_ERR_GENERIC;
         }
 
         return TIG_OK;
@@ -2336,7 +2336,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                     : DDBLTFAST_WAIT);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         } else {
             LPDDBLTFX pfx;
@@ -2373,7 +2373,7 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
                 pfx);
             if (FAILED(hr)) {
                 tig_video_print_dd_result(hr);
-                return TIG_ERR_16;
+                return TIG_ERR_GENERIC;
             }
         }
     }
@@ -2674,7 +2674,7 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
     uint8_t clr;
 
     if (tig_video_bpp == 8) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     stream = tig_file_fopen(filename, "rb");
@@ -3697,7 +3697,7 @@ int tig_video_screenshot_make_internal(int key)
     TigRect rect;
 
     if (tig_video_screenshot_key != key) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     for (index = 0; index < INT_MAX; index++) {
@@ -4278,19 +4278,19 @@ int tig_video_buffer_data_to_bmp(TigVideoBufferData* video_buffer_data, TigRect*
                 b = (uint8_t)tig_color_get_blue(clr);
                 if (tig_file_fwrite(&b, sizeof(b), 1, stream) != 1) {
                     // FIXME: Leaks `stream`.
-                    return TIG_ERR_16;
+                    return TIG_ERR_GENERIC;
                 }
 
                 b = (uint8_t)tig_color_get_green(clr);
                 if (tig_file_fwrite(&b, sizeof(b), 1, stream) != 1) {
                     // FIXME: Leaks `stream`.
-                    return TIG_ERR_16;
+                    return TIG_ERR_GENERIC;
                 }
 
                 b = (uint8_t)tig_color_get_red(clr);
                 if (tig_file_fwrite(&b, sizeof(b), 1, stream) != 1) {
                     // FIXME: Leaks `stream`.
-                    return TIG_ERR_16;
+                    return TIG_ERR_GENERIC;
                 }
 
                 src16++;
@@ -4302,7 +4302,7 @@ int tig_video_buffer_data_to_bmp(TigVideoBufferData* video_buffer_data, TigRect*
             for (x = 0; x < padding; x++) {
                 if (tig_file_fwrite(&b, sizeof(b), 1, stream) != 1) {
                     // FIXME: Leaks `stream`.
-                    return TIG_ERR_16;
+                    return TIG_ERR_GENERIC;
                 }
             }
 
@@ -4321,7 +4321,7 @@ int tig_video_3d_set_viewport(TigVideoBuffer* video_buffer)
     D3DVIEWPORT7 viewport;
 
     if (!tig_video_3d_initialized) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (tig_video_3d_viewport == video_buffer) {
@@ -4332,7 +4332,7 @@ int tig_video_3d_set_viewport(TigVideoBuffer* video_buffer)
     if (FAILED(hr)) {
         tig_debug_printf("3D: Error setting rendering target.\n");
         tig_video_print_dd_result(hr);
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     tig_debug_printf("3D: Render target successfully set.\n");
@@ -4348,7 +4348,7 @@ int tig_video_3d_set_viewport(TigVideoBuffer* video_buffer)
     if (FAILED(hr)) {
         tig_debug_printf("3D: Error setting viewport.\n");
         tig_video_print_dd_result(hr);
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     tig_debug_printf("3D: Viewport successfully set.\n");

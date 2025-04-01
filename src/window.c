@@ -177,7 +177,7 @@ int tig_window_create(TigWindowData* window_data, tig_window_handle_t* window_ha
     int rc;
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     if (tig_window_num_windows >= TIG_WINDOW_MAX) {
@@ -266,7 +266,7 @@ int tig_window_destroy(tig_window_handle_t window_handle)
     }
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -308,7 +308,7 @@ int tig_window_button_destroy(tig_window_handle_t window_handle)
     }
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -336,7 +336,7 @@ int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMe
     }
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     if (func == NULL) {
@@ -367,7 +367,7 @@ int tig_window_data(tig_window_handle_t window_handle, TigWindowData* window_dat
     }
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -392,11 +392,11 @@ int tig_window_display()
     bool show_mouse = false;
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     if (sub_51F880() != TIG_OK) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (tig_window_dirty_rects == NULL) {
@@ -656,7 +656,7 @@ int tig_window_fill(tig_window_handle_t window_handle, TigRect* rect, int color)
     }
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -704,7 +704,7 @@ int tig_window_line(tig_window_handle_t window_handle, TigLine* line, int color)
     }
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -715,7 +715,7 @@ int tig_window_line(tig_window_handle_t window_handle, TigLine* line, int color)
     }
 
     if (tig_line_bounding_box(line, &dirty_rect) != TIG_OK) {
-        return TIG_ERR_4;
+        return TIG_ERR_NO_INTERSECTION;
     }
 
     rc = tig_video_buffer_line(win->video_buffer, line, &dirty_rect, color);
@@ -1149,7 +1149,7 @@ int tig_window_tint(tig_window_handle_t window_handle, TigRect* rect, int a3, in
     }
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -1492,7 +1492,7 @@ int sub_51E850(tig_window_handle_t window_handle)
     int window_index;
 
     if (!pop_window_stack(window_handle)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     push_window_stack(window_handle);
@@ -1512,7 +1512,7 @@ int tig_window_move_on_top(tig_window_handle_t window_handle)
     TigWindow* win;
 
     if (!pop_window_stack(window_handle)) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     push_window_stack(window_handle);
@@ -1592,11 +1592,11 @@ int tig_window_vbid_get(tig_window_handle_t window_handle, TigVideoBuffer** vide
     TigWindow* win;
 
     if (video_buffer_ptr == NULL) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (!tig_window_initialized) {
-        return TIG_NOT_INITIALIZED;
+        return TIG_ERR_NOT_INITIALIZED;
     }
 
     window_index = tig_window_handle_to_index(window_handle);
@@ -1614,11 +1614,11 @@ int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModal
     TigWindowData window_data;
 
     if (modal_info == NULL) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if (!tig_window_modal_dialog_init()) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     tig_window_modal_dialog_info = *modal_info;
@@ -1632,7 +1632,7 @@ int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModal
     window_data.rect.y = modal_info->y;
 
     if (tig_window_create(&window_data, &tig_window_modal_dialog_window_handle) != TIG_OK) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     tig_window_modal_dialog_create_buttons(modal_info->type, tig_window_modal_dialog_window_handle);

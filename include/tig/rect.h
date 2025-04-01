@@ -50,8 +50,8 @@ void tig_rect_node_destroy(TigRectListNode* node);
 // Computes an intersection of two given rectangles.
 //
 // If the two rectangles overlap returns `TIG_OK` and the resulting rect is
-// available in `r`. If the two rectangles do not overlap returns `TIG_ERR_4`
-// and the resulting rect is undefined.
+// available in `r`. If the two rectangles do not overlap returns
+// `TIG_ERR_NO_INTERSECTION` and the resulting rect is undefined.
 int tig_rect_intersection(const TigRect* a, const TigRect* b, TigRect* r);
 
 // Slices given rectangle `a` with `b` producing at most 4 excluded rectangles,

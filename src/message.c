@@ -81,7 +81,7 @@ int tig_message_init(TigInitInfo* init_info)
     }
 
     if (tig_message_default_window_proc == NULL) {
-        return TIG_ERR_16;
+        return TIG_ERR_GENERIC;
     }
 
     if ((init_info->flags & TIG_INITIALIZE_MESSAGE_HANDLER) == 0) {
@@ -354,7 +354,7 @@ int tig_message_dequeue(TigMessage* message)
     TigMessage temp_message;
 
     if (tig_message_queue_head == NULL) {
-        return TIG_ERR_10;
+        return TIG_ERR_MESSAGE_QUEUE_EMPTY;
     }
 
     EnterCriticalSection(&tig_message_critical_section);
@@ -377,7 +377,7 @@ int tig_message_dequeue(TigMessage* message)
     }
 
     // FIXME: Missing `LeaveCriticalSection`.
-    return TIG_ERR_10;
+    return TIG_ERR_MESSAGE_QUEUE_EMPTY;
 }
 
 // 0x52BE60

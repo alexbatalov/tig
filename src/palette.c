@@ -34,7 +34,7 @@ int tig_palette_init(TigInitInfo* init_info)
     int index;
 
     if (tig_palette_initialized) {
-        return TIG_ALREADY_INITIALIZED;
+        return TIG_ERR_ALREADY_INITIALIZED;
     }
 
     switch (init_info->bpp) {

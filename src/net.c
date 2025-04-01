@@ -879,13 +879,13 @@ int tig_net_start_client()
     }
 
     if (!tig_net_ws_init()) {
-        return TIG_ERR_14;
+        return TIG_ERR_NET;
     }
 
     tig_net_bookmarks_load(".\\data\\bookmark.txt");
 
-    if (sub_527AF0() == TIG_ERR_14) {
-        return TIG_ERR_14;
+    if (sub_527AF0() == TIG_ERR_NET) {
+        return TIG_ERR_NET;
     }
 
     if ((tig_net_flags & TIG_NET_NO_BROADCAST) == 0) {
@@ -1092,7 +1092,7 @@ int sub_527AF0()
     h = tig_net_ws_procs.gethostbyname(hostname);
     if (h == NULL) {
         tig_debug_printf("TCP-NET: Error: could not get hostname failing start\n");
-        return TIG_ERR_14;
+        return TIG_ERR_NET;
     }
 
     memcpy(&(tig_net_local_socket.addr.sin_addr), h->h_addr, h->h_length);
@@ -1209,13 +1209,13 @@ bool tig_net_start_server()
     if ((tig_net_flags & TIG_NET_CONNECTED) == 0) {
         if (tig_net_start_client() != TIG_OK) {
             // FIXME: Should be `false`.
-            return TIG_ERR_14;
+            return TIG_ERR_NET;
         }
     }
 
-    if (sub_527AF0() == TIG_ERR_14) {
+    if (sub_527AF0() == TIG_ERR_NET) {
         // FIXME: Should be `false`.
-        return TIG_ERR_14;
+        return TIG_ERR_NET;
     }
 
     // Reset all clients.
