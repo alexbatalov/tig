@@ -11,13 +11,13 @@ extern "C" {
 
 typedef uint32_t TigFontFlags;
 
-#define TIG_FONT_SCALE          0x0001u
-#define TIG_FONT_UNDERLINE      0x0002u
-#define TIG_FONT_SHADOW         0x0008u
-#define TIG_FONT_CENTERED       0x0010u
+#define TIG_FONT_SCALE 0x0001u
+#define TIG_FONT_UNDERLINE 0x0002u
+#define TIG_FONT_SHADOW 0x0008u
+#define TIG_FONT_CENTERED 0x0010u
 #define TIG_FONT_STRIKE_THROUGH 0x0020u
 #define TIG_FONT_NO_ALPHA_BLEND 0x0080u
-#define TIG_FONT_BLEND_ADD      0x0100u
+#define TIG_FONT_BLEND_ADD 0x0100u
 
 typedef struct TigFont {
     /* 0000 */ TigFontFlags flags;

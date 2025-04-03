@@ -132,7 +132,7 @@ typedef unsigned int TigInitFlags;
 #define TIG_INITIALIZE_SET_WINDOW_NAME 0x4000u
 
 #define TIG_INITIALIZE_ANY_3D (TIG_INITIALIZE_3D_SOFTWARE_DEVICE \
-    | TIG_INITIALIZE_3D_HARDWARE_DEVICE \
+    | TIG_INITIALIZE_3D_HARDWARE_DEVICE                          \
     | TIG_INITIALIZE_3D_REF_DEVICE)
 
 typedef int(TigArtFilePathResolver)(tig_art_id_t art_id, char* path);
