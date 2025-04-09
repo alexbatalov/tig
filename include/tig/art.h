@@ -254,100 +254,100 @@ typedef struct TigArtFrameData {
 
 static_assert(sizeof(TigArtFrameData) == 0x18, "wrong size");
 
-typedef enum TigArtBltFlags {
-    TIG_ART_BLT_FLIP_X = 0x00000001,
-    TIG_ART_BLT_FLIP_Y = 0x00000002,
+typedef unsigned int TigArtBlitFlags;
 
-    // Forces to use base art palette.
-    //
-    // Mutually exclusive with `TIG_ART_BLT_PALETTE_OVERRIDE`.
-    TIG_ART_BLT_PALETTE_ORIGINAL = 0x00000004,
+#define TIG_ART_BLT_FLIP_X 0x00000001u
+#define TIG_ART_BLT_FLIP_Y 0x00000002u
 
-    // Forces to use custom palette specified in `TigArtBlitInfo::palette`.
-    //
-    // Mutually exclusive with `TIG_ART_BLT_PALETTE_ORIGINAL`.
-    TIG_ART_BLT_PALETTE_OVERRIDE = 0x00000008,
+// Forces to use base art palette.
+//
+// Mutually exclusive with `TIG_ART_BLT_PALETTE_OVERRIDE`.
+#define TIG_ART_BLT_PALETTE_ORIGINAL 0x00000004u
 
-    // Sum the components of source (art) and destination (video buffer).
-    TIG_ART_BLT_BLEND_ADD = 0x00000010,
+// Forces to use custom palette specified in `TigArtBlitInfo::palette`.
+//
+// Mutually exclusive with `TIG_ART_BLT_PALETTE_ORIGINAL`.
+#define TIG_ART_BLT_PALETTE_OVERRIDE 0x00000008u
 
-    // Subtract the components of source (art) from destination (video buffer).
-    TIG_ART_BLT_BLEND_SUB = 0x00000020,
+// Sum the components of source (art) and destination (video buffer).
+#define TIG_ART_BLT_BLEND_ADD 0x00000010u
 
-    // Multiply the components of source (art) and destination (video buffer).
-    TIG_ART_BLT_BLEND_MUL = 0x00000040,
+// Subtract the components of source (art) from destination (video buffer).
+#define TIG_ART_BLT_BLEND_SUB 0x00000020u
 
-    TIG_ART_BLT_BLEND_ALPHA_AVG = 0x00000080,
+// Multiply the components of source (art) and destination (video buffer).
+#define TIG_ART_BLT_BLEND_MUL 0x00000040u
 
-    TIG_ART_BLT_BLEND_ALPHA_CONST = 0x00000100,
+#define TIG_ART_BLT_BLEND_ALPHA_AVG 0x00000080u
 
-    TIG_ART_BLT_BLEND_ALPHA_SRC = 0x00000200,
+#define TIG_ART_BLT_BLEND_ALPHA_CONST 0x00000100u
 
-    // Blends source (art) with destination (video buffer) by applying linearly
-    // interpolated alpha mask along horizontal axis.
-    //
-    // Use `TigArtBlitInfo::alpha[0]` to specify start alpha value (at left
-    // edge) and `TigArtBlitInfo::alpha[1]` to specify end alpha value (right
-    // edge) where `0` is fully transparent (results in src color), and `255`
-    // is fully opaque (results in dst color).
-    TIG_ART_BLT_BLEND_ALPHA_LERP_X = 0x00000400,
+#define TIG_ART_BLT_BLEND_ALPHA_SRC 0x00000200u
 
-    // Blends source (art) with destination (video buffer) by applying linearly
-    // interpolated alpha mask along vertical axis.
-    //
-    // Use `TigArtBlitInfo::alpha[0]` to specify start alpha value (at top edge)
-    // and `TigArtBlitInfo::alpha[3]` to specify end alpha value (at bottom
-    // edge) where `0` is fully transparent (results in src color), and `255`
-    // is fully opaque (results in dst color).
-    TIG_ART_BLT_BLEND_ALPHA_LERP_Y = 0x00000800,
+// Blends source (art) with destination (video buffer) by applying linearly
+// interpolated alpha mask along horizontal axis.
+//
+// Use `TigArtBlitInfo::alpha[0]` to specify start alpha value (at left edge)
+// and `TigArtBlitInfo::alpha[1]` to specify end alpha value (right edge) where
+// `0` is fully transparent (results in src color), and `255` is fully opaque
+// (results in dst color).
+#define TIG_ART_BLT_BLEND_ALPHA_LERP_X 0x00000400u
 
-    // Blends source (art) with destination (video buffer) by applying linearly
-    // interpolated alpha mask in both directions.
-    //
-    //  - `TigArtBlitInfo::alpha[0]` - top-left corner alpha,
-    //  - `TigArtBlitInfo::alpha[1]` - top-right corner alpha,
-    //  - `TigArtBlitInfo::alpha[2]` - bottom-right corner alpha,
-    //  - `TigArtBlitInfo::alpha[3]` - bottom-left corner alpha.
-    TIG_ART_BLT_BLEND_ALPHA_LERP_BOTH = 0x00001000,
+// Blends source (art) with destination (video buffer) by applying linearly
+// interpolated alpha mask along vertical axis.
+//
+// Use `TigArtBlitInfo::alpha[0]` to specify start alpha value (at top edge)
+// and `TigArtBlitInfo::alpha[3]` to specify end alpha value (at bottom edge)
+// where `0` is fully transparent (results in src color), and `255` is fully
+// opaque (results in dst color).
+#define TIG_ART_BLT_BLEND_ALPHA_LERP_Y 0x00000800u
 
-    TIG_ART_BLT_BLEND_COLOR_CONST = 0x00002000,
+// Blends source (art) with destination (video buffer) by applying linearly
+// interpolated alpha mask in both directions.
+//
+//  - `TigArtBlitInfo::alpha[0]` - top-left corner alpha,
+//  - `TigArtBlitInfo::alpha[1]` - top-right corner alpha,
+//  - `TigArtBlitInfo::alpha[2]` - bottom-right corner alpha,
+//  - `TigArtBlitInfo::alpha[3]` - bottom-left corner alpha.
+#define TIG_ART_BLT_BLEND_ALPHA_LERP_BOTH 0x00001000u
 
-    TIG_ART_BLT_BLEND_COLOR_ARRAY = 0x00004000,
+#define TIG_ART_BLT_BLEND_COLOR_CONST 0x00002000u
 
-    TIG_ART_BLT_BLEND_ALPHA_STIPPLE_S = 0x00008000,
+#define TIG_ART_BLT_BLEND_COLOR_ARRAY 0x00004000u
 
-    TIG_ART_BLT_BLEND_ALPHA_STIPPLE_D = 0x00010000,
+#define TIG_ART_BLT_BLEND_ALPHA_STIPPLE_S 0x00008000u
 
-    TIG_ART_BLT_BLEND_COLOR_LERP = 0x00020000,
+#define TIG_ART_BLT_BLEND_ALPHA_STIPPLE_D 0x00010000u
 
-    TIG_ART_BLT_SCRATCH_VALID = 0x01000000,
+#define TIG_ART_BLT_BLEND_COLOR_LERP 0x00020000u
 
-    TIG_ART_BLT_BLEND_COLOR_ANY = TIG_ART_BLT_BLEND_COLOR_LERP
-        | TIG_ART_BLT_BLEND_COLOR_ARRAY
-        | TIG_ART_BLT_BLEND_COLOR_CONST,
+#define TIG_ART_BLT_SCRATCH_VALID 0x01000000u
 
-    TIG_ART_BLT_BLEND_ALPHA_ANY = TIG_ART_BLT_BLEND_ALPHA_STIPPLE_D
-        | TIG_ART_BLT_BLEND_ALPHA_STIPPLE_S
-        | TIG_ART_BLT_BLEND_ALPHA_LERP_BOTH
-        | TIG_ART_BLT_BLEND_ALPHA_LERP_Y
-        | TIG_ART_BLT_BLEND_ALPHA_LERP_X
-        | TIG_ART_BLT_BLEND_ALPHA_SRC
-        | TIG_ART_BLT_BLEND_ALPHA_CONST
-        | TIG_ART_BLT_BLEND_ALPHA_AVG
-        | TIG_ART_BLT_BLEND_MUL
-        | TIG_ART_BLT_BLEND_SUB
-        | TIG_ART_BLT_BLEND_ADD,
+#define TIG_ART_BLT_BLEND_COLOR_ANY (TIG_ART_BLT_BLEND_COLOR_LERP \
+    | TIG_ART_BLT_BLEND_COLOR_ARRAY \
+    | TIG_ART_BLT_BLEND_COLOR_CONST)
 
-    TIG_ART_BLT_BLEND_ANY = TIG_ART_BLT_BLEND_COLOR_ANY
-        | TIG_ART_BLT_BLEND_ALPHA_ANY,
+#define TIG_ART_BLT_BLEND_ALPHA_ANY (TIG_ART_BLT_BLEND_ALPHA_STIPPLE_D \
+    | TIG_ART_BLT_BLEND_ALPHA_STIPPLE_S \
+    | TIG_ART_BLT_BLEND_ALPHA_LERP_BOTH \
+    | TIG_ART_BLT_BLEND_ALPHA_LERP_Y \
+    | TIG_ART_BLT_BLEND_ALPHA_LERP_X \
+    | TIG_ART_BLT_BLEND_ALPHA_SRC \
+    | TIG_ART_BLT_BLEND_ALPHA_CONST \
+    | TIG_ART_BLT_BLEND_ALPHA_AVG \
+    | TIG_ART_BLT_BLEND_MUL \
+    | TIG_ART_BLT_BLEND_SUB \
+    | TIG_ART_BLT_BLEND_ADD)
 
-    TIG_ART_BLT_BLEND_ALPHA_LERP_ANY = TIG_ART_BLT_BLEND_ALPHA_LERP_X
-        | TIG_ART_BLT_BLEND_ALPHA_LERP_Y
-        | TIG_ART_BLT_BLEND_ALPHA_LERP_BOTH,
-} TigArtBltFlags;
+#define TIG_ART_BLT_BLEND_ANY (TIG_ART_BLT_BLEND_COLOR_ANY \
+    | TIG_ART_BLT_BLEND_ALPHA_ANY)
+
+#define TIG_ART_BLT_BLEND_ALPHA_LERP_ANY (TIG_ART_BLT_BLEND_ALPHA_LERP_X \
+    | TIG_ART_BLT_BLEND_ALPHA_LERP_Y \
+    | TIG_ART_BLT_BLEND_ALPHA_LERP_BOTH)
 
 typedef struct TigArtBlitInfo {
-    /* 0000 */ unsigned int flags;
+    /* 0000 */ TigArtBlitFlags flags;
     /* 0004 */ tig_art_id_t art_id;
     /* 0008 */ TigRect* src_rect;
     /* 000C */ TigPalette palette;
