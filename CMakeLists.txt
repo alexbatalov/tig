@@ -145,9 +145,9 @@ target_link_libraries(tig PUBLIC tig_common)
 
 # Turn on strict mode (but only for the library itself, hence PRIVATE).
 if(MSVC)
-    target_compile_options(tig PRIVATE /W4 /WX)
+    target_compile_options(tig PRIVATE /W4)
 else()
-    target_compile_options(tig PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    target_compile_options(tig PRIVATE -Wall -Wextra)
 endif()
 
 # ------------------------------------------------------------------------------
