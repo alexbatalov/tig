@@ -45,7 +45,7 @@ void tig_movie_exit()
 }
 
 // 0x531530
-int tig_movie_play(const char* path, unsigned int movie_flags, int sound_track)
+int tig_movie_play(const char* path, TigMovieFlags movie_flags, int sound_track)
 {
     unsigned int bink_open_flags = 0;
     TigMessage message;
