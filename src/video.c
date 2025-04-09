@@ -2500,26 +2500,31 @@ int tig_video_buffer_tint(TigVideoBuffer* video_buffer, TigRect* rect, tig_color
         case 16:
             if (1) {
                 uint16_t* dst = (uint16_t*)video_buffer->surface_data.pixels + (video_buffer->pitch / 2) * (y + frame.y) + frame.x;
+                uint16_t src_color;
 
                 switch (mode) {
                 case TIG_VIDEO_BUFFER_TINT_MODE_ADD:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = (uint16_t)tig_color_add(*dst, (uint16_t)tint_color);
+                        src_color = *dst;
+                        *dst++ = (uint16_t)tig_color_add(src_color, (uint16_t)tint_color);
                     }
                     break;
                 case TIG_VIDEO_BUFFER_TINT_MODE_SUB:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = (uint16_t)tig_color_sub(*dst, (uint16_t)tint_color);
+                        src_color = *dst;
+                        *dst++ = (uint16_t)tig_color_sub(src_color, (uint16_t)tint_color);
                     }
                     break;
                 case TIG_VIDEO_BUFFER_TINT_MODE_MUL:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = (uint16_t)tig_color_mul(*dst, (uint16_t)tint_color);
+                        src_color = *dst;
+                        *dst++ = (uint16_t)tig_color_mul(src_color, (uint16_t)tint_color);
                     }
                     break;
                 case TIG_VIDEO_BUFFER_TINT_MODE_GRAYSCALE:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = (uint16_t)tig_color_rgb_to_grayscale(*dst);
+                        src_color = *dst;
+                        *dst++ = (uint16_t)tig_color_rgb_to_grayscale(src_color);
                     }
                     break;
                 }
@@ -2583,26 +2588,31 @@ int tig_video_buffer_tint(TigVideoBuffer* video_buffer, TigRect* rect, tig_color
         case 32:
             if (1) {
                 uint32_t* dst = (uint32_t*)video_buffer->surface_data.pixels + (video_buffer->pitch / 4) * (y + frame.y) + frame.x;
+                uint32_t src_color;
 
                 switch (mode) {
                 case TIG_VIDEO_BUFFER_TINT_MODE_ADD:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = tig_color_add(tint_color, *dst);
+                        src_color = *dst;
+                        *dst++ = tig_color_add(tint_color, src_color);
                     }
                     break;
                 case TIG_VIDEO_BUFFER_TINT_MODE_SUB:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = tig_color_sub(tint_color, *dst);
+                        src_color = *dst;
+                        *dst++ = tig_color_sub(tint_color, src_color);
                     }
                     break;
                 case TIG_VIDEO_BUFFER_TINT_MODE_MUL:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = tig_color_mul(tint_color, *dst);
+                        src_color = *dst;
+                        *dst++ = tig_color_mul(tint_color, src_color);
                     }
                     break;
                 case TIG_VIDEO_BUFFER_TINT_MODE_GRAYSCALE:
                     for (x = 0; x < frame.width; ++x) {
-                        *dst++ = tig_color_rgb_to_grayscale(*dst);
+                        src_color = *dst;
+                        *dst++ = tig_color_rgb_to_grayscale(src_color);
                     }
                     break;
                 }
