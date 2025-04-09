@@ -158,7 +158,8 @@ void* tig_memory_alloc(size_t size, const char* file, int line)
     ptr = malloc(size + OVERHEAD_SIZE);
     if (ptr == NULL) {
         // NOTE: Format is slightly modified for VS Code to recognize file path.
-        tig_memory_fatal_error("TIG Memory: Error - unable to allocate block of %u bytes in %s:%d.",
+        tig_memory_fatal_error("TIG Memory: Error - unable to allocate block of %zu bytes in %s:%d.",
+            size,
             file,
             line);
     }
@@ -239,7 +240,8 @@ void* tig_memory_realloc(void* ptr, size_t size, const char* file, int line)
     ptr = realloc(block, size + OVERHEAD_SIZE);
     if (ptr == NULL) {
         // NOTE: Format is slightly modified for VS Code to recognize file path.
-        tig_memory_fatal_error("TIG Memory: Error - unable to reallocate block of %u bytes in %s:%d.",
+        tig_memory_fatal_error("TIG Memory: Error - unable to reallocate block of %zu bytes in %s:%d.",
+            size,
             file,
             line);
     }
@@ -302,24 +304,24 @@ void tig_memory_print_stats(TigMemoryPrintStatsOptions opts)
 
     if ((opts & TIG_MEMORY_STATS_PRINT_OVERHEAD) != 0) {
         sprintf(tig_memory_output_buffer,
-            "Peak memory management overhead: %u bytes.",
+            "Peak memory management overhead: %zu bytes.",
             tig_memory_max_overhead);
         tig_memory_output_func(tig_memory_output_buffer);
 
         sprintf(tig_memory_output_buffer,
-            "Current memory management overhead: %u bytes.",
+            "Current memory management overhead: %zu bytes.",
             tig_memory_current_overhead);
         tig_memory_output_func(tig_memory_output_buffer);
     }
 
     sprintf(tig_memory_output_buffer,
-        "Peak program memory usage: %u blocks, %u bytes.",
+        "Peak program memory usage: %zu blocks, %zu bytes.",
         tig_memory_max_blocks,
         tig_memory_max_allocated);
     tig_memory_output_func(tig_memory_output_buffer);
 
     sprintf(tig_memory_output_buffer,
-        "Current program memory usage: %u blocks totaling %u bytes.",
+        "Current program memory usage: %zu blocks totaling %zu bytes.",
         tig_memory_current_blocks,
         tig_memory_current_allocated);
     tig_memory_output_func(tig_memory_output_buffer);
@@ -333,7 +335,7 @@ void tig_memory_print_stats(TigMemoryPrintStatsOptions opts)
             // path. In addition %08x is replaced with %p to prevent compiler
             // warning.
             sprintf(tig_memory_output_buffer,
-                "    %s:%d:  %u bytes at %p.",
+                "    %s:%d:  %zu bytes at %p.",
                 curr->file,
                 curr->line,
                 curr->size,
@@ -371,7 +373,7 @@ void tig_memory_print_stats(TigMemoryPrintStatsOptions opts)
                 // NOTE: Format is slightly modified for VS Code to recognize
                 // file path.
                 sprintf(tig_memory_output_buffer,
-                    "    %s:%d:  %u blocks totaling %u bytes.",
+                    "    %s:%d:  %zu blocks totaling %zu bytes.",
                     array[index]->file,
                     array[index]->line,
                     blocks,
