@@ -324,26 +324,26 @@ typedef unsigned int TigArtBlitFlags;
 #define TIG_ART_BLT_SCRATCH_VALID 0x01000000u
 
 #define TIG_ART_BLT_BLEND_COLOR_ANY (TIG_ART_BLT_BLEND_COLOR_LERP \
-    | TIG_ART_BLT_BLEND_COLOR_ARRAY \
+    | TIG_ART_BLT_BLEND_COLOR_ARRAY                               \
     | TIG_ART_BLT_BLEND_COLOR_CONST)
 
 #define TIG_ART_BLT_BLEND_ALPHA_ANY (TIG_ART_BLT_BLEND_ALPHA_STIPPLE_D \
-    | TIG_ART_BLT_BLEND_ALPHA_STIPPLE_S \
-    | TIG_ART_BLT_BLEND_ALPHA_LERP_BOTH \
-    | TIG_ART_BLT_BLEND_ALPHA_LERP_Y \
-    | TIG_ART_BLT_BLEND_ALPHA_LERP_X \
-    | TIG_ART_BLT_BLEND_ALPHA_SRC \
-    | TIG_ART_BLT_BLEND_ALPHA_CONST \
-    | TIG_ART_BLT_BLEND_ALPHA_AVG \
-    | TIG_ART_BLT_BLEND_MUL \
-    | TIG_ART_BLT_BLEND_SUB \
+    | TIG_ART_BLT_BLEND_ALPHA_STIPPLE_S                                \
+    | TIG_ART_BLT_BLEND_ALPHA_LERP_BOTH                                \
+    | TIG_ART_BLT_BLEND_ALPHA_LERP_Y                                   \
+    | TIG_ART_BLT_BLEND_ALPHA_LERP_X                                   \
+    | TIG_ART_BLT_BLEND_ALPHA_SRC                                      \
+    | TIG_ART_BLT_BLEND_ALPHA_CONST                                    \
+    | TIG_ART_BLT_BLEND_ALPHA_AVG                                      \
+    | TIG_ART_BLT_BLEND_MUL                                            \
+    | TIG_ART_BLT_BLEND_SUB                                            \
     | TIG_ART_BLT_BLEND_ADD)
 
 #define TIG_ART_BLT_BLEND_ANY (TIG_ART_BLT_BLEND_COLOR_ANY \
     | TIG_ART_BLT_BLEND_ALPHA_ANY)
 
 #define TIG_ART_BLT_BLEND_ALPHA_LERP_ANY (TIG_ART_BLT_BLEND_ALPHA_LERP_X \
-    | TIG_ART_BLT_BLEND_ALPHA_LERP_Y \
+    | TIG_ART_BLT_BLEND_ALPHA_LERP_Y                                     \
     | TIG_ART_BLT_BLEND_ALPHA_LERP_BOTH)
 
 typedef struct TigArtBlitInfo {
