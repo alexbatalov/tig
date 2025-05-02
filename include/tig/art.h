@@ -383,7 +383,7 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
 void tig_art_flush();
 int tig_art_exists(tig_art_id_t art_id);
 int sub_502270(tig_art_id_t art_id, char* path);
-int sub_502290(tig_art_id_t art_id);
+int tig_art_touch(tig_art_id_t art_id);
 void sub_5022B0(TigArtBlitPaletteAdjustCallback* callback);
 TigArtBlitPaletteAdjustCallback* sub_5022C0();
 void sub_5022D0();

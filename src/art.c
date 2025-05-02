@@ -695,7 +695,7 @@ int sub_502270(tig_art_id_t art_id, char* path)
 }
 
 // 0x502290
-int sub_502290(tig_art_id_t art_id)
+int tig_art_touch(tig_art_id_t art_id)
 {
     int cache_entry_index;
 
