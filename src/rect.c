@@ -702,7 +702,7 @@ int tig_line_intersection(const TigRect* rect, TigLine* line)
             sub_52DC90(x3, y3, &temp_line, &flags1);
         } else {
             x2 = x3;
-            x2 = y3;
+            y2 = y3;
             sub_52DC90(x3, y3, &temp_line, &flags2);
         }
     }
