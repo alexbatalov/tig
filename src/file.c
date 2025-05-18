@@ -2068,3 +2068,98 @@ int tig_file_rmdir_recursively(const char* path)
 
     return rmdir(path);
 }
+
+static Sint64 tig_file_io_size(void* userdata)
+{
+    TigFile* stream = (TigFile*)userdata;
+
+    return tig_file_filelength(stream);
+}
+
+static Sint64 tig_file_io_seek(void* userdata, Sint64 offset, SDL_IOWhence whence)
+{
+    TigFile* stream = (TigFile*)userdata;
+    int stdio_whence;
+
+    if (offset < INT_MIN || offset > INT_MAX) {
+        return -1;
+    }
+
+    switch (whence) {
+    case SDL_IO_SEEK_SET:
+        stdio_whence = SEEK_SET;
+        break;
+    case SDL_IO_SEEK_CUR:
+        stdio_whence = SEEK_CUR;
+        break;
+    case SDL_IO_SEEK_END:
+        stdio_whence = SEEK_END;
+        break;
+    default:
+        SDL_SetError("Unknown value for 'whence'");
+        return -1;
+    }
+
+    if (tig_file_fseek(stream, (int)offset, stdio_whence) != 0) {
+        return -1;
+    }
+
+    return tig_file_ftell(stream);
+}
+
+static size_t tig_file_io_read(void* userdata, void* ptr, size_t size, SDL_IOStatus* status)
+{
+    TigFile* stream = (TigFile*)userdata;
+    int bytes = tig_file_fread(ptr, 1, size, stream);
+
+    (void)status;
+
+    return bytes;
+}
+
+static size_t tig_file_io_write(void* userdata, const void* ptr, size_t size, SDL_IOStatus* status)
+{
+    TigFile* stream = (TigFile*)userdata;
+    int bytes = tig_file_fwrite(ptr, 1, size, stream);
+
+    (void)status;
+
+    return bytes;
+}
+
+static bool tig_file_io_close(void* userdata)
+{
+    TigFile* stream = (TigFile*)userdata;
+
+    if (!tig_file_fclose(stream)) {
+        return false;
+    }
+
+    return true;
+}
+
+SDL_IOStream* tig_file_io_open(const char* path, const char* mode)
+{
+    TigFile* stream;
+    SDL_IOStreamInterface iface;
+    SDL_IOStream* io;
+
+    stream = tig_file_fopen(path, mode);
+    if (stream == NULL) {
+        return NULL;
+    }
+
+    SDL_INIT_INTERFACE(&iface);
+    iface.size = tig_file_io_size;
+    iface.seek = tig_file_io_seek;
+    iface.read = tig_file_io_read;
+    iface.write = tig_file_io_write;
+    iface.close = tig_file_io_close;
+
+    io = SDL_OpenIO(&iface, stream);
+    if (io == NULL) {
+        return NULL;
+    }
+
+    return io;
+}

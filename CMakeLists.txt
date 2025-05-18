@@ -10,6 +10,7 @@ option(TIG_BUILD_EXAMPLE "Build example." ON)
 # ------------------------------------------------------------------------------
 
 add_subdirectory("third_party/fpattern" EXCLUDE_FROM_ALL)
+add_subdirectory("third_party/sdl3" EXCLUDE_FROM_ALL)
 add_subdirectory("third_party/zlib" EXCLUDE_FROM_ALL)
 
 if(TIG_BUILD_TESTS)
@@ -35,7 +36,6 @@ set(HDRS
     "include/tig/database.h"
     "include/tig/debug.h"
     "include/tig/draw.h"
-    "include/tig/dxinput.h"
     "include/tig/file_cache.h"
     "include/tig/file.h"
     "include/tig/find_file.h"
@@ -72,7 +72,6 @@ set(SRCS
     "src/database.c"
     "src/debug.c"
     "src/draw.c"
-    "src/dxinput.c"
     "src/file_cache.c"
     "src/file.c"
     "src/find_file.c"
@@ -111,6 +110,7 @@ target_include_directories(tig_common INTERFACE
 
 target_link_libraries(tig_common INTERFACE
     fpattern::fpattern
+    SDL3::SDL3
     ${ZLIB_LIBRARIES}
     ${BINK_COMPAT_LIBRARY}
     ${MSS_COMPAT_LIBRARY}
@@ -122,12 +122,6 @@ if(WIN32)
         _CRT_SECURE_NO_WARNINGS
         _USE_32BIT_TIME_T
         WIN32_LEAN_AND_MEAN
-    )
-
-    target_link_libraries(tig_common INTERFACE
-        ddraw
-        dxguid
-        winmm
     )
 endif()
 
@@ -164,13 +158,11 @@ if(TIG_BUILD_TESTS)
         "test/bsearch_tests.cc"
         "test/color_tests.cc"
         "test/database_tests.cc"
-        "test/dxinput_tests.cc"
         "test/idxtable_tests.cc"
         "test/memory_tests.cc"
         "test/palette_tests.cc"
         "test/rect_tests.cc"
         "test/str_parse_tests.cc"
-        "test/timer_tests.cc"
     )
 
     add_executable(tig_tests

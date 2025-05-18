@@ -11,21 +11,10 @@
 
 #include <limits.h>
 
-// clang-format off
-#include <windows.h>
-#include <timeapi.h>
-// clang-format on
-
-#define RESOLUTION 1
-
 // 0x52DF80
 int tig_timer_init(TigInitInfo* init_info)
 {
     (void)init_info;
-
-    if (timeBeginPeriod(RESOLUTION) != TIMERR_NOERROR) {
-        return TIG_ERR_GENERIC;
-    }
 
     return TIG_OK;
 }
@@ -33,20 +22,19 @@ int tig_timer_init(TigInitInfo* init_info)
 // 0x52DF90
 void tig_timer_exit()
 {
-    timeEndPeriod(RESOLUTION);
 }
 
 // 0x52DFA0
 int tig_timer_now(tig_timestamp_t* timestamp_ptr)
 {
-    *timestamp_ptr = timeGetTime();
+    *timestamp_ptr = SDL_GetTicks() & UINT_MAX;
     return TIG_OK;
 }
 
 // 0x52DFB0
 tig_duration_t tig_timer_elapsed(tig_timestamp_t start)
 {
-    return timeGetTime() - start;
+    return (SDL_GetTicks() & UINT_MAX) - start;
 }
 
 // 0x52DFC0

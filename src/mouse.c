@@ -3,18 +3,13 @@
 #include "tig/art.h"
 #include "tig/color.h"
 #include "tig/core.h"
-#include "tig/dxinput.h"
 #include "tig/message.h"
 #include "tig/timer.h"
 #include "tig/video.h"
 #include "tig/window.h"
 
 static int tig_mouse_device_init();
-static int tig_mouse_hardware_init();
 static void tig_mouse_device_exit();
-static void tig_mouse_hardware_exit();
-static bool tig_mouse_update_state();
-static bool tig_mouse_device_update_state();
 static void tig_mouse_cursor_fallback();
 static bool tig_mouse_cursor_create_video_buffers(tig_art_id_t art_id, int dx, int dy);
 static bool tig_mouse_cursor_destroy_video_buffers();
@@ -43,21 +38,18 @@ static int tig_mouse_state_button_up_flags[TIG_MOUSE_BUTTON_COUNT] = {
 };
 
 // 0x5BE864
-static int TIG_MESSAGE_MOUSE_button_down_flags[TIG_MOUSE_BUTTON_COUNT] = {
+static int tig_message_mouse_button_down_flags[TIG_MOUSE_BUTTON_COUNT] = {
     TIG_MESSAGE_MOUSE_LEFT_BUTTON_DOWN,
     TIG_MESSAGE_MOUSE_RIGHT_BUTTON_DOWN,
     TIG_MESSAGE_MOUSE_MIDDLE_BUTTON_DOWN,
 };
 
 // 0x5BE870
-static int TIG_MESSAGE_MOUSE_button_up_flags[TIG_MOUSE_BUTTON_COUNT] = {
+static int tig_message_mouse_button_up_flags[TIG_MOUSE_BUTTON_COUNT] = {
     TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP,
     TIG_MESSAGE_MOUSE_RIGHT_BUTTON_UP,
     TIG_MESSAGE_MOUSE_MIDDLE_BUTTON_UP,
 };
-
-// 0x5BE87C
-static bool tig_mouse_z_axis_enabled = true;
 
 // 0x604640
 static int tig_mouse_cursor_art_frame_height;
@@ -159,12 +151,6 @@ static int dword_6046E8;
 // 0x6046EC
 static tig_timestamp_t tig_mouse_software_button_timestamps[TIG_MOUSE_BUTTON_COUNT];
 
-// 0x6046F8
-static DIMOUSESTATE tig_mouse_device_state;
-
-// 0x604708
-static LPDIRECTINPUTDEVICEA tig_mouse_device;
-
 // 0x60470C
 static bool tig_mouse_initialized;
 
@@ -186,47 +172,14 @@ int tig_mouse_init(TigInitInfo* init_info)
     tig_mouse_state.y = init_info->height / 2;
     tig_mouse_state.flags = 0;
 
-    if ((init_info->flags & TIG_INITIALIZE_WINDOWED) != 0) {
-        return tig_mouse_hardware_init();
-    } else {
-        return tig_mouse_device_init();
-    }
+    return tig_mouse_device_init();
 }
 
 // 0x4FF0B0
 int tig_mouse_device_init()
 {
-    LPDIRECTINPUTA direct_input;
-    HWND wnd;
-    HRESULT hr;
     tig_art_id_t art_id;
     int rc;
-
-    if (tig_dxinput_get_instance(&direct_input) != TIG_OK) {
-        return TIG_ERR_DIRECTX;
-    }
-
-    hr = IDirectInput_CreateDevice(direct_input, &GUID_SysMouse, &tig_mouse_device, NULL);
-    if (FAILED(hr)) {
-        return TIG_ERR_DIRECTX;
-    }
-
-    hr = IDirectInputDevice_SetDataFormat(tig_mouse_device, &c_dfDIMouse);
-    if (FAILED(hr)) {
-        tig_mouse_device_exit();
-        return TIG_ERR_DIRECTX;
-    }
-
-    if (tig_video_platform_window_get(&wnd) != TIG_OK) {
-        tig_mouse_device_exit();
-        return TIG_ERR_DIRECTX;
-    }
-
-    hr = IDirectInputDevice_SetCooperativeLevel(tig_mouse_device, wnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
-    if (FAILED(hr)) {
-        tig_mouse_device_exit();
-        return TIG_ERR_DIRECTX;
-    }
 
     rc = tig_art_misc_id_create(TIG_ART_SYSTEM_MOUSE, 0, &art_id);
     if (rc != TIG_OK) {
@@ -244,46 +197,7 @@ int tig_mouse_device_init()
         return TIG_ERR_GENERIC;
     }
 
-    dword_6046E8 = 0;
     tig_mouse_initialized = true;
-    tig_mouse_is_hardware = false;
-
-    tig_mouse_buttons_swapped = GetSystemMetrics(SM_SWAPBUTTON) != 0;
-    if (tig_mouse_buttons_swapped) {
-        int temp;
-
-        temp = tig_mouse_state_button_down_flags[TIG_MOUSE_BUTTON_RIGHT];
-        tig_mouse_state_button_down_flags[TIG_MOUSE_BUTTON_RIGHT] = tig_mouse_state_button_down_flags[TIG_MOUSE_BUTTON_LEFT];
-        tig_mouse_state_button_down_flags[TIG_MOUSE_BUTTON_LEFT] = temp;
-
-        temp = tig_mouse_state_button_down_repeat_flags[TIG_MOUSE_BUTTON_RIGHT];
-        tig_mouse_state_button_down_repeat_flags[TIG_MOUSE_BUTTON_RIGHT] = tig_mouse_state_button_down_repeat_flags[TIG_MOUSE_BUTTON_LEFT];
-        tig_mouse_state_button_down_repeat_flags[TIG_MOUSE_BUTTON_LEFT] = temp;
-
-        temp = tig_mouse_state_button_up_flags[TIG_MOUSE_BUTTON_RIGHT];
-        tig_mouse_state_button_up_flags[TIG_MOUSE_BUTTON_RIGHT] = tig_mouse_state_button_up_flags[TIG_MOUSE_BUTTON_LEFT];
-        tig_mouse_state_button_up_flags[TIG_MOUSE_BUTTON_LEFT] = temp;
-
-        temp = TIG_MESSAGE_MOUSE_button_down_flags[TIG_MOUSE_BUTTON_RIGHT];
-        TIG_MESSAGE_MOUSE_button_down_flags[TIG_MOUSE_BUTTON_RIGHT] = TIG_MESSAGE_MOUSE_button_down_flags[TIG_MOUSE_BUTTON_LEFT];
-        TIG_MESSAGE_MOUSE_button_down_flags[TIG_MOUSE_BUTTON_LEFT] = temp;
-
-        temp = TIG_MESSAGE_MOUSE_button_up_flags[TIG_MOUSE_BUTTON_RIGHT];
-        TIG_MESSAGE_MOUSE_button_up_flags[TIG_MOUSE_BUTTON_RIGHT] = TIG_MESSAGE_MOUSE_button_up_flags[TIG_MOUSE_BUTTON_LEFT];
-        TIG_MESSAGE_MOUSE_button_up_flags[TIG_MOUSE_BUTTON_LEFT] = temp;
-    }
-
-    return TIG_OK;
-}
-
-// 0x4FF2A0
-int tig_mouse_hardware_init()
-{
-    dword_6046E8 = 0;
-    tig_mouse_state.frame.height = 0;
-    tig_mouse_state.frame.width = 0;
-    tig_mouse_initialized = true;
-    tig_mouse_is_hardware = true;
 
     return TIG_OK;
 }
@@ -291,63 +205,82 @@ int tig_mouse_hardware_init()
 // 0x4FF2D0
 void tig_mouse_exit()
 {
-    if (tig_mouse_initialized) {
-        if (tig_mouse_is_hardware) {
-            tig_mouse_hardware_exit();
-        } else {
-            tig_mouse_device_exit();
-            tig_mouse_cursor_destroy_video_buffers();
-        }
-        tig_mouse_initialized = false;
+    if (!tig_mouse_initialized) {
+        return;
     }
+
+    tig_mouse_device_exit();
+    tig_mouse_cursor_destroy_video_buffers();
+
+    tig_mouse_initialized = false;
 }
 
 // 0x4FF310
 void tig_mouse_device_exit()
 {
-    if (tig_mouse_device != NULL) {
-        tig_mouse_set_active(false);
-        IDirectInputDevice_Release(tig_mouse_device);
-        tig_mouse_device = NULL;
-    }
-}
-
-// 0x4FF340
-void tig_mouse_hardware_exit()
-{
 }
 
 // 0x4FF350
-void tig_mouse_set_active(bool is_active)
+void tig_mouse_set_active(bool active)
 {
-    if (tig_mouse_device != NULL) {
-        if (is_active) {
-            IDirectInputDevice_Acquire(tig_mouse_device);
-            tig_mouse_active = is_active;
-        } else {
-            IDirectInputDevice_Unacquire(tig_mouse_device);
-            tig_mouse_active = is_active;
-        }
-    } else {
-        tig_mouse_active = is_active;
-    }
+    tig_mouse_active = active;
 }
 
-// NOTE: Rare case among `ping` functions - returns `bool`. Other functions are
-// usually `void`. This value is never used by the callers.
-//
 // 0x4FF390
-bool tig_mouse_ping()
+void tig_mouse_ping()
 {
+    TigMessage message;
+    int button;
+
     if (!tig_mouse_active) {
-        return false;
+        return;
     }
 
-    if (tig_mouse_is_hardware) {
-        return true;
+    if (tig_mouse_cursor_art_num_frames > 1) {
+        if (tig_timer_between(tig_mouse_cursor_art_animation_timestamp, tig_ping_timestamp) >= tig_mouse_cursor_art_fps) {
+            tig_mouse_cursor_animate();
+            tig_mouse_cursor_art_animation_timestamp = tig_ping_timestamp;
+        }
     }
 
-    return tig_mouse_update_state();
+    if (!tig_mouse_idle_emitted
+        && tig_timer_between(tig_mouse_move_timestamp, tig_ping_timestamp) > 35) {
+        tig_mouse_idle_emitted = true;
+
+        // Emit "idle" event.
+        message.type = TIG_MESSAGE_MOUSE;
+        message.timestamp = tig_ping_timestamp;
+        message.data.mouse.x = tig_mouse_state.x;
+        message.data.mouse.y = tig_mouse_state.y;
+        message.data.mouse.z = tig_mouse_state.z;
+        message.data.mouse.event = TIG_MESSAGE_MOUSE_IDLE;
+        tig_message_enqueue(&message);
+
+        // Mark current cursor as dirty.
+        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+    }
+
+    for (button = 0; button < TIG_MOUSE_BUTTON_COUNT; button++) {
+        if ((tig_mouse_state.flags & tig_mouse_state_button_down_flags[button]) != 0) {
+            // Check if we're keeping it pressed long enough to emit "button
+            // down" event again.
+            if (tig_timer_between(tig_mouse_software_button_timestamps[button], tig_ping_timestamp) > 250) {
+                tig_mouse_software_button_timestamps[button] = tig_ping_timestamp;
+
+                tig_mouse_state.flags |= tig_mouse_state_button_down_flags[button];
+
+                // Emit "button down" event.
+                message.type = TIG_MESSAGE_MOUSE;
+                message.timestamp = tig_ping_timestamp;
+                message.data.mouse.x = tig_mouse_state.x;
+                message.data.mouse.y = tig_mouse_state.y;
+                message.data.mouse.z = tig_mouse_state.z;
+                message.data.mouse.event = tig_message_mouse_button_down_flags[button];
+                message.data.mouse.repeat = true;
+                tig_message_enqueue(&message);
+            }
+        }
+    }
 }
 
 // 0x4FF3B0
@@ -355,17 +288,42 @@ void tig_mouse_set_position(int x, int y, int z)
 {
     TigMessage message;
 
-    // NOTE: This is meaningless since this value is only used in DirectInput
-    // mode.
+    // Reset "idle" event.
     tig_mouse_idle_emitted = false;
 
-    tig_mouse_state.x = x;
-    tig_mouse_state.y = y;
+    // Mark old frame as dirty.
+    tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
 
-    tig_timer_now(&(message.timestamp));
+    tig_mouse_state.frame.x = x;
+
+    if (tig_mouse_state.frame.x < -tig_mouse_state.offset_x) {
+        tig_mouse_state.frame.x = -tig_mouse_state.offset_x;
+    } else if (tig_mouse_state.frame.x > tig_mouse_max_x - tig_mouse_state.offset_x) {
+        tig_mouse_state.frame.x = tig_mouse_max_x - tig_mouse_state.offset_x;
+    }
+
+    tig_mouse_state.x = tig_mouse_state.frame.x + tig_mouse_state.offset_x;
+
+    tig_mouse_state.frame.y = y;
+
+    if (tig_mouse_state.frame.y < -tig_mouse_state.offset_y) {
+        tig_mouse_state.frame.y = -tig_mouse_state.offset_y;
+    } else if (tig_mouse_state.frame.y > tig_mouse_max_y - tig_mouse_state.offset_y) {
+        tig_mouse_state.frame.y = tig_mouse_max_y - tig_mouse_state.offset_y;
+    }
+
+    tig_mouse_state.y = tig_mouse_state.frame.y + tig_mouse_state.offset_y;
+
+    // Mark new frame as dirty.
+    tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+
+    tig_timer_now(&tig_mouse_move_timestamp);
+
+    // Emit "move" event.
     message.type = TIG_MESSAGE_MOUSE;
-    message.data.mouse.x = x;
-    message.data.mouse.y = y;
+    tig_timer_now(&(message.timestamp));
+    message.data.mouse.x = tig_mouse_state.x;
+    message.data.mouse.y = tig_mouse_state.y;
     message.data.mouse.z = z;
     message.data.mouse.event = TIG_MESSAGE_MOUSE_MOVE;
     message.data.mouse.repeat = false;
@@ -376,271 +334,38 @@ void tig_mouse_set_position(int x, int y, int z)
 void tig_mouse_set_button(int button, bool pressed)
 {
     TigMessage message;
-    unsigned int flags;
-
-    flags = tig_mouse_state.flags;
-    tig_mouse_state.flags = 0;
-
-    message.type = TIG_MESSAGE_MOUSE;
 
     if (pressed) {
-        // Mouse button is currently pressed. Check previous state to see if its
-        // a "long press".
-        if (((tig_mouse_state_button_down_repeat_flags[button] | tig_mouse_state_button_down_flags[button]) & flags) != 0) {
-            tig_mouse_state.flags |= tig_mouse_state_button_down_repeat_flags[button];
+        tig_mouse_software_button_timestamps[button] = tig_ping_timestamp;
 
-            // Check if we're keeping it pressed long enough to emit "button
-            // down" event again.
-            if (tig_timer_between(tig_mouse_hardware_button_timestamps[button], tig_ping_timestamp) > 250) {
-                tig_mouse_hardware_button_timestamps[button] = tig_ping_timestamp;
+        tig_mouse_state.flags |= tig_mouse_state_button_down_flags[button];
 
-                tig_mouse_state.flags |= tig_mouse_state_button_down_flags[button];
-
-                // Emit "button down" event.
-                message.timestamp = tig_ping_timestamp;
-                message.data.mouse.x = tig_mouse_state.x;
-                message.data.mouse.y = tig_mouse_state.y;
-                message.data.mouse.z = 0;
-                message.data.mouse.event = TIG_MESSAGE_MOUSE_button_down_flags[button];
-                message.data.mouse.repeat = true;
-                tig_message_enqueue(&message);
-            }
-        } else {
-            tig_mouse_hardware_button_timestamps[button] = tig_ping_timestamp;
-
-            tig_mouse_state.flags |= tig_mouse_state_button_down_flags[button];
-
-            // Emit "button down" event.
-            message.timestamp = tig_ping_timestamp;
-            message.data.mouse.x = tig_mouse_state.x;
-            message.data.mouse.y = tig_mouse_state.y;
-            message.data.mouse.z = 0;
-            message.data.mouse.event = TIG_MESSAGE_MOUSE_button_down_flags[button];
-            message.data.mouse.repeat = false;
-            tig_message_enqueue(&message);
-        }
-    } else {
-        // Mouse button is not currently pressed. Check previous state to see if
-        // "button up" event is needed.
-        if (((tig_mouse_state_button_down_flags[button] | tig_mouse_state_button_down_repeat_flags[button]) & flags) != 0) {
-            tig_mouse_hardware_button_timestamps[button] = tig_ping_timestamp;
-
-            tig_mouse_state.flags |= tig_mouse_state_button_up_flags[button];
-
-            // Emit "button up" event.
-            message.timestamp = tig_ping_timestamp;
-            message.data.mouse.x = tig_mouse_state.x;
-            message.data.mouse.y = tig_mouse_state.y;
-            message.data.mouse.z = 0;
-            message.data.mouse.event = TIG_MESSAGE_MOUSE_button_up_flags[button];
-            message.data.mouse.repeat = false;
-            tig_message_enqueue(&message);
-        }
-    }
-
-    if ((flags & TIG_MOUSE_STATE_HIDDEN) != 0) {
-        tig_mouse_state.flags |= TIG_MOUSE_STATE_HIDDEN;
-    }
-}
-
-// 0x4FF5A0
-bool tig_mouse_update_state()
-{
-    TigMessage message;
-    unsigned int flags;
-    int button;
-
-    message.type = TIG_MESSAGE_MOUSE;
-    message.timestamp = tig_ping_timestamp;
-
-    if (tig_mouse_cursor_art_num_frames > 1) {
-        if (tig_timer_between(tig_mouse_cursor_art_animation_timestamp, tig_ping_timestamp) >= tig_mouse_cursor_art_fps) {
-            tig_mouse_cursor_animate();
-            tig_mouse_cursor_art_animation_timestamp = tig_ping_timestamp;
-        }
-    }
-
-    if (tig_timer_between(tig_mouse_update_timestamp, tig_ping_timestamp) < 0) {
-        return false;
-    }
-
-    tig_mouse_update_timestamp = tig_ping_timestamp;
-
-    if (!tig_mouse_device_update_state()) {
-        return false;
-    }
-
-    // Update cursor rect.
-    if (tig_mouse_device_state.lX != 0 || tig_mouse_device_state.lY != 0) {
-        // Mark previous cursor rect as dirty.
-        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
-
-        if (tig_mouse_device_state.lX != 0) {
-            tig_mouse_state.frame.x += tig_mouse_device_state.lX;
-
-            if (tig_mouse_state.frame.x < -tig_mouse_state.offset_x) {
-                tig_mouse_state.frame.x = -tig_mouse_state.offset_x;
-            } else if (tig_mouse_state.frame.x > tig_mouse_max_x - tig_mouse_state.offset_x) {
-                tig_mouse_state.frame.x = tig_mouse_max_x - tig_mouse_state.offset_x;
-            }
-
-            tig_mouse_state.x = tig_mouse_state.frame.x + tig_mouse_state.offset_x;
-        }
-
-        if (tig_mouse_device_state.lY != 0) {
-            tig_mouse_state.frame.y += tig_mouse_device_state.lY;
-
-            if (tig_mouse_state.frame.y < -tig_mouse_state.offset_y) {
-                tig_mouse_state.frame.y = -tig_mouse_state.offset_y;
-            } else if (tig_mouse_state.frame.y > tig_mouse_max_y - tig_mouse_state.offset_y) {
-                tig_mouse_state.frame.y = tig_mouse_max_y - tig_mouse_state.offset_y;
-            }
-
-            tig_mouse_state.y = tig_mouse_state.frame.y + tig_mouse_state.offset_y;
-        }
-    }
-
-    // Process mouse movement.
-    if (tig_mouse_device_state.lX != 0 || tig_mouse_device_state.lY != 0) {
-        tig_mouse_move_timestamp = tig_ping_timestamp;
-        tig_mouse_idle_emitted = false;
-
-        // Emit "move" event.
+        // Emit "button down" event.
+        message.type = TIG_MESSAGE_MOUSE;
+        message.timestamp = tig_ping_timestamp;
         message.data.mouse.x = tig_mouse_state.x;
         message.data.mouse.y = tig_mouse_state.y;
-        message.data.mouse.z = tig_mouse_device_state.lZ;
-        message.data.mouse.event = TIG_MESSAGE_MOUSE_MOVE;
+        message.data.mouse.z = 0;
+        message.data.mouse.event = tig_message_mouse_button_down_flags[button];
+        message.data.mouse.repeat = false;
         tig_message_enqueue(&message);
-
-        // Mark current cursor as dirty.
-        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
     } else {
-        if (!tig_mouse_idle_emitted && tig_timer_between(tig_mouse_move_timestamp, tig_ping_timestamp) > 35) {
-            // Mark this move sequence as ended so we don't spam "idle" events.
-            tig_mouse_idle_emitted = true;
+        tig_mouse_software_button_timestamps[button] = tig_ping_timestamp;
 
-            // Emit "idle" event.
-            message.data.mouse.x = tig_mouse_state.x;
-            message.data.mouse.y = tig_mouse_state.y;
-            message.data.mouse.z = tig_mouse_device_state.lZ;
-            message.data.mouse.event = TIG_MESSAGE_MOUSE_IDLE;
-            tig_message_enqueue(&message);
+        tig_mouse_state.flags &= ~tig_mouse_state_button_down_flags[button];
+        tig_mouse_state.flags &= ~tig_mouse_state_button_down_repeat_flags[button];
+        tig_mouse_state.flags |= tig_mouse_state_button_up_flags[button];
 
-            // Mark current cursor as dirty.
-            tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
-        }
+        // Emit "button up" event.
+        message.type = TIG_MESSAGE_MOUSE;
+        message.timestamp = tig_ping_timestamp;
+        message.data.mouse.x = tig_mouse_state.x;
+        message.data.mouse.y = tig_mouse_state.y;
+        message.data.mouse.z = 0;
+        message.data.mouse.event = tig_message_mouse_button_up_flags[button];
+        message.data.mouse.repeat = false;
+        tig_message_enqueue(&message);
     }
-
-    if (tig_mouse_z_axis_enabled) {
-        if (tig_mouse_device_state.lZ != 0) {
-            // Emit "wheel" event.
-            message.data.mouse.x = tig_mouse_state.x;
-            message.data.mouse.y = tig_mouse_state.y;
-            message.data.mouse.z = tig_mouse_device_state.lZ;
-            message.data.mouse.event = TIG_MESSAGE_MOUSE_WHEEL;
-            tig_message_enqueue(&message);
-        }
-    } else {
-        if (tig_mouse_device_state.lZ != tig_mouse_state.z) {
-            // Emit "wheel" event.
-            message.data.mouse.x = tig_mouse_state.x;
-            message.data.mouse.y = tig_mouse_state.y;
-            message.data.mouse.z = tig_mouse_device_state.lZ - tig_mouse_state.z;
-            message.data.mouse.event = TIG_MESSAGE_MOUSE_WHEEL;
-            tig_message_enqueue(&message);
-            tig_mouse_state.z = tig_mouse_device_state.lZ;
-        }
-    }
-
-    // Process buttons state.
-    flags = tig_mouse_state.flags;
-    tig_mouse_state.flags = 0;
-
-    // NOTE: This loop is very similar to `tig_mouse_set_button` implementation,
-    // but it uses different timestamp arrays.
-    for (button = 0; button < TIG_MOUSE_BUTTON_COUNT; button++) {
-        if ((tig_mouse_device_state.rgbButtons[button] & 0x80) != 0) {
-            // Mouse button is currently pressed. Check previous state to see
-            // if it a "long press".
-            if (((tig_mouse_state_button_down_flags[button] | tig_mouse_state_button_down_repeat_flags[button]) & flags) != 0) {
-                tig_mouse_state.flags |= tig_mouse_state_button_down_repeat_flags[button];
-
-                // Check if we're keeping it pressed long enough to emit "button
-                // down" event again.
-                if (tig_timer_between(tig_mouse_software_button_timestamps[button], tig_ping_timestamp) > 250) {
-                    tig_mouse_software_button_timestamps[button] = tig_ping_timestamp;
-
-                    tig_mouse_state.flags |= tig_mouse_state_button_down_flags[button];
-
-                    // Emit "button down" event.
-                    message.timestamp = tig_ping_timestamp;
-                    message.data.mouse.x = tig_mouse_state.x;
-                    message.data.mouse.y = tig_mouse_state.y;
-                    message.data.mouse.z = tig_mouse_device_state.lZ;
-                    message.data.mouse.event = TIG_MESSAGE_MOUSE_button_down_flags[button];
-                    message.data.mouse.repeat = true;
-                    tig_message_enqueue(&message);
-                }
-            } else {
-                tig_mouse_software_button_timestamps[button] = tig_ping_timestamp;
-
-                tig_mouse_state.flags |= tig_mouse_state_button_down_flags[button];
-
-                // Emit "button down" event.
-                message.timestamp = tig_ping_timestamp;
-                message.data.mouse.x = tig_mouse_state.x;
-                message.data.mouse.y = tig_mouse_state.y;
-                message.data.mouse.z = tig_mouse_device_state.lZ;
-                message.data.mouse.event = TIG_MESSAGE_MOUSE_button_down_flags[button];
-                message.data.mouse.repeat = false;
-                tig_message_enqueue(&message);
-            }
-        } else {
-            // Mouse button is not currently pressed. Check previous state to
-            // see if "button up" event is needed.
-            if (((tig_mouse_state_button_down_flags[button] | tig_mouse_state_button_down_repeat_flags[button]) & flags) != 0) {
-                tig_mouse_software_button_timestamps[button] = tig_ping_timestamp;
-
-                tig_mouse_state.flags |= tig_mouse_state_button_up_flags[button];
-
-                // Emit "button up" event.
-                message.timestamp = tig_ping_timestamp;
-                message.data.mouse.x = tig_mouse_state.x;
-                message.data.mouse.y = tig_mouse_state.y;
-                message.data.mouse.z = tig_mouse_device_state.lZ;
-                message.data.mouse.event = TIG_MESSAGE_MOUSE_button_up_flags[button];
-                message.data.mouse.repeat = false;
-                tig_message_enqueue(&message);
-            }
-        }
-    }
-
-    if ((flags & TIG_MOUSE_STATE_HIDDEN) != 0) {
-        tig_mouse_state.flags |= TIG_MOUSE_STATE_HIDDEN;
-    }
-
-    return true;
-}
-
-// 0x4FF9B0
-bool tig_mouse_device_update_state()
-{
-    HRESULT hr;
-
-    if (tig_mouse_device == NULL) {
-        return false;
-    }
-
-    tig_mouse_set_active(true);
-
-    hr = IDirectInputDevice_GetDeviceState(tig_mouse_device,
-        sizeof(tig_mouse_device_state),
-        &tig_mouse_device_state);
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    return true;
 }
 
 // 0x4FF9F0
@@ -663,9 +388,7 @@ int tig_mouse_hide()
 {
     if ((tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) == 0) {
         tig_mouse_state.flags |= TIG_MOUSE_STATE_HIDDEN;
-        if (!tig_mouse_is_hardware) {
-            tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
-        }
+        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
     }
 
     return TIG_OK;
@@ -676,9 +399,7 @@ int tig_mouse_show()
 {
     if ((tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) != 0) {
         tig_mouse_state.flags &= ~TIG_MOUSE_STATE_HIDDEN;
-        if (!tig_mouse_is_hardware) {
-            tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
-        }
+        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
     }
 
     return TIG_OK;
@@ -716,8 +437,7 @@ void tig_mouse_display()
     // Blit composed cursor/background to screen.
     tig_video_blit(tig_mouse_cursor_opaque_video_buffer,
         &tig_mouse_cursor_art_frame_bounds,
-        &(tig_mouse_state.frame),
-        false);
+        &(tig_mouse_state.frame));
 }
 
 // 0x4FFB40
@@ -767,13 +487,6 @@ void tig_mouse_cursor_fallback()
         TigVideoBufferData video_buffer_data;
         if (tig_video_buffer_data(tig_mouse_cursor_trans_video_buffer, &video_buffer_data) == TIG_OK) {
             switch (video_buffer_data.bpp) {
-            case 8:
-                *video_buffer_data.surface_data.p8 = (uint8_t)tig_color_make(255, 255, 255);
-                break;
-            case 16:
-                *video_buffer_data.surface_data.p16 = (uint16_t)tig_color_make(255, 255, 255);
-                break;
-            case 24:
             case 32:
                 *video_buffer_data.surface_data.p32 = (uint32_t)tig_color_make(255, 255, 255);
                 break;
@@ -882,62 +595,60 @@ bool tig_mouse_cursor_set_art_frame(tig_art_id_t art_id, int x, int y)
 // 0x4FFFE0
 int tig_mouse_cursor_set_art_id(tig_art_id_t art_id)
 {
-    if (!tig_mouse_is_hardware) {
-        int width;
-        int height;
-        int rc = tig_art_size(art_id, &width, &height);
-        if (rc != TIG_OK) {
-            return rc;
-        }
+    int width;
+    int height;
+    int rc = tig_art_size(art_id, &width, &height);
+    if (rc != TIG_OK) {
+        return rc;
+    }
 
-        bool hidden = (tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) != 0;
-        if (!hidden) {
-            tig_mouse_hide();
-        }
+    bool hidden = (tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) != 0;
+    if (!hidden) {
+        tig_mouse_hide();
+    }
 
-        if (width > tig_mouse_cursor_bounds.width || height > tig_mouse_cursor_bounds.height) {
-            TigVideoBuffer* old_opaque_video_buffer = tig_mouse_cursor_opaque_video_buffer;
-            TigVideoBuffer* old_trans_video_buffer = tig_mouse_cursor_trans_video_buffer;
+    if (width > tig_mouse_cursor_bounds.width || height > tig_mouse_cursor_bounds.height) {
+        TigVideoBuffer* old_opaque_video_buffer = tig_mouse_cursor_opaque_video_buffer;
+        TigVideoBuffer* old_trans_video_buffer = tig_mouse_cursor_trans_video_buffer;
 
-            if (!tig_mouse_cursor_create_video_buffers(art_id, 0, 0)) {
-                tig_mouse_cursor_opaque_video_buffer = old_opaque_video_buffer;
-                tig_mouse_cursor_trans_video_buffer = old_trans_video_buffer;
+        if (!tig_mouse_cursor_create_video_buffers(art_id, 0, 0)) {
+            tig_mouse_cursor_opaque_video_buffer = old_opaque_video_buffer;
+            tig_mouse_cursor_trans_video_buffer = old_trans_video_buffer;
 
-                if (!hidden) {
-                    tig_mouse_show();
-                }
-
-                return TIG_ERR_GENERIC;
+            if (!hidden) {
+                tig_mouse_show();
             }
 
-            if (!tig_mouse_cursor_set_art_frame(art_id, 0, 0)) {
-                tig_mouse_cursor_destroy_video_buffers();
-
-                tig_mouse_cursor_opaque_video_buffer = old_opaque_video_buffer;
-                tig_mouse_cursor_trans_video_buffer = old_trans_video_buffer;
-
-                if (!hidden) {
-                    tig_mouse_show();
-                }
-
-                return TIG_ERR_GENERIC;
-            }
-
-            tig_video_buffer_destroy(old_opaque_video_buffer);
-            tig_video_buffer_destroy(old_trans_video_buffer);
-        } else {
-            if (!tig_mouse_cursor_set_art_frame(art_id, 0, 0)) {
-                if (!hidden) {
-                    tig_mouse_show();
-                }
-
-                return TIG_ERR_GENERIC;
-            }
+            return TIG_ERR_GENERIC;
         }
 
-        if (!hidden) {
-            tig_mouse_show();
+        if (!tig_mouse_cursor_set_art_frame(art_id, 0, 0)) {
+            tig_mouse_cursor_destroy_video_buffers();
+
+            tig_mouse_cursor_opaque_video_buffer = old_opaque_video_buffer;
+            tig_mouse_cursor_trans_video_buffer = old_trans_video_buffer;
+
+            if (!hidden) {
+                tig_mouse_show();
+            }
+
+            return TIG_ERR_GENERIC;
         }
+
+        tig_video_buffer_destroy(old_opaque_video_buffer);
+        tig_video_buffer_destroy(old_trans_video_buffer);
+    } else {
+        if (!tig_mouse_cursor_set_art_frame(art_id, 0, 0)) {
+            if (!hidden) {
+                tig_mouse_show();
+            }
+
+            return TIG_ERR_GENERIC;
+        }
+    }
+
+    if (!hidden) {
+        tig_mouse_show();
     }
 
     return TIG_OK;
@@ -1156,12 +867,10 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
 // 0x500520
 void tig_mouse_cursor_animate()
 {
-    if (!tig_mouse_is_hardware) {
-        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
-        tig_mouse_cursor_art_id = tig_art_id_frame_inc(tig_mouse_cursor_art_id);
-        tig_mouse_cursor_set_art_frame(tig_mouse_cursor_art_id, 0, 0);
-        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
-    }
+    tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+    tig_mouse_cursor_art_id = tig_art_id_frame_inc(tig_mouse_cursor_art_id);
+    tig_mouse_cursor_set_art_frame(tig_mouse_cursor_art_id, 0, 0);
+    tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
 }
 
 // 0x500560
@@ -1173,10 +882,4 @@ int sub_500560()
 // 0x500570
 void sub_500570()
 {
-}
-
-// 0x500580
-void tig_mouse_set_z_axis_enabled(bool enabled)
-{
-    tig_mouse_z_axis_enabled = enabled;
 }

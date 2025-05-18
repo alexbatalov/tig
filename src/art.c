@@ -3019,10 +3019,6 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
     art_size_t system_memory_size = 0;
     art_size_t video_memory_size = 0;
 
-    if (sub_51F860() != TIG_OK) {
-        return TIG_ERR_GENERIC;
-    }
-
     type = tig_art_type(art_id);
     switch (type) {
     case TIG_ART_TYPE_ITEM:

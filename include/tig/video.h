@@ -1,9 +1,6 @@
 #ifndef TIG_VIDEO_H_
 #define TIG_VIDEO_H_
 
-#define DIRECTDRAW_VERSION 0x0700
-#include <ddraw.h>
-
 #include "tig/color.h"
 #include "tig/rect.h"
 #include "tig/types.h"
@@ -115,24 +112,16 @@ static_assert(sizeof(TigVideoBufferSaveToBmpInfo) == 0x110, "wrong size");
 
 int tig_video_init(TigInitInfo* init_info);
 void tig_video_exit();
-int tig_video_platform_window_get(HWND* wnd_ptr);
-int tig_video_instance_get(HINSTANCE* instance_ptr);
-int tig_video_main_surface_get(LPDIRECTDRAWSURFACE7* surface_ptr);
-void tig_video_set_client_rect(LPRECT rect);
+int tig_video_window_get(SDL_Window** window_ptr);
+int tig_video_renderer_get(SDL_Renderer** renderer_ptr);
 void tig_video_display_fps();
-int tig_video_main_surface_lock(void** surface_data_ptr);
-int tig_video_main_surface_unlock();
-int tig_video_blit(TigVideoBuffer* src_video_buffer, TigRect* src_rect, TigRect* dst_rect, bool to_primary_surface);
+int tig_video_blit(TigVideoBuffer* src_video_buffer, TigRect* src_rect, TigRect* dst_rect);
 int tig_video_fill(const TigRect* rect, tig_color_t color);
-int sub_51F860();
-int sub_51F880();
 int tig_video_flip();
 int tig_video_screenshot_set_settings(TigVideoScreenshotSettings* settings);
 int tig_video_screenshot_make();
-int sub_51FA40(TigRect* rect);
 int tig_video_get_bpp(int* bpp);
 int tig_video_get_palette(unsigned int* colors);
-int tig_video_get_pitch(int* pitch);
 int tig_video_3d_check_initialized();
 int tig_video_3d_check_hardware();
 int tig_video_3d_begin_scene();

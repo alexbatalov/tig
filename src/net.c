@@ -1131,10 +1131,7 @@ bool tig_net_create_bcast_socket()
         return false;
     }
 
-    if (tig_video_platform_window_get(&wnd) != TIG_OK) {
-        tig_debug_printf("TCP-NET: Error: Could not get tig_video_handle\n");
-        return false;
-    }
+    wnd = NULL;
 
     if (tig_net_ws_procs.WSAAsyncSelect(tig_net_bcast_socket.s, wnd, TIG_NET_BCAST_ASYNC_SELECT, FD_READ) == -1) {
         int err = tig_net_ws_procs.WSAGetLastError();
@@ -1243,12 +1240,7 @@ bool tig_net_start_server()
         // behaviour.
     }
 
-    if (tig_video_platform_window_get(&wnd) != TIG_OK) {
-        tig_debug_printf("TCP-NET: Error: Could not get tig_video_handle\n");
-        tig_net_ws_procs.closesocket(tig_net_local_socket.s);
-        tig_net_local_socket.s = INVALID_SOCKET;
-        return false;
-    }
+    wnd = NULL;
 
     if (tig_net_ws_procs.WSAAsyncSelect(tig_net_local_socket.s, wnd, TIG_NET_LISTEN_ASYNC_SELECT, FD_CLOSE | FD_ACCEPT | FD_WRITE | FD_READ) == -1) {
         int err = tig_net_ws_procs.WSAGetLastError();
@@ -1380,10 +1372,7 @@ bool tig_net_connect_internal(TigNetSocket* sock, const char* server_name)
         tig_net_on_network_event_func(4, 0, 0, 0);
     }
 
-    if (tig_video_platform_window_get(&wnd) != TIG_OK) {
-        tig_debug_printf("TCP-NET: Error, could not get tig_video_handle to set async socket.\n");
-        return false;
-    }
+    wnd = NULL;
 
     sock->s = tig_net_ws_procs.socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock->s == INVALID_SOCKET) {

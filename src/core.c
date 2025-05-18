@@ -5,7 +5,6 @@
 #include "tig/color.h"
 #include "tig/debug.h"
 #include "tig/draw.h"
-#include "tig/dxinput.h"
 #include "tig/file.h"
 #include "tig/file_cache.h"
 #include "tig/font.h"
@@ -40,7 +39,6 @@ static TigInitFunc* init_funcs[] = {
     tig_palette_init,
     tig_window_init,
     tig_timer_init,
-    tig_dxinput_init,
     tig_kb_init,
     tig_art_init,
     tig_mouse_init,
@@ -69,7 +67,6 @@ static TigExitFunc* exit_funcs[] = {
     tig_palette_exit,
     tig_window_exit,
     tig_timer_exit,
-    tig_dxinput_exit,
     tig_kb_exit,
     tig_art_exit,
     tig_mouse_exit,
@@ -116,6 +113,13 @@ int tig_init(TigInitInfo* init_info)
     if (tig_initialized) {
         return TIG_ERR_ALREADY_INITIALIZED;
     }
+
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+        tig_debug_printf("Error initializing SDL: %s\n", SDL_GetError());
+        return TIG_ERR_GENERIC;
+    }
+
+    atexit(SDL_Quit);
 
     for (index = 0; index < NUM_INIT_FUNCS; ++index) {
         // NOTE: For unknown reason skipping sound is done this way instead
@@ -173,7 +177,6 @@ void tig_ping()
     tig_timer_now(&tig_ping_timestamp);
 
     tig_mouse_ping();
-    tig_kb_ping();
     tig_message_ping();
     tig_net_ping();
     tig_sound_ping();

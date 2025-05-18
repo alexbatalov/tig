@@ -15,21 +15,21 @@ typedef enum TigMouseButton {
     TIG_MOUSE_BUTTON_COUNT,
 } TigMouseButton;
 
-typedef enum TigMouseStateFlags {
-    TIG_MOUSE_STATE_HIDDEN = 0x001,
-    TIG_MOUSE_STATE_LEFT_MOUSE_DOWN = 0x002,
-    TIG_MOUSE_STATE_LEFT_MOUSE_DOWN_REPEAT = 0x004,
-    TIG_MOUSE_STATE_LEFT_MOUSE_UP = 0x008,
-    TIG_MOUSE_STATE_RIGHT_MOUSE_DOWN = 0x010,
-    TIG_MOUSE_STATE_RIGHT_MOUSE_DOWN_REPEAT = 0x020,
-    TIG_MOUSE_STATE_RIGHT_MOUSE_UP = 0x040,
-    TIG_MOUSE_STATE_MIDDLE_MOUSE_DOWN = 0x080,
-    TIG_MOUSE_STATE_MIDDLE_MOUSE_DOWN_REPEAT = 0x100,
-    TIG_MOUSE_STATE_MIDDLE_MOUSE_UP = 0x200,
-} TigMouseStateFlags;
+typedef uint32_t TigMouseStateFlags;
+
+#define TIG_MOUSE_STATE_HIDDEN 0x001u
+#define TIG_MOUSE_STATE_LEFT_MOUSE_DOWN 0x002u
+#define TIG_MOUSE_STATE_LEFT_MOUSE_DOWN_REPEAT 0x004u
+#define TIG_MOUSE_STATE_LEFT_MOUSE_UP 0x008u
+#define TIG_MOUSE_STATE_RIGHT_MOUSE_DOWN 0x010u
+#define TIG_MOUSE_STATE_RIGHT_MOUSE_DOWN_REPEAT 0x020u
+#define TIG_MOUSE_STATE_RIGHT_MOUSE_UP 0x040u
+#define TIG_MOUSE_STATE_MIDDLE_MOUSE_DOWN 0x080u
+#define TIG_MOUSE_STATE_MIDDLE_MOUSE_DOWN_REPEAT 0x100u
+#define TIG_MOUSE_STATE_MIDDLE_MOUSE_UP 0x200u
 
 typedef struct TigMouseState {
-    unsigned int flags;
+    TigMouseStateFlags flags;
     TigRect frame;
     int offset_x;
     int offset_y;
@@ -43,8 +43,8 @@ static_assert(sizeof(TigMouseState) == 0x28, "wrong size");
 
 int tig_mouse_init(TigInitInfo* init_info);
 void tig_mouse_exit();
-void tig_mouse_set_active(bool is_active);
-bool tig_mouse_ping();
+void tig_mouse_set_active(bool active);
+void tig_mouse_ping();
 
 // Forwards "mouse move" event from Windows Messages to mouse system.
 //
@@ -96,7 +96,6 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y);
 
 int sub_500560();
 void sub_500570();
-void tig_mouse_set_z_axis_enabled(bool enabled);
 
 #ifdef __cplusplus
 }

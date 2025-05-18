@@ -11,7 +11,6 @@
 #include "tig/core.h"
 #include "tig/debug.h"
 #include "tig/draw.h"
-#include "tig/dxinput.h"
 #include "tig/file.h"
 #include "tig/file_cache.h"
 #include "tig/find_file.h"

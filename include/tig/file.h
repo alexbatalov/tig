@@ -99,6 +99,8 @@ bool tig_file_locked_by(const char* filename, const void* owner, size_t size);
 bool sub_530B90(const char* pattern);
 bool tig_file_copy(const char* src, const char* dst);
 
+SDL_IOStream* tig_file_io_open(const char* path, const char* mode);
+
 #ifdef __cplusplus
 }
 #endif

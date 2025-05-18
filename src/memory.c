@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <windows.h>
-
 #define START_GUARD_BYTE 0xAA
 #define START_GUARD_SIZE 4
 #define END_GUARD_BYTE 0xBB
@@ -57,14 +55,14 @@ static TigMemoryBlock* tig_memory_blocks_head;
 static bool tig_memory_initialized;
 
 // 0x739F40
-static CRITICAL_SECTION tig_memory_crit_sect;
+static SDL_Mutex* tig_memory_mutex;
 
 // 0x4FE380
 int tig_memory_init(TigInitInfo* init_info)
 {
     (void)init_info;
 
-    InitializeCriticalSection(&tig_memory_crit_sect);
+    tig_memory_mutex = SDL_CreateMutex();
 
     tig_memory_initialized = true;
 
@@ -74,7 +72,8 @@ int tig_memory_init(TigInitInfo* init_info)
 // 0x4FE3A0
 void tig_memory_exit(void)
 {
-    DeleteCriticalSection(&tig_memory_crit_sect);
+    SDL_DestroyMutex(tig_memory_mutex);
+    tig_memory_mutex = NULL;
 
     tig_memory_initialized = false;
 }
@@ -88,14 +87,14 @@ void* tig_memory_calloc(size_t count, size_t size, const char* file, int line)
         tig_memory_init(NULL);
     }
 
-    EnterCriticalSection(&tig_memory_crit_sect);
+    SDL_LockMutex(tig_memory_mutex);
 
     ptr = tig_memory_alloc(size * count, file, line);
     if (ptr != NULL) {
         memset(ptr, 0, size * count);
     }
 
-    LeaveCriticalSection(&tig_memory_crit_sect);
+    SDL_UnlockMutex(tig_memory_mutex);
 
     return ptr;
 }
@@ -110,7 +109,7 @@ void tig_memory_free(void* ptr, const char* file, int line)
         tig_memory_init(NULL);
     }
 
-    EnterCriticalSection(&tig_memory_crit_sect);
+    SDL_LockMutex(tig_memory_mutex);
 
     block = tig_memory_blocks_head;
     prev = NULL;
@@ -140,7 +139,7 @@ void tig_memory_free(void* ptr, const char* file, int line)
 
     free(block);
 
-    LeaveCriticalSection(&tig_memory_crit_sect);
+    SDL_UnlockMutex(tig_memory_mutex);
 }
 
 // 0x4FE500
@@ -153,7 +152,7 @@ void* tig_memory_alloc(size_t size, const char* file, int line)
         tig_memory_init(NULL);
     }
 
-    EnterCriticalSection(&tig_memory_crit_sect);
+    SDL_LockMutex(tig_memory_mutex);
 
     ptr = malloc(size + OVERHEAD_SIZE);
     if (ptr == NULL) {
@@ -193,7 +192,7 @@ void* tig_memory_alloc(size_t size, const char* file, int line)
         tig_memory_max_overhead = tig_memory_current_overhead;
     }
 
-    LeaveCriticalSection(&tig_memory_crit_sect);
+    SDL_UnlockMutex(tig_memory_mutex);
 
     return block->data;
 }
@@ -213,7 +212,7 @@ void* tig_memory_realloc(void* ptr, size_t size, const char* file, int line)
         return tig_memory_alloc(size, file, line);
     }
 
-    EnterCriticalSection(&tig_memory_crit_sect);
+    SDL_LockMutex(tig_memory_mutex);
 
     block = tig_memory_blocks_head;
     prev = NULL;
@@ -263,7 +262,7 @@ void* tig_memory_realloc(void* ptr, size_t size, const char* file, int line)
         tig_memory_max_allocated = tig_memory_current_allocated;
     }
 
-    LeaveCriticalSection(&tig_memory_crit_sect);
+    SDL_UnlockMutex(tig_memory_mutex);
 
     return block->data;
 }
@@ -277,12 +276,12 @@ char* tig_memory_strdup(const char* str, const char* file, int line)
         tig_memory_init(NULL);
     }
 
-    EnterCriticalSection(&tig_memory_crit_sect);
+    SDL_LockMutex(tig_memory_mutex);
 
     copy = (char*)tig_memory_alloc(strlen(str) + 1, file, line);
     strcpy(copy, str);
 
-    LeaveCriticalSection(&tig_memory_crit_sect);
+    SDL_UnlockMutex(tig_memory_mutex);
 
     return copy;
 }
@@ -412,7 +411,7 @@ void tig_memory_validate_all(const char* file, int line)
         tig_memory_init(NULL);
     }
 
-    EnterCriticalSection(&tig_memory_crit_sect);
+    SDL_LockMutex(tig_memory_mutex);
 
     block = tig_memory_blocks_head;
     while (block != NULL) {
@@ -420,17 +419,18 @@ void tig_memory_validate_all(const char* file, int line)
         block = block->next;
     }
 
-    LeaveCriticalSection(&tig_memory_crit_sect);
+    SDL_UnlockMutex(tig_memory_mutex);
 }
 
 // 0x4FEA30
 void tig_memory_get_system_status(size_t* total, size_t* available)
 {
-    MEMORYSTATUS memory_status;
-    GlobalMemoryStatus(&memory_status);
+    // SDL exposes installed RAM in megabytes, but the original API had this
+    // value in bytes.
+    *total = (size_t)SDL_GetSystemRAM() * 1024 * 1024;
 
-    *total = memory_status.dwTotalPhys;
-    *available = memory_status.dwAvailPhys;
+    // SDL does not have API to get available RAM.
+    *available = *total;
 }
 
 // 0x4FEA60

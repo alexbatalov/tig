@@ -23,7 +23,6 @@
 #include "tig/button.h"
 #include "tig/color.h"
 #include "tig/core.h"
-#include "tig/dxinput.h"
 #include "tig/font.h"
 #include "tig/kb.h"
 #include "tig/memory.h"
@@ -359,7 +358,7 @@ int tig_menu_do_select(const char* title, const char** menu_items, int num_menu_
     tig_menu_select_num_buttons = num_buttons;
     tig_menu_select_num_menu_items = num_menu_items;
 
-    while (!tig_kb_is_key_pressed(DIK_ESCAPE) && tig_menu_select_selected_menu_item_index == -2) {
+    while (!tig_kb_is_key_pressed(SDL_SCANCODE_ESCAPE) && tig_menu_select_selected_menu_item_index == -2) {
         tig_ping();
 
         // FIXME: Missing message handling loop.

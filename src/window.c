@@ -8,7 +8,6 @@
 #include "tig/color.h"
 #include "tig/core.h"
 #include "tig/debug.h"
-#include "tig/dxinput.h"
 #include "tig/font.h"
 #include "tig/mouse.h"
 #include "tig/net.h"
@@ -395,10 +394,6 @@ int tig_window_display()
         return TIG_ERR_NOT_INITIALIZED;
     }
 
-    if (sub_51F880() != TIG_OK) {
-        return TIG_ERR_GENERIC;
-    }
-
     if (tig_window_dirty_rects == NULL) {
         return TIG_OK;
     }
@@ -434,9 +429,7 @@ int tig_window_display()
 
     tig_video_display_fps();
 
-    if ((tig_window_ctx_flags & TIG_INITIALIZE_DOUBLE_BUFFER) != 0) {
-        tig_video_flip();
-    }
+    tig_video_flip();
 
     return TIG_OK;
 }
@@ -568,7 +561,7 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
                             vb_blit_info.dst_rect = &blt_dst_rect;
                             tig_video_buffer_blit(&vb_blit_info);
                         } else {
-                            tig_video_blit(src_video_buffer, &blt_src_rect, &blt_dst_rect, false);
+                            tig_video_blit(src_video_buffer, &blt_src_rect, &blt_dst_rect);
                         }
 
                         num_clips = tig_rect_clip(&(curr->rect), &(win->frame), clips);
@@ -631,10 +624,7 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
             vb_blit_info.dst_rect = &blt_dst_rect;
             tig_video_buffer_blit(&vb_blit_info);
         } else {
-            tig_video_blit(wins[v38]->video_buffer,
-                &blt_src_rect,
-                &blt_dst_rect,
-                false);
+            tig_video_blit(wins[v38]->video_buffer, &blt_src_rect, &blt_dst_rect);
         }
 
         v38--;
@@ -1701,10 +1691,10 @@ bool tig_window_modal_dialog_message_filter(TigMessage* msg)
     case TIG_MESSAGE_KEYBOARD:
         if (tig_window_modal_dialog_info.type == TIG_WINDOW_MODAL_DIALOG_TYPE_OK_CANCEL
             && msg->data.keyboard.pressed == 0) {
-            if (msg->data.keyboard.key == DIK_RETURN || msg->data.keyboard.key == DIK_NUMPADENTER) {
+            if (msg->data.keyboard.key == SDL_SCANCODE_RETURN || msg->data.keyboard.key == SDL_SCANCODE_KP_ENTER) {
                 tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_OK;
                 tig_window_modal_dialog_close();
-            } else if (msg->data.keyboard.key == DIK_ESCAPE) {
+            } else if (msg->data.keyboard.key == SDL_SCANCODE_ESCAPE) {
                 tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_CANCEL;
                 tig_window_modal_dialog_close();
             }

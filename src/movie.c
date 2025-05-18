@@ -12,27 +12,26 @@
 
 static bool tig_movie_do_frame();
 
-// 0x62B2B4
-static LPDIRECTDRAWSURFACE7 tig_movie_surface;
-
-// 0x62B2B8
-static unsigned int tig_movie_flags;
-
 // 0x62B2BC
 static HBINK tig_movie_bink;
+
+static TigVideoBuffer* tig_movie_video_buffer;
+static int tig_movie_screen_width;
+static int tig_movie_screen_height;
 
 // 0x5314F0
 int tig_movie_init(TigInitInfo* init_info)
 {
     HDIGDRIVER drvr;
 
-    (void)init_info;
-
     // COMPAT: Load `binkw32.dll`.
     bink_compat_init();
 
     AIL_quick_handles(&drvr, NULL, NULL);
     BinkSetSoundSystem(BinkOpenMiles, (unsigned)drvr);
+
+    tig_movie_screen_width = init_info->width;
+    tig_movie_screen_height = init_info->height;
 
     return TIG_OK;
 }
@@ -45,23 +44,17 @@ void tig_movie_exit()
 }
 
 // 0x531530
-int tig_movie_play(const char* path, TigMovieFlags movie_flags, int sound_track)
+int tig_movie_play(const char* path, unsigned int movie_flags, int sound_track)
 {
     unsigned int bink_open_flags = 0;
     TigMessage message;
     bool stop;
     int key = -1;
+    TigVideoBufferCreateInfo vb_create_info;
 
     if (path == NULL) {
         tig_video_fade(0, 0, 0.0f, 1);
         return TIG_ERR_INVALID_PARAM;
-    }
-
-    tig_video_main_surface_get(&tig_movie_surface);
-    tig_movie_flags = BinkDDSurfaceType(tig_movie_surface);
-    if (tig_movie_flags == -1 || tig_movie_flags == 0) {
-        tig_video_fade(0, 0, 0.0f, 1);
-        return TIG_ERR_GENERIC;
     }
 
     if (sound_track != 0) {
@@ -73,6 +66,17 @@ int tig_movie_play(const char* path, TigMovieFlags movie_flags, int sound_track)
     if (tig_movie_bink == NULL) {
         tig_video_fade(0, 0, 0.0f, 1);
         return TIG_ERR_IO;
+    }
+
+    vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_SYSTEM_MEMORY;
+    vb_create_info.background_color = 0;
+    vb_create_info.color_key = 0;
+    vb_create_info.width = tig_movie_bink->Width;
+    vb_create_info.height = tig_movie_bink->Height;
+
+    if (tig_video_buffer_create(&vb_create_info, &tig_movie_video_buffer) != TIG_OK) {
+        BinkClose(tig_movie_bink);
+        return TIG_ERR_GENERIC;
     }
 
     if ((movie_flags & TIG_MOVIE_FADE_IN) != 0) {
@@ -115,6 +119,9 @@ int tig_movie_play(const char* path, TigMovieFlags movie_flags, int sound_track)
     while (tig_message_dequeue(&message) == TIG_OK) {
     }
 
+    tig_video_buffer_destroy(tig_movie_video_buffer);
+    tig_movie_video_buffer = NULL;
+
     BinkClose(tig_movie_bink);
     tig_movie_bink = NULL;
 
@@ -145,41 +152,44 @@ bool tig_movie_is_playing()
 // 0x5317D0
 bool tig_movie_do_frame()
 {
-    DDSURFACEDESC2 ddsd;
-    HRESULT hr;
+    TigVideoBufferData video_buffer_data;
+    TigRect src_rect;
+    TigRect dst_rect;
 
     if (!BinkWait(tig_movie_bink)) {
         BinkDoFrame(tig_movie_bink);
 
-        ddsd.dwSize = sizeof(ddsd);
+        if (tig_video_buffer_lock(tig_movie_video_buffer) != TIG_OK) {
+            return false;
+        }
 
-        do {
-            // NOTE: Looks odd, not sure how to make it a little bit more
-            // readable.
-            hr = IDirectDrawSurface_Lock(tig_movie_surface, NULL, &ddsd, DDLOCK_WAIT, NULL);
-            if (hr == DDERR_SURFACELOST) {
-                hr = IDirectDrawSurface_Restore(tig_movie_surface);
-                if (hr != DD_OK) {
-                    // Failed to restore surface, skip blitting.
-                    break;
-                } else {
-                    // Attempt to lock once again.
-                    continue;
-                }
-            }
+        if (tig_video_buffer_data(tig_movie_video_buffer, &video_buffer_data) != TIG_OK) {
+            return false;
+        }
 
-            // Copy movie pixels to the center of the screen.
-            BinkCopyToBuffer(tig_movie_bink,
-                ddsd.lpSurface,
-                ddsd.lPitch,
-                tig_movie_bink->Height,
-                (ddsd.dwWidth - tig_movie_bink->Width) / 2,
-                (ddsd.dwHeight - tig_movie_bink->Height) / 2,
-                tig_movie_flags);
+        src_rect.x = 0;
+        src_rect.y = 0;
+        src_rect.width = video_buffer_data.width;
+        src_rect.height = video_buffer_data.height;
 
-            // FIXME: Should be rect, not surface.
-            IDirectDrawSurface_Unlock(tig_movie_surface, (LPRECT)ddsd.lpSurface);
-        } while (0);
+        dst_rect.x = (tig_movie_screen_width - video_buffer_data.width) / 2;
+        dst_rect.y = (tig_movie_screen_height - video_buffer_data.height) / 2;
+        dst_rect.width = video_buffer_data.width;
+        dst_rect.height = video_buffer_data.height;
+
+        // Copy movie pixels to the video buffer.
+        BinkCopyToBuffer(tig_movie_bink,
+            video_buffer_data.surface_data.pixels,
+            video_buffer_data.pitch,
+            video_buffer_data.height,
+            0,
+            0,
+            3);
+
+        tig_video_buffer_unlock(tig_movie_video_buffer);
+
+        // Blit buffer to the center of the screen.
+        tig_video_blit(tig_movie_video_buffer, &src_rect, &dst_rect);
 
         if (tig_movie_bink->FrameNum == tig_movie_bink->Frames) {
             return false;

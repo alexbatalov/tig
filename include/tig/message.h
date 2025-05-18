@@ -65,7 +65,7 @@ typedef struct TigKeyboardMessageData {
 } TigKeyboardMessageData;
 
 typedef struct TigCharacterMessageData {
-    unsigned char ch;
+    SDL_Keycode ch;
 } TigCharacterMessageData;
 
 typedef struct TigMessage {
@@ -88,8 +88,6 @@ void tig_message_exit();
 void tig_message_ping();
 int tig_message_enqueue(TigMessage* message);
 int tig_message_set_key_handler(TigMessageKeyboardCallback* callback, int key);
-LRESULT CALLBACK tig_message_wnd_proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-void tig_message_set_default_window_proc(WNDPROC func);
 
 // Pulls next message from the game's message queue and returns `TIG_OK`.
 //
@@ -99,10 +97,6 @@ int tig_message_dequeue(TigMessage* message);
 // Adds `TIG_MESSAGE_QUIT` message to the game's message queue and
 // returns `TIG_OK`.
 int tig_message_post_quit(int exit_code);
-
-int sub_52BE90();
-int sub_52BEA0();
-int sub_52BEB0(bool a1);
 
 #ifdef __cplusplus
 }

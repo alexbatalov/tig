@@ -28,6 +28,9 @@ static int art_file_path_resolver(tig_art_id_t art_id, char* path)
     switch (type) {
     case TIG_ART_TYPE_INTERFACE:
         switch (num) {
+        case 0:
+            strcpy(path, "art\\interface\\cursor.art");
+            return TIG_OK;
         case 329:
             strcpy(path, "art\\interface\\mainmenuback.art");
             return TIG_OK;
@@ -114,7 +117,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
     TigInitInfo init_info;
     init_info.texture_width = 1024;
     init_info.texture_height = 1024;
-    init_info.flags = TIG_INITIALIZE_3D_HARDWARE_DEVICE | TIG_INITIALIZE_3D_SOFTWARE_DEVICE | TIG_INITIALIZE_VIDEO_MEMORY;
+    init_info.flags = 0;
 
     char* pch = lpCmdLine;
     while (*pch != '\0') {
@@ -130,19 +133,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
         init_info.flags |= TIG_INITIALIZE_NO_SOUND;
     }
 
-    if (strstr(lpCmdLine, "-no3d") != NULL) {
-        init_info.flags &= ~(TIG_INITIALIZE_ANY_3D | TIG_INITIALIZE_VIDEO_MEMORY);
-    }
-
-    if (strstr(lpCmdLine, "-3dref") != NULL) {
-        init_info.flags &= ~(TIG_INITIALIZE_3D_HARDWARE_DEVICE | TIG_INITIALIZE_3D_SOFTWARE_DEVICE);
-        init_info.flags |= TIG_INITIALIZE_3D_REF_DEVICE;
-    }
-
-    if (strstr(lpCmdLine, "-doublebuffer") != NULL) {
-        init_info.flags |= TIG_INITIALIZE_DOUBLE_BUFFER;
-    }
-
     // Testing windowed mode.
     init_info.flags |= TIG_INITIALIZE_WINDOWED;
 
@@ -155,12 +145,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
     init_info.bpp = 32;
 
-    // Testing other bpp modes.
-    // init_info.bpp = 24;
-    // init_info.bpp = 16;
-
-    init_info.instance = hInstance;
-    init_info.default_window_proc = DefWindowProcA;
     init_info.art_file_path_resolver = art_file_path_resolver;
     init_info.sound_file_path_resolver = sound_file_path_resolver;
 
@@ -178,9 +162,12 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
     // Play startup movie. Observe that movie does not require window at all.
     // Instead it is rendered directly to the screen surface.
-    //
-    // NOTE: Causes switching to 256 color mode (flickering in windowed mode).
-    // do_movie("movies\\SierraLogo.bik");
+    do_movie("movies\\SierraLogo.bik");
+
+    // Setup cursor.
+    tig_art_id_t cursor_art_id;
+    tig_art_interface_id_create(0, 0, 0, 0, &cursor_art_id);
+    tig_mouse_cursor_set_art_id(cursor_art_id);
 
     // Create root window.
     TigWindowData window_data;
@@ -268,7 +255,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
         tig_window_display();
 
         // Process events.
-        if (tig_message_dequeue(&msg) == TIG_OK) {
+        while (tig_message_dequeue(&msg) == TIG_OK) {
             if (msg.type == TIG_MESSAGE_BUTTON) {
                 int btn = -1;
                 for (int index = 0; index < 5; index++) {
@@ -294,7 +281,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
                     }
                 }
             } else if (msg.type == TIG_MESSAGE_KEYBOARD) {
-                if (msg.data.keyboard.key == DIK_ESCAPE
+                if (msg.data.keyboard.key == SDL_SCANCODE_ESCAPE
                     && msg.data.keyboard.pressed == 0) {
                     done = true;
                 }
@@ -303,6 +290,9 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
             }
         }
     }
+
+    tig_font_destroy(font);
+    tig_font_destroy(hover_font);
 
     // Shutdown TIG.
     tig_exit();
