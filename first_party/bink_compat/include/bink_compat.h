@@ -7,7 +7,11 @@
 extern "C" {
 #endif
 
+#ifdef _WIN32
 #define BINKCALL __stdcall
+#else
+#define BINKCALL
+#endif
 
 #define BINKSNDTRACK 0x4000
 

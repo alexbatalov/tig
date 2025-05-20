@@ -1,6 +1,8 @@
 #include "mss_compat.h"
 
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 typedef signed int S32;
 typedef unsigned int U32;
@@ -23,7 +25,10 @@ typedef void(AILCALL* AIL_SET_STREAM_VOLUME)(HSTREAM stream, int volume);
 typedef void(AILCALL* AIL_START_STREAM)(HSTREAM stream);
 typedef int(AILCALL* AIL_STREAM_STATUS)(HSTREAM stream);
 
+#ifdef _WIN32
 static HMODULE mss32;
+#endif
+
 static AIL_CLOSE_STREAM mss32_AIL_close_stream;
 static AIL_DIGITAL_HANDLE_REACQUIRE mss32_AIL_digital_handle_reacquire;
 static AIL_DIGITAL_HANDLE_RELEASE mss32_AIL_digital_handle_release;
@@ -193,6 +198,7 @@ int AILCALL AIL_stream_status(HSTREAM stream)
 
 bool mss_compat_init()
 {
+#ifdef _WIN32
     mss32 = LoadLibraryA("mss32.dll");
     if (mss32 == NULL) {
         return false;
@@ -236,12 +242,14 @@ bool mss_compat_init()
         mss_compat_exit();
         return false;
     }
+#endif
 
     return true;
 }
 
 void mss_compat_exit(void)
 {
+#ifdef _WIN32
     if (mss32 != NULL) {
         FreeLibrary(mss32);
         mss32 = NULL;
@@ -264,4 +272,5 @@ void mss_compat_exit(void)
         mss32_AIL_start_stream = NULL;
         mss32_AIL_stream_status = NULL;
     }
+#endif
 }

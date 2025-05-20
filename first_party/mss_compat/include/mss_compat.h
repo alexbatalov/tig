@@ -7,7 +7,11 @@
 extern "C" {
 #endif
 
+#ifdef _WIN32
 #define AILCALL __stdcall
+#else
+#define AILCALL
+#endif
 
 #define QSTAT_DONE 1
 #define QSTAT_PLAYING 3

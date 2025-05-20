@@ -1,6 +1,8 @@
 #include "bink_compat.h"
 
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 typedef void(BINKCALL* BINKCLOSE)(HBINK);
 typedef int(BINKCALL* BINKCOPYTOBUFFER)(HBINK, void*, int, unsigned, unsigned, unsigned, unsigned);
@@ -13,7 +15,10 @@ typedef int(BINKCALL* BINKSETSOUNDSYSTEM)(BINKSNDSYSOPEN, unsigned);
 typedef void(BINKCALL* BINKSETSOUNDTRACK)(unsigned);
 typedef int(BINKCALL* BINKWAIT)(HBINK);
 
+#ifdef _WIN32
 static HMODULE binkw32;
+#endif
+
 static BINKCLOSE _BinkClose;
 static BINKCOPYTOBUFFER _BinkCopyToBuffer;
 static BINKDDSURFACETYPE _BinkDDSurfaceType;
@@ -111,6 +116,7 @@ int BINKCALL BinkWait(HBINK bnk)
 
 bool bink_compat_init()
 {
+#ifdef _WIN32
     binkw32 = LoadLibraryA("binkw32.dll");
     if (binkw32 == NULL) {
         return false;
@@ -140,12 +146,14 @@ bool bink_compat_init()
         bink_compat_exit();
         return false;
     }
+#endif
 
     return true;
 }
 
 void bink_compat_exit(void)
 {
+#ifdef _WIN32
     if (binkw32 != NULL) {
         FreeLibrary(binkw32);
         binkw32 = NULL;
@@ -161,4 +169,5 @@ void bink_compat_exit(void)
         _BinkSetSoundTrack = NULL;
         _BinkWait = NULL;
     }
+#endif
 }
