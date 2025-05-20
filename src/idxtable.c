@@ -30,11 +30,11 @@
 
 // Magic 32 bit number in the file stream denoting start of serialized
 // `TigIdxTable` representation.
-#define START_SENTINEL 0xAB1EE1BA
+#define START_SENTINEL 0xAB1EE1BAu
 
 // Magic 32 bit number in the file stream denoting end of serialized
 // `TigIdxTable` representation.
-#define END_SENTINEL 0xE1BAAB1E
+#define END_SENTINEL 0xE1BAAB1Eu
 
 static void tig_idxtable_entry_destroy(TigIdxTableEntry* entry);
 static TigIdxTableEntry* tig_idxtable_entry_create(int size);
@@ -97,7 +97,7 @@ void tig_idxtable_copy(TigIdxTable* dst, TigIdxTable* src)
 // 0x534430
 int tig_idxtable_write(TigIdxTable* idxtable, TigFile* stream)
 {
-    int grd;
+    unsigned int grd;
     int index;
     int count;
     TigIdxTableEntry* entry;
@@ -130,7 +130,7 @@ int tig_idxtable_write(TigIdxTable* idxtable, TigFile* stream)
 // 0x534520
 bool tig_idxtable_read(TigIdxTable* idxtable, TigFile* stream)
 {
-    int grd;
+    unsigned int grd;
     int index;
     int count;
     TigIdxTableEntry* entry;
