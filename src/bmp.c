@@ -9,15 +9,11 @@
 // 0x535D80
 int tig_bmp_create(TigBmp* bmp)
 {
-    TigFile* stream;
-    BITMAPFILEHEADER file_hdr;
-    BITMAPINFOHEADER info_hdr;
-    int num_colors;
+    SDL_IOStream* io;
+    SDL_Surface* surface;
+    const SDL_PixelFormatDetails* fmt;
+    SDL_Palette* palette;
     int data_size;
-    int x;
-    int y;
-    uint8_t byte;
-    RGBQUAD palette[256];
     int index;
 
     if (bmp == NULL) {
@@ -26,109 +22,55 @@ int tig_bmp_create(TigBmp* bmp)
 
     bmp->pixels = NULL;
 
-    stream = tig_file_fopen(bmp->name, "rb");
-    if (stream == NULL) {
+    io = tig_file_io_open(bmp->name, "rb");
+    if (io == NULL) {
         return TIG_ERR_IO;
     }
 
-    static_assert(sizeof(file_hdr) == 0xE, "wrong size");
-    if (tig_file_fread(&file_hdr, sizeof(file_hdr), 1, stream) != 1) {
-        tig_file_fclose(stream);
-        return TIG_ERR_IO;
-    }
-
-    if (file_hdr.bfType != 0x4D42) {
-        tig_file_fclose(stream);
+    surface = SDL_LoadBMP_IO(io, true);
+    if (surface == NULL) {
         return TIG_ERR_GENERIC;
     }
 
-    static_assert(sizeof(info_hdr) == 0x28, "wrong size");
-    if (tig_file_fread(&info_hdr, sizeof(info_hdr), 1, stream) != 1) {
-        tig_file_fclose(stream);
-        return TIG_ERR_IO;
-    }
-
-    if (info_hdr.biSize != sizeof(info_hdr)
-        || info_hdr.biPlanes != 1
-        || (info_hdr.biBitCount != 4
-            && info_hdr.biBitCount != 8
-            && info_hdr.biBitCount != 24)
-        || info_hdr.biCompression != BI_RGB) {
-        tig_file_fclose(stream);
+    fmt = SDL_GetPixelFormatDetails(surface->format);
+    if (fmt == NULL) {
+        SDL_DestroySurface(surface);
         return TIG_ERR_GENERIC;
     }
 
-    bmp->bpp = info_hdr.biBitCount;
+    if (fmt->bits_per_pixel != 4
+        && fmt->bits_per_pixel != 8
+        && fmt->bits_per_pixel != 24) {
+        SDL_DestroySurface(surface);
+        return TIG_ERR_GENERIC;
+    }
 
-    num_colors = info_hdr.biClrUsed;
-    if (num_colors == 0) {
-        switch (info_hdr.biBitCount) {
-        case 1:
-            num_colors = 2;
-            break;
-        case 4:
-            num_colors = 16;
-            break;
-        case 8:
-            num_colors = 256;
-            break;
-        case 24:
-            num_colors = 0;
-            break;
-        default:
-            tig_file_fclose(stream);
-            return TIG_ERR_GENERIC;
+    bmp->bpp = fmt->bits_per_pixel;
+
+    palette = SDL_GetSurfacePalette(surface);
+    if (palette != NULL) {
+        for (index = 0; index < palette->ncolors; index++) {
+            bmp->palette[index] = tig_color_make(palette->colors[index].r,
+                palette->colors[index].g,
+                palette->colors[index].b);
         }
     }
 
-    if (num_colors > 0) {
-        if (info_hdr.biBitCount <= 8) {
-            if (tig_file_fread(palette, sizeof(RGBQUAD), num_colors, stream) != num_colors) {
-                tig_file_fclose(stream);
-                return TIG_ERR_IO;
-            }
-        }
-
-        for (index = 0; index < num_colors; ++index) {
-            bmp->palette[index] = tig_color_to_24_bpp(palette[index].rgbRed,
-                palette[index].rgbGreen,
-                palette[index].rgbBlue);
-        }
-    }
-
-    bmp->width = info_hdr.biWidth;
-    bmp->height = info_hdr.biHeight;
-
-    if (info_hdr.biSizeImage != 0) {
-        bmp->pitch = info_hdr.biSizeImage / info_hdr.biHeight;
-    } else {
-        bmp->pitch = info_hdr.biWidth;
-        if (bmp->pitch % 4 > 0) {
-            bmp->pitch = bmp->pitch - bmp->pitch % 4 + 4;
-        }
-    }
+    bmp->pitch = surface->pitch;
+    bmp->width = surface->w;
+    bmp->height = surface->h;
 
     data_size = bmp->pitch * bmp->height;
     bmp->pixels = MALLOC(data_size);
     if (bmp->pixels == NULL) {
-        tig_file_fclose(stream);
+        SDL_DestroySurface(surface);
         return TIG_ERR_OUT_OF_MEMORY;
     }
 
-    if (tig_file_fread(bmp->pixels, data_size, 1, stream) != 1) {
-        tig_file_fclose(stream);
-        return TIG_ERR_IO;
-    }
+    memcpy(bmp->pixels, surface->pixels, data_size);
 
-    for (y = 0; y < bmp->height / 2; ++y) {
-        for (x = 0; x < bmp->width; ++x) {
-            byte = ((uint8_t*)bmp->pixels)[bmp->pitch * y + x];
-            ((uint8_t*)bmp->pixels)[bmp->pitch * y + x] = ((uint8_t*)bmp->pixels)[bmp->pitch * (bmp->height - y - 1) + x];
-            ((uint8_t*)bmp->pixels)[bmp->pitch * (bmp->height - y - 1) + x] = byte;
-        }
-    }
+    SDL_DestroySurface(surface);
 
-    tig_file_fclose(stream);
     return TIG_OK;
 }
 
