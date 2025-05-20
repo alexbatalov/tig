@@ -751,7 +751,6 @@ int tig_file_mkdir_ex(const char* path)
     char temp_path[TIG_MAX_PATH];
     size_t temp_path_length;
     TigFileRepository* repo;
-    char* pch;
 
     temp_path[0] = '\0';
 
@@ -774,16 +773,9 @@ int tig_file_mkdir_ex(const char* path)
         temp_path[temp_path_length] = '\0';
     }
 
-    pch = strchr(temp_path, '\\');
-    while (pch != NULL) {
-        *pch = '\0';
-        _mkdir(temp_path);
-        *pch = '\\';
-
-        pch = strchr(pch + 1, '\\');
+    if (!SDL_CreateDirectory(temp_path)) {
+        return -1;
     }
-
-    mkdir(temp_path);
 
     return 0;
 }
