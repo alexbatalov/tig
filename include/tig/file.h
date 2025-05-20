@@ -3,8 +3,7 @@
 
 #include <stdlib.h>
 
-#include <guiddef.h>
-
+#include "tig/guid.h"
 #include "tig/types.h"
 
 #ifdef __cplusplus
@@ -53,7 +52,7 @@ void tig_file_exit();
 bool tig_file_repository_add(const char* path);
 bool tig_file_repository_remove(const char* path);
 bool tig_file_repository_remove_all();
-bool tig_file_repository_guid(const char* path, GUID* guid);
+bool tig_file_repository_guid(const char* path, TigGuid* guid);
 int tig_file_mkdir_ex(const char* path);
 int tig_file_rmdir_ex(const char* path);
 bool tig_file_extract(const char* filename, char* path);

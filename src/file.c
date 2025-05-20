@@ -729,7 +729,7 @@ bool tig_file_repository_remove_all()
 }
 
 // 0x52F0A0
-bool tig_file_repository_guid(const char* path, GUID* guid)
+bool tig_file_repository_guid(const char* path, TigGuid* guid)
 {
     TigFileRepository* curr = tig_file_repositories_head;
     while (curr != NULL) {

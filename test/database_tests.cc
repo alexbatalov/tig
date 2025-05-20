@@ -42,8 +42,8 @@ TEST_F(TigDatabaseTest, OpenClose)
     ASSERT_NE(database, nullptr);
     EXPECT_EQ(database->entries_count, 28);
 
-    const GUID expected_guid = { 0x47CEC38A, 0x838C, 0xB1F9, { 0x00, 0xC3, 0x0E, 0x61, 0x31, 0x54, 0x41, 0x44 } };
-    EXPECT_TRUE(IsEqualGUID(database->guid, expected_guid));
+    const TigGuid expected_guid = { 0x47CEC38A, 0x838C, 0xB1F9, { 0x00, 0xC3, 0x0E, 0x61, 0x31, 0x54, 0x41, 0x44 } };
+    EXPECT_TRUE(tig_guid_is_equal(&(database->guid), &(expected_guid)));
 
     const struct {
         const char* file_name;

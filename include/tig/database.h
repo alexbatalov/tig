@@ -1,8 +1,7 @@
 #ifndef TIG_DATABASE_H_
 #define TIG_DATABASE_H_
 
-#include <guiddef.h>
-
+#include "tig/guid.h"
 #include "tig/types.h"
 
 #ifdef __cplusplus
@@ -20,7 +19,7 @@ typedef struct TigDatabase {
     /* 0008 */ TigDatabaseEntry* entries;
     /* 000C */ TigDatabaseFileHandle* open_file_handles_head;
     /* 0010 */ TigDatabase* next;
-    /* 0014 */ GUID guid;
+    /* 0014 */ TigGuid guid;
     /* 0024 */ int field_24;
     /* 0028 */ char* name_table;
 } TigDatabase;

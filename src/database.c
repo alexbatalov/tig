@@ -68,7 +68,7 @@ TigDatabase* tig_database_open(const char* path)
     FILE* stream;
     int id;
     int name_table_size;
-    GUID guid;
+    TigGuid guid;
     int entry_table_size;
     int entry_table_offset;
     TigDatabase* database;
@@ -98,7 +98,7 @@ TigDatabase* tig_database_open(const char* path)
     }
 
     if (id == 'DAT ') {
-        memset(&guid, 0, sizeof(GUID));
+        memset(&guid, 0, sizeof(guid));
     } else if (id == 'DAT1') {
         if (fseek(stream, -24, SEEK_END) != 0) {
             fclose(stream);

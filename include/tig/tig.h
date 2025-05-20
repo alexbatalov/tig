@@ -15,6 +15,7 @@
 #include "tig/file_cache.h"
 #include "tig/find_file.h"
 #include "tig/font.h"
+#include "tig/guid.h"
 #include "tig/idxtable.h"
 #include "tig/kb.h"
 #include "tig/memory.h"
