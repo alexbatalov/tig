@@ -1,4 +1,4 @@
-#include <windows.h>
+#include <SDL3/SDL_main.h>
 
 #include <tig/tig.h>
 
@@ -112,26 +112,39 @@ static void refresh_button_text(int index, bool hovering)
     tig_font_pop();
 }
 
-int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int main(int argc, char** argv)
 {
     TigInitInfo init_info;
     init_info.texture_width = 1024;
     init_info.texture_height = 1024;
     init_info.flags = 0;
 
-    char* pch = lpCmdLine;
+    size_t cmd_line_len = 0;
+    for (int i = 1; i < argc; i++) {
+        cmd_line_len += strlen(argv[i]) + 1;
+    }
+
+    char* cmd_line = MALLOC(cmd_line_len);
+    cmd_line[0] = '\0';
+    for (int i = 1; i < argc; i++) {
+        strcat(cmd_line, argv[i]);
+    }
+
+    char* pch = cmd_line;
     while (*pch != '\0') {
         *pch = (char)(unsigned char)tolower((unsigned char)*pch);
         pch++;
     }
 
-    if (strstr(lpCmdLine, "-fps") != NULL) {
+    if (strstr(cmd_line, "-fps") != NULL) {
         init_info.flags |= TIG_INITIALIZE_FPS;
     }
 
-    if (strstr(lpCmdLine, "-nosound") != NULL) {
+    if (strstr(cmd_line, "-nosound") != NULL) {
         init_info.flags |= TIG_INITIALIZE_NO_SOUND;
     }
+
+    FREE(cmd_line);
 
     // Testing windowed mode.
     init_info.flags |= TIG_INITIALIZE_WINDOWED;
