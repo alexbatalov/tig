@@ -1,5 +1,7 @@
 #include "bink_compat.h"
 
+#include <stddef.h>
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
