@@ -3615,7 +3615,8 @@ int art_blit(int cache_entry_index, TigArtBlitInfo* blit_info)
         dst_skip = video_buffer_data.pitch - dst_rect.width * 4;
         break;
     default:
-        __assume(0);
+        // Should be unreachable.
+        abort();
     }
 
     src_checkerboard_cur_x = src_rect.x;
