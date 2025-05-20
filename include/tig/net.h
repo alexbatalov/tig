@@ -95,7 +95,6 @@ extern unsigned int tig_net_flags;
 bool tig_net_client_is_active(int client_id);
 bool tig_net_client_is_local(int client_id);
 bool tig_net_client_is_loading(int client_id);
-bool sub_526B20(int client_id);
 const char* tig_net_client_info_get_name(int client_id);
 bool tig_net_client_info_set_name(int client_id, const char* name);
 int tig_net_client_info_get_bytes_sent(int client_id);
