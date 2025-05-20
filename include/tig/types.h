@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <windows.h>
-
 #define SDL_INCLUDE_STDBOOL_H
 #include <SDL3/SDL.h>
 
