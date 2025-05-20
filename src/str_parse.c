@@ -88,7 +88,7 @@ void tig_str_parse_value_64(char** str, int64_t* value)
         *sep = '\0';
     }
 
-    *value = _atoi64(*str);
+    *value = SDL_strtoll(*str, NULL, 10);
 
     if (sep != NULL) {
         *sep = tig_str_parse_separator;
