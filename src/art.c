@@ -3511,8 +3511,19 @@ int art_blit(int cache_entry_index, TigArtBlitInfo* blit_info)
 
         if (dword_604754) {
             if (blit_info->dst_rect->width < 1 || blit_info->dst_rect->height < 1) {
-                MessageBoxA(GetForegroundWindow(), "Divide by zero in art_blit", "Halting Execution", MB_TOPMOST | MB_ICONHAND);
-                exit(EXIT_SUCCESS); // FIXME: Should be EXIT_FAILURE.
+                SDL_Window* window;
+
+                if (tig_video_window_get(&window) != TIG_OK) {
+                    window = NULL;
+                }
+
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                    "Halting Execution",
+                    "Divide by zero in art_blit",
+                    window);
+
+                // FIX: Error code.
+                exit(EXIT_FAILURE);
             }
         }
 
