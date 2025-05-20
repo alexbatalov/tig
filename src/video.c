@@ -1,6 +1,5 @@
 #include "tig/video.h"
 
-#include <d3d.h>
 #include <stdio.h>
 
 #include "tig/art.h"
@@ -61,15 +60,6 @@ static bool tig_video_3d_initialized;
 
 // 0x610320
 static bool tig_video_3d_is_hardware;
-
-// 0x61032C
-static int tig_video_3d_extra_surface_caps;
-
-// 0x610330
-static int tig_video_3d_extra_surface_caps2;
-
-// 0x610338
-static DDPIXELFORMAT tig_video_3d_pixel_format;
 
 // 0x610358
 static bool tig_video_3d_scene_started;
