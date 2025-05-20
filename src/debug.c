@@ -277,9 +277,11 @@ bool tig_debug_remove_func(DebugOutputFunc* func)
 // 0x4FEDF0
 void tig_debug_console_init()
 {
+#ifdef _WIN32
     if (AllocConsole()) {
         SetConsoleTitleA("Debug Output");
     }
+#endif
 
     tig_debug_console_init_func = NULL;
 }
@@ -287,6 +289,7 @@ void tig_debug_console_init()
 // 0x4FEE10
 void tig_debug_console_impl(const char* str)
 {
+#ifdef _WIN32
     DWORD chars_written;
 
     if (tig_debug_console_init_func != NULL) {
@@ -298,12 +301,19 @@ void tig_debug_console_impl(const char* str)
         strlen(str) + 1,
         &chars_written,
         NULL);
+#else
+    (void)str;
+#endif
 }
 
 // 0x4FEE50
 void tig_debug_debugger_impl(const char* str)
 {
+#ifdef _WIN32
     OutputDebugStringA(str);
+#else
+    (void)str;
+#endif
 }
 
 // 0x4FEE60
