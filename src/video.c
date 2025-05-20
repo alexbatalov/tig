@@ -1,5 +1,6 @@
 #include "tig/video.h"
 
+#include <limits.h>
 #include <stdio.h>
 
 #include "tig/art.h"
