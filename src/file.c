@@ -797,7 +797,7 @@ int tig_file_rmdir_ex(const char* path)
                 strcat(temp_path, "\\");
                 strcat(temp_path, path);
 
-                if (rmdir(temp_path) == 0) {
+                if (SDL_RemovePath(temp_path)) {
                     rc = 0;
                 }
             }
@@ -805,7 +805,9 @@ int tig_file_rmdir_ex(const char* path)
         }
     } else {
         strcat(temp_path, path);
-        rc = rmdir(temp_path);
+        if (SDL_RemovePath(temp_path)) {
+            rc = 0;
+        }
     }
 
     return rc;
@@ -2058,7 +2060,11 @@ int tig_file_rmdir_recursively(const char* path)
     }
     tig_find_close(&ffd);
 
-    return rmdir(path);
+    if (!SDL_RemovePath(path)) {
+        return -1;
+    }
+
+    return 0;
 }
 
 static Sint64 tig_file_io_size(void* userdata)
