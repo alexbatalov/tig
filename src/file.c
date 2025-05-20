@@ -1,6 +1,5 @@
 #include "tig/file.h"
 
-#include <direct.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
