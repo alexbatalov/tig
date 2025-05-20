@@ -577,7 +577,7 @@ bool tig_file_repository_add(const char* path)
 
     prev = NULL;
     curr = tig_file_repositories_head;
-    while (curr != NULL && strcmpi(curr->path, path) != 0) {
+    while (curr != NULL && SDL_strcasecmp(curr->path, path) != 0) {
         prev = curr;
         curr = curr->next;
     }
@@ -586,7 +586,7 @@ bool tig_file_repository_add(const char* path)
         if (prev != NULL) {
             if ((curr->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0
                 && curr->next != NULL
-                && strcmpi(curr->next->path, path) == 0) {
+                && SDL_strcasecmp(curr->next->path, path) == 0) {
                 // Move repo on top of the list.
                 next = curr->next;
                 curr->next = next->next;
@@ -671,7 +671,7 @@ bool tig_file_repository_remove(const char* file_name)
     prev = NULL;
     repo = tig_file_repositories_head;
     while (repo != NULL) {
-        if (strcmpi(file_name, repo->path) == 0) {
+        if (SDL_strcasecmp(file_name, repo->path) == 0) {
             next = repo->next;
             if ((repo->type & TIG_FILE_DATABASE) != 0) {
                 tig_database_close(repo->database);
@@ -734,7 +734,7 @@ bool tig_file_repository_guid(const char* path, TigGuid* guid)
     TigFileRepository* curr = tig_file_repositories_head;
     while (curr != NULL) {
         if ((curr->type & TIG_FILE_DATABASE) != 0) {
-            if (strcmpi(curr->database->path, path) == 0) {
+            if (SDL_strcasecmp(curr->database->path, path) == 0) {
                 *guid = curr->database->guid;
                 return true;
             }
@@ -1142,7 +1142,7 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
     while (repo != NULL) {
         if ((repo->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
             if ((ignored & TIG_FILE_IGNORE_DATABASE) != 0
-                && strcmpi(search_path, repo->path) == 0) {
+                && SDL_strcasecmp(search_path, repo->path) == 0) {
                 strcpy(path, repo->path);
                 strcat(path, "\\");
                 strcat(path, file_name);
@@ -1162,7 +1162,7 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
             }
         } else if ((repo->type & TIG_FILE_REPOSITORY_DATABASE) != 0) {
             if ((ignored & TIG_FILE_IGNORE_DATABASE) == 0
-                && strcmpi(search_path, repo->path) == 0) {
+                && SDL_strcasecmp(search_path, repo->path) == 0) {
                 if (tig_database_get_entry(repo->database, file_name, &database_entry)) {
                     if (info != NULL) {
                         info->attributes = TIG_FILE_ATTRIBUTE_0x80 | TIG_FILE_ATTRIBUTE_READONLY;
@@ -1897,7 +1897,7 @@ void tig_file_list_add(TigFileList* list, TigFileInfo* info)
 
         while (l <= r) {
             m = (l + r) / 2;
-            cmp = strcmpi(list->entries[m].path, info->path);
+            cmp = SDL_strcasecmp(list->entries[m].path, info->path);
             if (cmp < 0) {
                 l = m + 1;
             } else if (cmp > 0) {

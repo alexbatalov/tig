@@ -168,7 +168,7 @@ TigFileCacheEntry* tig_file_cache_acquire(TigFileCache* cache, const char* path)
     for (index = 0; index < cache->capacity; index++) {
         item = &(cache->items[index]);
         if (item->entry.data != NULL) {
-            if (_strcmpi(item->entry.path, path) == 0) {
+            if (SDL_strcasecmp(item->entry.path, path) == 0) {
                 tig_file_cache_hit_count++;
                 tig_file_cache_hit_bytes += item->entry.size;
                 return tig_file_cache_acquire_internal(cache, item);

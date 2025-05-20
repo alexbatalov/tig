@@ -102,7 +102,7 @@ bool tig_net_blacklist_has(const char* a1, const char* ip_address)
 
     node = tig_net_blacklist_head;
     while (node != NULL) {
-        if (strcmpi(node->ip_address, ip_address) == 0) {
+        if (SDL_strcasecmp(node->ip_address, ip_address) == 0) {
             return true;
         }
         node = node->next;

@@ -367,7 +367,7 @@ void tig_memory_print_stats(TigMemoryPrintStatsOptions opts)
             blocks++;
 
             if (index == tig_memory_current_blocks - 1
-                || strcmpi(array[index]->file, array[index + 1]->file) != 0
+                || SDL_strcasecmp(array[index]->file, array[index + 1]->file) != 0
                 || array[index]->line != array[index + 1]->line) {
                 // NOTE: Format is slightly modified for VS Code to recognize
                 // file path.
@@ -394,7 +394,7 @@ int tig_memory_sort_blocks(const void* a1, const void* a2)
     TigMemoryBlock* block2 = *(TigMemoryBlock**)a2;
     int cmp;
 
-    cmp = strcmpi(block1->file, block2->file);
+    cmp = SDL_strcasecmp(block1->file, block2->file);
     if (cmp == 0) {
         cmp = block1->line - block2->line;
     }

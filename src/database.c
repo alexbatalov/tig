@@ -273,7 +273,7 @@ void tig_database_find_prepare(TigDatabaseFindFileData* ffd)
     // name).
     while (l <= r) {
         m = (l + r) / 2;
-        cmp = strcmpi(ffd->database->entries[m].path, ffd->pattern);
+        cmp = SDL_strcasecmp(ffd->database->entries[m].path, ffd->pattern);
         if (cmp < 0) {
             l = m + 1;
         } else if (cmp > 0) {
@@ -784,7 +784,7 @@ int tig_database_find_entry_by_path(const void* a1, const void* a2)
 {
     const char* path = (const char*)a1;
     const TigDatabaseEntry* entry = (const TigDatabaseEntry*)a2;
-    return strcmpi(path, entry->path);
+    return SDL_strcasecmp(path, entry->path);
 }
 
 // 0x53CED0
