@@ -113,9 +113,9 @@ static inline tig_color_t tig_color_add(tig_color_t src, tig_color_t dst)
     unsigned int g2 = dst & tig_color_green_mask;
     unsigned int b2 = dst & tig_color_blue_mask;
 
-    return min(r1 + r2, tig_color_red_mask)
-        | min(g1 + g2, tig_color_green_mask)
-        | min(b1 + b2, tig_color_blue_mask);
+    return SDL_min(r1 + r2, tig_color_red_mask)
+        | SDL_min(g1 + g2, tig_color_green_mask)
+        | SDL_min(b1 + b2, tig_color_blue_mask);
 }
 
 // Subtract the components of `src` color from `dst` color.
