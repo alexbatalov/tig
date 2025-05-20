@@ -649,7 +649,8 @@ int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_pale
 
     fclose(in);
     fclose(out);
-    if (!CopyFileA(path, filename, FALSE)) {
+
+    if (!SDL_CopyFile(path, filename)) {
         return TIG_ERR_GENERIC;
     }
 
