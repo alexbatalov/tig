@@ -1041,7 +1041,28 @@ int tig_file_filelength(TigFile* stream)
     }
 
     if ((stream->flags & TIG_FILE_PLAIN) != 0) {
-        return _filelength(_fileno(stream->impl.plain_file_stream));
+        long pos;
+        long size;
+
+        pos = ftell(stream->impl.plain_file_stream);
+        if (pos == -1) {
+            return -1;
+        }
+
+        if (fseek(stream->impl.plain_file_stream, 0, SEEK_END) != 0) {
+            return -1;
+        }
+
+        size = ftell(stream->impl.plain_file_stream);
+        if (size == -1) {
+            return -1;
+        }
+
+        if (fseek(stream->impl.plain_file_stream, pos, SEEK_SET) != 0) {
+            return -1;
+        }
+
+        return (int)size;
     }
 
     return -1;
