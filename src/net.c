@@ -247,12 +247,12 @@ typedef struct TigNetClientStats {
     tig_timestamp_t accept_timestamp;
     int bytes_received;
     int bytes_sent;
-    int field_C;
-    int field_10;
-    int field_14;
-    int field_18;
-    int field_1C;
-    int field_20;
+    int num_read_messages;
+    int num_read_calls;
+    int num_write_messages;
+    int num_write_calls;
+    int packets_received;
+    int packets_sent;
 } TigNetClientStats;
 
 static_assert(sizeof(TigNetClientStats) == 0x24, "wrong size");
@@ -420,7 +420,7 @@ static_assert(sizeof(TigNetRemoveServerListNode) == 0x8, "wrong size");
 static int __stdcall tig_net_fd_is_set(SOCKET s, fd_set* set);
 static void tig_net_client_info_exit(TigNetClient* client);
 static void tig_net_client_info_init(TigNetClient* client);
-static void sub_527170(TigNetClientStats* a1);
+static void tig_net_print_client_stats(TigNetClientStats* stats);
 static bool tig_net_ws_exit();
 static void sub_527280();
 static bool tig_net_ws_init();
@@ -823,7 +823,7 @@ void tig_net_exit()
 
     for (index = 0; index < TIG_NET_MAX_PLAYERS; index++) {
         if (tig_net_client_is_active(index)) {
-            sub_527170(&(tig_net_clients[index].stats));
+            tig_net_print_client_stats(&(tig_net_clients[index].stats));
         }
 
         tig_net_client_info_exit(&(tig_net_clients[index]));
@@ -849,9 +849,15 @@ void tig_net_exit()
 }
 
 // 0x527170
-void sub_527170(TigNetClientStats* a1)
+void tig_net_print_client_stats(TigNetClientStats* stats)
 {
-    (void)a1;
+    tig_debug_printf("**** Traffic Statistics for %9.9p ****\n", stats);
+    tig_debug_printf("** Connected at: %d, online for %d **\n", stats->accept_timestamp, tig_timer_elapsed(stats->accept_timestamp));
+    tig_debug_printf("** Sent: Bytes[ %d ], Packets[ %d ] **\n", stats->bytes_sent, stats->packets_sent);
+    tig_debug_printf("**       Write Calls[ %d ], Write Messages[ %d ] **\n", stats->num_write_calls, stats->num_write_messages);
+    tig_debug_printf("** Read: Bytes[ %d ], Packets[ %d ] **\n", stats->bytes_received, stats->packets_received);
+    tig_debug_printf("**       Read Calls[ %d ], Read Messages[ %d ] **\n", stats->num_read_calls, stats->num_read_messages);
+    tig_debug_printf("****************************\n");
 }
 
 // 0x527180
