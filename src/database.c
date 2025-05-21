@@ -76,6 +76,8 @@ TigDatabase* tig_database_open(const char* path)
     unsigned int index;
     int name_size;
     char* name;
+    long pos;
+    long size;
 
     stream = fopen(path, "rb");
     if (stream == NULL) {
@@ -134,12 +136,27 @@ TigDatabase* tig_database_open(const char* path)
         return false;
     }
 
-    offset = _filelength(_fileno(stream)) - entry_table_size - entry_table_offset;
+    pos = ftell(stream);
+    if (pos == -1
+        || fseek(stream, 0, SEEK_END) != 0) {
+        fclose(stream);
+        return false;
+    }
+
+    size = ftell(stream);
+    if (size == -1
+        || fseek(stream, pos, SEEK_SET) != 0) {
+        fclose(stream);
+        return false;
+    }
+
+    offset = (int)size - entry_table_size - entry_table_offset;
 
     database = (TigDatabase*)MALLOC(sizeof(TigDatabase));
 
     if (fread(&(database->entries_count), sizeof(database->entries_count), 1, stream) != 1) {
-        // FIXME: Leaking `database`.
+        // FIX: Memory leak.
+        FREE(database);
         fclose(stream);
         return NULL;
     }
