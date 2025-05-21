@@ -7,12 +7,8 @@
 extern "C" {
 #endif
 
-// For compatibility reasons this struct matches `GUID` from <guiddef.h>
 typedef struct TigGuid {
-    unsigned long Data1;
-    unsigned short Data2;
-    unsigned short Data3;
-    unsigned char Data4[8];
+    uint8_t data[16];
 } TigGuid;
 
 static_assert(sizeof(TigGuid) == 16, "wrong size");
