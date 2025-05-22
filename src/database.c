@@ -72,6 +72,7 @@ TigDatabase* tig_database_open(const char* path)
     int entry_table_size;
     int entry_table_offset;
     TigDatabase* database;
+    TigDatabaseEntry* entry;
     int offset;
     unsigned int index;
     int name_size;
@@ -177,14 +178,20 @@ TigDatabase* tig_database_open(const char* path)
             break;
         }
 
-        if (fread(&(database->entries[index]), sizeof(TigDatabaseEntry), 1, stream) != 1) {
+        entry = &(database->entries[index]);
+
+        if (fseek(stream, 4, SEEK_CUR) != 0
+            || fread(&(entry->flags), sizeof(entry->flags), 1, stream) != 1
+            || fread(&(entry->size), sizeof(entry->size), 1, stream) != 1
+            || fread(&(entry->compressed_size), sizeof(entry->compressed_size), 1, stream) != 1
+            || fread(&(entry->offset), sizeof(entry->offset), 1, stream) != 1) {
             break;
         }
 
-        database->entries[index].path = name;
-        database->entries[index].flags &= ~TIG_DATABASE_ENTRY_0x200;
-        database->entries[index].flags |= TIG_DATABASE_ENTRY_0x100;
-        database->entries[index].offset += offset;
+        entry->path = name;
+        entry->flags &= ~TIG_DATABASE_ENTRY_0x200;
+        entry->flags |= TIG_DATABASE_ENTRY_0x100;
+        entry->offset += offset;
 
         name += name_size;
     }
