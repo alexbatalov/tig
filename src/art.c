@@ -412,6 +412,12 @@ int tig_art_init(TigInitInfo* init_info)
     tig_art_cache_entries = (TigArtCacheEntry*)MALLOC(sizeof(TigArtCacheEntry) * tig_art_cache_entries_capacity);
 
     tig_memory_get_system_status(&total_memory, &available_memory);
+
+    // Prevent overlow on x64.
+    if (total_memory > UINT_MAX) {
+        total_memory = UINT_MAX;
+    }
+
     tig_art_available_system_memory = (art_size_t)(total_memory >> 2);
     tig_art_total_system_memory = (art_size_t)(total_memory >> 2);
 
