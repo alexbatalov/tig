@@ -86,12 +86,6 @@ static TigExitFunc* exit_funcs[] = {
 
 static_assert(NUM_INIT_FUNCS == NUM_EXIT_FUNCS, "number of init and exit funcs does not match");
 
-// 0x60F134
-static char tig_executable_path[TIG_MAX_PATH];
-
-// 0x60F238
-static char* tig_executable_file_name;
-
 // 0x60F23C
 static bool tig_initialized;
 
@@ -142,7 +136,6 @@ int tig_init(TigInitInfo* init_info)
     }
 
     atexit(tig_exit);
-    tig_init_executable();
 
     tig_initialized = true;
 
@@ -189,38 +182,6 @@ void tig_ping()
 void sub_51F250()
 {
     tig_ping();
-}
-
-// 0x51F260
-const char* tig_get_executable(bool file_name_only)
-{
-    if (!tig_initialized) {
-        tig_init_executable();
-    }
-
-    if (file_name_only) {
-        return tig_executable_file_name;
-    }
-
-    return tig_executable_path;
-}
-
-// 0x51F290
-void tig_init_executable()
-{
-    char* pch;
-
-    if (GetModuleFileNameA(NULL, tig_executable_path, sizeof(tig_executable_path)) == 0) {
-        tig_debug_println("GetModuleFileName failed.");
-        strcpy(tig_executable_path, "<unknown>");
-    }
-
-    pch = strrchr(tig_executable_path, '\\');
-    if (pch != NULL) {
-        tig_executable_file_name = pch + 1;
-    } else {
-        tig_executable_file_name = tig_executable_path;
-    }
 }
 
 // 0x51F300

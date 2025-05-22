@@ -1092,7 +1092,7 @@ bool tig_video_window_create(TigInitInfo* init_info)
 {
     const char* name = (init_info->flags & TIG_INITIALIZE_SET_WINDOW_NAME) != 0
         ? init_info->window_name
-        : tig_get_executable(true);
+        : "TIG";
 
     SDL_WindowFlags flags = SDL_WINDOW_HIGH_PIXEL_DENSITY;
     if ((init_info->flags & TIG_INITIALIZE_WINDOWED) == 0) {

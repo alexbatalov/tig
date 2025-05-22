@@ -8,7 +8,6 @@
 #include <windows.h>
 #endif
 
-#include "tig/core.h"
 #include "tig/memory.h"
 
 #define VGA_PTR ((unsigned char*)0xB0000)
@@ -82,7 +81,6 @@ int tig_debug_init(TigInitInfo* init_info)
     tig_debug_init_backends();
     tig_memory_set_output_func(tig_debug_println);
     tig_debug_println("\n");
-    tig_debug_println(tig_get_executable(false));
 
     time(&now);
     tig_debug_println(asctime(localtime(&now)));
