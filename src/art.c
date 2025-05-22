@@ -205,6 +205,7 @@ static int sub_51C4E0(int a1, TigBmp* bmp, TigRect* content_rect, int* pitch_ptr
 static void sub_51C6D0(uint8_t* pixels, const TigRect* rect, int pitch, TigRect* content_rect);
 static int sub_51C890(int frame, TigBmp* bmp, TigRect* content_rect, int* pitch_ptr, int* width_ptr, int* height_ptr);
 static int sub_51CA80(uint8_t* pixels, int pitch, int height, int start);
+static bool art_read_header(TigArtHeader* hdr, TigFile* stream);
 
 // 0x5BE880
 static int dword_5BE880[16] = {
@@ -6159,7 +6160,7 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
         return TIG_ERR_GENERIC;
     }
 
-    if (tig_file_fread(hdr, sizeof(TigArtHeader), 1, stream) != 1) {
+    if (!art_read_header(hdr, stream)) {
         tig_file_fclose(stream);
         return TIG_ERR_GENERIC;
     }
@@ -6913,4 +6914,33 @@ int sub_51CA80(uint8_t* pixels, int pitch, int height, int start)
     }
 
     return x;
+}
+
+bool art_read_header(TigArtHeader* hdr, TigFile* stream)
+{
+    int idx;
+    int value;
+
+    if (tig_file_fread(&(hdr->flags), sizeof(hdr->flags), 1, stream) != 1) return false;
+    if (tig_file_fread(&(hdr->fps), sizeof(hdr->fps), 1, stream) != 1) return false;
+    if (tig_file_fread(&(hdr->bpp), sizeof(hdr->bpp), 1, stream) != 1) return false;
+
+    // Read palette table, non-zero value indicates presence of palette entries.
+    for (idx = 0; idx < MAX_PALETTES; idx++) {
+        if (tig_file_fread(&(value), sizeof(value), 1, stream) != 1) return false;
+        hdr->palette_tbl[idx] = (uint32_t*)(intptr_t)value;
+    }
+
+    if (tig_file_fread(&(hdr->action_frame), sizeof(hdr->action_frame), 1, stream) != 1) return false;
+    if (tig_file_fread(&(hdr->num_frames), sizeof(hdr->num_frames), 1, stream) != 1) return false;
+
+    // Skip frames table, actual values are ignored.
+    if (tig_file_fseek(stream, 4 * MAX_ROTATIONS, SEEK_CUR) != 0) return false;
+
+    if (tig_file_fread(&(hdr->data_size), sizeof(hdr->data_size), 1, stream) != 1) return false;
+
+    // Skip pixels table, actual values are ignored.
+    if (tig_file_fseek(stream, 4 * MAX_ROTATIONS, SEEK_CUR) != 0) return false;
+
+    return true;
 }
