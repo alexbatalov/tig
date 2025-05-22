@@ -126,7 +126,6 @@ int tig_video_3d_check_initialized();
 int tig_video_3d_check_hardware();
 int tig_video_3d_begin_scene();
 int tig_video_3d_end_scene();
-int tig_video_get_video_memory_status(size_t* total, size_t* available);
 int tig_video_check_gamma_control();
 int tig_video_fade(int color, int steps, float duration, unsigned int flags);
 int tig_video_set_gamma(float gamma);

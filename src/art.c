@@ -415,12 +415,8 @@ int tig_art_init(TigInitInfo* init_info)
     tig_art_available_system_memory = (art_size_t)(total_memory >> 2);
     tig_art_total_system_memory = (art_size_t)(total_memory >> 2);
 
-    if (tig_video_get_video_memory_status(&total_memory, &available_memory) != TIG_OK) {
-        available_memory = tig_art_total_system_memory;
-    }
-
-    tig_art_available_video_memory = (art_size_t)(available_memory / 2);
-    tig_art_total_video_memory = tig_art_available_video_memory;
+    tig_art_available_video_memory = tig_art_available_system_memory;
+    tig_art_total_video_memory = tig_art_total_system_memory;
     tig_debug_printf("Art mem vid avail is %d\n", tig_art_available_video_memory);
 
     tig_art_bits_per_pixel = init_info->bpp;

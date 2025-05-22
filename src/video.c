@@ -359,19 +359,6 @@ int tig_video_3d_end_scene()
     return TIG_OK;
 }
 
-// 0x51FBF0
-int tig_video_get_video_memory_status(size_t* total_memory, size_t* available_memory)
-{
-    (void)total_memory;
-    (void)available_memory;
-
-    if (!tig_video_initialized) {
-        return TIG_ERR_NOT_INITIALIZED;
-    }
-
-    return TIG_ERR_GENERIC;
-}
-
 // 0x51FC90
 int tig_video_check_gamma_control()
 {
