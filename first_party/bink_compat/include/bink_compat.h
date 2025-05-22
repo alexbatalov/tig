@@ -18,7 +18,7 @@ extern "C" {
 typedef struct BINK* HBINK;
 
 typedef int(BINKCALL* BINKSNDOPEN)(void* BnkSnd, unsigned freq, int bits, int chans, unsigned flags, HBINK bnk);
-typedef BINKSNDOPEN(BINKCALL* BINKSNDSYSOPEN)(unsigned param);
+typedef BINKSNDOPEN(BINKCALL* BINKSNDSYSOPEN)(void* param);
 
 typedef struct BINK {
     unsigned Width;
@@ -33,8 +33,8 @@ int BINKCALL BinkDDSurfaceType(void* lpDDS);
 int BINKCALL BinkDoFrame(HBINK bnk);
 void BINKCALL BinkNextFrame(HBINK bnk);
 HBINK BINKCALL BinkOpen(const char* name, unsigned flags);
-BINKSNDOPEN BINKCALL BinkOpenMiles(unsigned param);
-int BINKCALL BinkSetSoundSystem(BINKSNDSYSOPEN open, unsigned param);
+BINKSNDOPEN BINKCALL BinkOpenMiles(void* param);
+int BINKCALL BinkSetSoundSystem(BINKSNDSYSOPEN open, void* param);
 void BINKCALL BinkSetSoundTrack(unsigned track);
 int BINKCALL BinkWait(HBINK bnk);
 

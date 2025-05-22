@@ -12,8 +12,8 @@ typedef int(BINKCALL* BINKDDSURFACETYPE)(void*);
 typedef int(BINKCALL* BINKDOFRAME)(HBINK);
 typedef void(BINKCALL* BINKNEXTFRAME)(HBINK);
 typedef HBINK(BINKCALL* BINKOPEN)(const char*, unsigned);
-typedef BINKSNDOPEN(BINKCALL* BINKOPENMILES)(unsigned);
-typedef int(BINKCALL* BINKSETSOUNDSYSTEM)(BINKSNDSYSOPEN, unsigned);
+typedef BINKSNDOPEN(BINKCALL* BINKOPENMILES)(void*);
+typedef int(BINKCALL* BINKSETSOUNDSYSTEM)(BINKSNDSYSOPEN, void*);
 typedef void(BINKCALL* BINKSETSOUNDTRACK)(unsigned);
 typedef int(BINKCALL* BINKWAIT)(HBINK);
 
@@ -82,7 +82,7 @@ HBINK BINKCALL BinkOpen(const char* name, unsigned flags)
     }
 }
 
-BINKSNDOPEN BINKCALL BinkOpenMiles(unsigned param)
+BINKSNDOPEN BINKCALL BinkOpenMiles(void* param)
 {
     if (_BinkOpenMiles != NULL) {
         return _BinkOpenMiles(param);
@@ -91,7 +91,7 @@ BINKSNDOPEN BINKCALL BinkOpenMiles(unsigned param)
     }
 }
 
-int BINKCALL BinkSetSoundSystem(BINKSNDSYSOPEN open, unsigned param)
+int BINKCALL BinkSetSoundSystem(BINKSNDSYSOPEN open, void* param)
 {
     if (_BinkSetSoundSystem != NULL) {
         return _BinkSetSoundSystem(open, param);

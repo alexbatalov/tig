@@ -28,7 +28,7 @@ int tig_movie_init(TigInitInfo* init_info)
     bink_compat_init();
 
     AIL_quick_handles(&drvr, NULL, NULL);
-    BinkSetSoundSystem(BinkOpenMiles, (unsigned)drvr);
+    BinkSetSoundSystem(BinkOpenMiles, drvr);
 
     tig_movie_screen_width = init_info->width;
     tig_movie_screen_height = init_info->height;
