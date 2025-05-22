@@ -527,20 +527,20 @@ bool tig_file_archive_worker(const char* path, TigFile* index_stream, TigFile* d
 // 0x52ECA0
 int tig_file_init(TigInitInfo* init_info)
 {
-    TigFindFileData ffd;
-
     (void)init_info;
 
-    if (tig_find_first_file("tig.dat", &ffd)) {
-        tig_file_repository_add("tig.dat");
-    } else {
-        tig_file_repository_add(tig_get_executable(false));
+    // FIX: Make `tig.dat` mandatory.
+    //
+    // When `tig.dat` is not present in the current working directory, the
+    // original code attempts to add a repository at the path provided by
+    // `GetModuleFileNameA`, which is the full path to `Arcanum.exe`. Obviously,
+    // this is not a valid asset bundle.
+    if (!tig_file_repository_add("tig.dat")) {
+        return TIG_ERR_GENERIC;
     }
 
     // Current working directory.
     tig_file_repository_add(".");
-
-    // FIXME: Missing `tig_find_close`, leaking `ffd`.
 
     return TIG_OK;
 }
