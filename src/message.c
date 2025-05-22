@@ -6,7 +6,6 @@
 #include "tig/memory.h"
 #include "tig/mouse.h"
 #include "tig/movie.h"
-#include "tig/net.h"
 #include "tig/timer.h"
 #include "tig/video.h"
 #include "tig/window.h"

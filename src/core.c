@@ -14,7 +14,6 @@
 #include "tig/message.h"
 #include "tig/mouse.h"
 #include "tig/movie.h"
-#include "tig/net.h"
 #include "tig/palette.h"
 #include "tig/rect.h"
 #include "tig/sound.h"
@@ -48,7 +47,6 @@ static TigInitFunc* init_funcs[] = {
     tig_font_init,
     tig_draw_init,
     tig_str_parse_init,
-    tig_net_init,
     tig_file_cache_init,
     tig_sound_init,
     tig_movie_init,
@@ -76,7 +74,6 @@ static TigExitFunc* exit_funcs[] = {
     tig_font_exit,
     tig_draw_exit,
     tig_str_parse_exit,
-    tig_net_exit,
     tig_file_cache_exit,
     tig_sound_exit,
     tig_movie_exit,
@@ -171,7 +168,6 @@ void tig_ping()
 
     tig_mouse_ping();
     tig_message_ping();
-    tig_net_ping();
     tig_sound_ping();
     tig_art_ping();
 }

@@ -27,7 +27,7 @@ Preparing for x64 is mostly about dealing with serialization anti-patterns where
 Roadmap:
  - [ ] Provide platform-specific API (e.g. path resolution, timers, etc.)
  - [x] Replace DirectX with SDL
- - [ ] Replace WinSock with SDL_Net
+ - [ ] ~~Replace WinSock with SDL_Net~~
  - [ ] Replace Bink (not sure if there is an obvious replacement)
  - [ ] Replace Miles Sound System with OpenAL + minimp3
  - [ ] x64

@@ -10,7 +10,6 @@
 #include "tig/debug.h"
 #include "tig/font.h"
 #include "tig/mouse.h"
-#include "tig/net.h"
 #include "tig/rect.h"
 #include "tig/video.h"
 
@@ -1629,9 +1628,7 @@ int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModal
     tig_window_modal_dialog_refresh(NULL);
 
     while (tig_window_modal_dialog_window_handle != TIG_WINDOW_HANDLE_INVALID) {
-        sub_528790();
         tig_ping();
-        sub_5287A0();
 
         if (tig_window_modal_dialog_window_handle == TIG_WINDOW_HANDLE_INVALID) {
             break;
