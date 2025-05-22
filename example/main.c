@@ -132,9 +132,12 @@ int main(int argc, char** argv)
 
     char* pch = cmd_line;
     while (*pch != '\0') {
-        *pch = (char)(unsigned char)tolower((unsigned char)*pch);
+        *pch = (char)(unsigned char)SDL_tolower((unsigned char)*pch);
         pch++;
     }
+
+    init_info.window_name = "Example";
+    init_info.flags |= TIG_INITIALIZE_SET_WINDOW_NAME;
 
     if (strstr(cmd_line, "-fps") != NULL) {
         init_info.flags |= TIG_INITIALIZE_FPS;
