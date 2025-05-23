@@ -241,8 +241,6 @@ typedef struct TigArtAnimData {
     void* palette2;
 } TigArtAnimData;
 
-static_assert(sizeof(TigArtAnimData) == 0x20, "wrong size");
-
 typedef struct TigArtFrameData {
     /* 0000 */ int width;
     /* 0004 */ int height;
@@ -251,8 +249,6 @@ typedef struct TigArtFrameData {
     /* 0010 */ int offset_x;
     /* 0014 */ int offset_y;
 } TigArtFrameData;
-
-static_assert(sizeof(TigArtFrameData) == 0x18, "wrong size");
 
 typedef unsigned int TigArtBlitFlags;
 
@@ -359,8 +355,6 @@ typedef struct TigArtBlitInfo {
     /* 0024 */ TigRect* dst_rect;
     /* 0028 */ TigVideoBuffer* scratch_video_buffer;
 } TigArtBlitInfo;
-
-static_assert(sizeof(TigArtBlitInfo) == 0x2C, "wrong size");
 
 typedef bool(TigArtBlitPaletteAdjustCallback)(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info);
 

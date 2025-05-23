@@ -16,9 +16,6 @@ typedef struct DecompressionContext {
     /* 0038 */ unsigned char buffer[DECOMPRESSION_BUFFER_SIZE];
 } DecompressionContext;
 
-// See 0x53CF50.
-static_assert(sizeof(DecompressionContext) == 0x4038, "wrong size");
-
 #define TIG_DATABASE_FILE_UNGOTTEN 0x01
 #define TIG_DATABASE_FILE_EOF 0x02
 #define TIG_DATABASE_FILE_ERROR 0x04
@@ -35,9 +32,6 @@ typedef struct TigDatabaseFileHandle {
     DecompressionContext* decompression_context;
     TigDatabaseFileHandle* next;
 } TigDatabaseFileHandle;
-
-// See 0x53C300.
-static_assert(sizeof(TigDatabaseFileHandle) == 0x24, "wrong size");
 
 static void tig_database_find_prepare(TigDatabaseFindFileData* ffd);
 static void sub_53CCE0(TigDatabase* database);

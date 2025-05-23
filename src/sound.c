@@ -47,8 +47,6 @@ typedef struct TigSound {
     /* 0148 */ TigSoundPositionalSize positional_size;
 } TigSound;
 
-static_assert(sizeof(TigSound) == 0x150, "wrong size");
-
 static void tig_sound_update();
 static void tig_sound_stop_from_destroy(tig_sound_handle_t sound_handle, int fade_duration);
 static int tig_sound_acquire_handle(TigSoundType type);

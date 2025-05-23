@@ -40,8 +40,6 @@ typedef struct TigButtonData {
     /* 0028 */ int mouse_exit_snd_id;
 } TigButtonData;
 
-static_assert(sizeof(TigButtonData) == 0x2C, "wrong size");
-
 int tig_button_init(TigInitInfo* init_info);
 void tig_button_exit();
 int tig_button_create(TigButtonData* button_data, tig_button_handle_t* button_handle);

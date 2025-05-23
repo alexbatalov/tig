@@ -24,8 +24,6 @@ typedef struct TigDatabase {
     /* 0028 */ char* name_table;
 } TigDatabase;
 
-static_assert(sizeof(TigDatabase) == 0x2C, "wrong size");
-
 #define TIG_DATABASE_ENTRY_PLAIN 0x01
 #define TIG_DATABASE_ENTRY_COMPRESSED 0x02
 #define TIG_DATABASE_ENTRY_0x100 0x100
@@ -41,8 +39,6 @@ typedef struct TigDatabaseEntry {
     /* 0010 */ int offset;
 } TigDatabaseEntry;
 
-static_assert(sizeof(TigDatabaseEntry) == 0x14, "wrong size");
-
 typedef struct TigDatabaseFindFileData {
     /* 0000 */ TigDatabase* database;
     /* 0004 */ char* pattern;
@@ -52,9 +48,6 @@ typedef struct TigDatabaseFindFileData {
     /* 0014 */ unsigned int size;
     /* 0018 */ bool is_directory;
 } TigDatabaseFindFileData;
-
-// See 0x53BFD0.
-static_assert(sizeof(TigDatabaseFindFileData) == 0x1C, "wrong size");
 
 typedef void(TigDatabaseOutputFunc)(const char*);
 

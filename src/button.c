@@ -30,8 +30,6 @@ typedef struct TigButton {
     /* 0034 */ int group;
 } TigButton;
 
-static_assert(sizeof(TigButton) == 0x38, "wrong size");
-
 static int tig_button_free_index();
 static int tig_button_handle_to_index(tig_button_handle_t button_handle);
 static tig_button_handle_t tig_button_index_to_handle(int index);

@@ -47,8 +47,6 @@ typedef struct TigMenuDropDown {
     /* 0024 */ unsigned int* flags;
 } TigMenuDropDown;
 
-static_assert(sizeof(TigMenuDropDown) == 0x28, "wrong size");
-
 // Indicates that menu bar is unused.
 #define TIG_MENU_BAR_UNUSED 0x01
 
@@ -63,8 +61,6 @@ typedef struct TigMenuBar {
     /* 0028 */ unsigned int* flags;
     /* 002C */ tig_button_handle_t* buttons;
 } TigMenuBar;
-
-static_assert(sizeof(TigMenuBar) == 0x30, "wrong size");
 
 static bool sub_5395E0(TigMessage* msg);
 static int tig_menu_bar_destroy(int menu_bar_handle);

@@ -18,14 +18,10 @@ typedef struct TigMessageListNode {
     /* 001C */ struct TigMessageListNode* next;
 } TigMessageListNode;
 
-static_assert(sizeof(TigMessageListNode) == 0x20, "wrong size");
-
 typedef struct TigMessageKeyboardHandler {
     /* 0000 */ int key;
     /* 0004 */ TigMessageKeyboardCallback* callback;
 } TigMessageKeyboardHandler;
-
-static_assert(sizeof(TigMessageKeyboardHandler) == 0x8, "wrong size");
 
 static TigMessageListNode* tig_message_node_acquire();
 static void tig_message_node_reserve();

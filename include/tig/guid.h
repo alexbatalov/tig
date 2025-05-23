@@ -11,6 +11,7 @@ typedef struct TigGuid {
     uint8_t data[16];
 } TigGuid;
 
+// Serializeable.
 static_assert(sizeof(TigGuid) == 16, "wrong size");
 
 void tig_guid_create(TigGuid* guid);

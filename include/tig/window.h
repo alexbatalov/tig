@@ -33,8 +33,6 @@ typedef struct TigWindowData {
     /* 001C */ TigWindowMessageFilterFunc* message_filter;
 } TigWindowData;
 
-static_assert(sizeof(TigWindowData) == 0x20, "wrong size");
-
 typedef enum TigWindowBltType {
     // Blits `src_window_handle` to `dst_window_handle`.
     TIG_WINDOW_BLIT_WINDOW_TO_WINDOW = 1,
@@ -58,8 +56,6 @@ typedef struct TigWindowBlitInfo {
     /* 0020 */ TigVideoBuffer* dst_video_buffer;
     /* 0024 */ TigRect* dst_rect;
 } TigWindowBlitInfo;
-
-static_assert(sizeof(TigWindowBlitInfo) == 0x28, "wrong size");
 
 typedef enum TigWindowModalDialogType {
     // The modal dialog contains a single OK-like button (green checkmark).
@@ -90,9 +86,6 @@ typedef struct TigWindowModalDialogInfo {
     /* 0014 */ unsigned char keys[2];
     /* 0018 */ TigWindowDialogRedraw* redraw;
 } TigWindowModalDialogInfo;
-
-// See 0x51EA60.
-static_assert(sizeof(TigWindowModalDialogInfo) == 0x1C, "wrong size");
 
 int tig_window_init(TigInitInfo* init_info);
 void tig_window_exit();

@@ -125,6 +125,7 @@ typedef struct TigArtFileFrameData {
     /* 0018 */ int offset_y;
 } TigArtFileFrameData;
 
+// Serializeable.
 static_assert(sizeof(TigArtFileFrameData) == 0x1C, "wrong size");
 
 typedef struct TigArtHeader {
@@ -139,16 +140,12 @@ typedef struct TigArtHeader {
     /* 0064 */ uint8_t* pixels_tbl[MAX_ROTATIONS];
 } TigArtHeader;
 
-static_assert(sizeof(TigArtHeader) == 0x84, "wrong size");
-
 typedef struct TigArtFrameSave {
     /* 0000 */ int field_0;
     /* 0004 */ int field_4;
     /* 0008 */ int field_8;
     /* 000C */ int field_C;
 } TigArtFrameSave;
-
-static_assert(sizeof(TigArtFrameSave) == 0x10, "wrong size");
 
 typedef struct TigShdHeader {
     /* 0000 */ unsigned int flags;
@@ -157,8 +154,6 @@ typedef struct TigShdHeader {
     /* 0028 */ int field_28[MAX_ROTATIONS];
     /* 0048 */ void* field_48[MAX_ROTATIONS];
 } TigShdHeader;
-
-static_assert(sizeof(TigShdHeader) == 0x68, "wrong size");
 
 #define TIG_ART_CACHE_ENTRY_MODIFIED 0x02
 
@@ -175,8 +170,6 @@ typedef struct TigArtCacheEntry {
     /* 0264 */ art_size_t system_memory_usage;
     /* 0268 */ art_size_t video_memory_usage;
 } TigArtCacheEntry;
-
-static_assert(sizeof(TigArtCacheEntry) == 0x26C, "wrong size");
 
 static int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuffer** video_buffer_ptr);
 static int sub_505940(unsigned int art_blt_flags, unsigned int* vb_blt_flags_ptr);

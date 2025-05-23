@@ -18,8 +18,6 @@ typedef struct TigMenuBarCreateInfo {
     /* 001C */ unsigned int* flags;
 } TigMenuBarCreateInfo;
 
-static_assert(sizeof(TigMenuBarCreateInfo) == 0x20, "wrong size");
-
 typedef struct TigMenuColors {
     /* 0000 */ tig_color_t text_color;
     /* 0004 */ tig_color_t background_color;
@@ -27,8 +25,6 @@ typedef struct TigMenuColors {
     /* 000C */ tig_color_t disabled_text_color;
     /* 0010 */ tig_color_t selected_menu_item_outline_color;
 } TigMenuColors;
-
-static_assert(sizeof(TigMenuColors) == 0x14, "wrong size");
 
 // Initializes MENU subsystem.
 int tig_menu_init(TigInitInfo* init_info);

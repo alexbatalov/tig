@@ -63,8 +63,6 @@ typedef struct TigWindow {
     /* 035C */ TigWindowMessageFilterFunc* message_filter;
 } TigWindow;
 
-static_assert(sizeof(TigWindow) == 0x360, "wrong size");
-
 static int tig_window_free_index();
 static int tig_window_handle_to_index(tig_window_handle_t window_handle);
 static tig_window_handle_t tig_window_index_to_handle(int window_index);

@@ -21,8 +21,6 @@ typedef struct TigIdxTableEntry {
     /* 0008 */ int key;
 } TigIdxTableEntry;
 
-static_assert(sizeof(TigIdxTableEntry) == 0xC, "wrong size");
-
 // A collection whose elements are key/value pairs.
 typedef struct TigIdxTable {
     /* 0000 */ int buckets_count;
@@ -30,8 +28,6 @@ typedef struct TigIdxTable {
     /* 0008 */ int value_size;
     /* 000C */ int count;
 } TigIdxTable;
-
-static_assert(sizeof(TigIdxTable) == 0x10, "wrong size");
 
 // Signature of a callback used by `tig_idxtable_enumerate`.
 //

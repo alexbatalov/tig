@@ -16,14 +16,10 @@ typedef struct TigRect {
     /* 000C */ int height;
 } TigRect;
 
-static_assert(sizeof(TigRect) == 0x10, "wrong size");
-
 typedef struct TigRectListNode {
     /* 0000 */ TigRect rect;
     /* 0010 */ struct TigRectListNode* next;
 } TigRectListNode;
-
-static_assert(sizeof(TigRectListNode) == 0x14, "wrong size");
 
 // A 2D line whose coordinates are specified using points.
 typedef struct TigLine {
@@ -32,8 +28,6 @@ typedef struct TigLine {
     /* 0008 */ int x2;
     /* 000C */ int y2;
 } TigLine;
-
-static_assert(sizeof(TigLine) == 0x10, "wrong size");
 
 // Initializes RECT subsystem.
 int tig_rect_init(TigInitInfo* init_info);

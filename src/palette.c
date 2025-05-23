@@ -11,8 +11,6 @@ typedef struct TigPaletteListNode {
     struct TigPaletteListNode* next;
 } TigPaletteListNode;
 
-static_assert(sizeof(TigPaletteListNode) == 0x8, "wrong size");
-
 static void tig_palette_node_reserve();
 static void tig_palette_node_clear();
 

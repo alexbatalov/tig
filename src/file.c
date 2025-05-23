@@ -29,9 +29,6 @@ typedef struct TigFile {
     } impl;
 } TigFile;
 
-// See 0x530BD0.
-static_assert(sizeof(TigFile) == 0xC, "wrong size");
-
 #define TIG_FILE_REPOSITORY_DATABASE 0x1
 #define TIG_FILE_REPOSITORY_DIRECTORY 0x2
 
@@ -42,9 +39,6 @@ typedef struct TigFileRepository {
     struct TigFileRepository* next;
 } TigFileRepository;
 
-// See 0x52ED40.
-static_assert(sizeof(TigFileRepository) == 0x10, "wrong size");
-
 #define TIG_FILE_IGNORE_DATABASE 0x1
 #define TIG_FILE_IGNORE_DIRECTORY 0x2
 
@@ -53,9 +47,6 @@ typedef struct TigFileIgnore {
     /* 0004 */ unsigned int flags;
     /* 0008 */ struct TigFileIgnore* next;
 } TigFileIgnore;
-
-// See 52F370.
-static_assert(sizeof(TigFileIgnore) == 0xC, "wrong size");
 
 static bool sub_52E840(const char* dst, const char* src);
 static bool sub_52E8D0(TigFile* dst_stream, TigFile* src_stream);

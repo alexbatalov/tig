@@ -14,9 +14,6 @@ typedef struct TigFindFileData {
     intptr_t handle;
 } TigFindFileData;
 
-// See 0x533D20.
-static_assert(sizeof(TigFindFileData) == 0x11C, "wrong size");
-
 bool tig_find_first_file(const char* pattern, TigFindFileData* find_file_data);
 bool tig_find_next_file(TigFindFileData* find_file_data);
 bool tig_find_close(TigFindFileData* find_file_data);

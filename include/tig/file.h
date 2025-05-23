@@ -28,14 +28,10 @@ typedef struct TigFileInfo {
     time_t modify_time;
 } TigFileInfo;
 
-static_assert(sizeof(TigFileInfo) == 0x110, "wrong size");
-
 typedef struct TigFileList {
     unsigned int count;
     TigFileInfo* entries;
 } TigFileList;
-
-static_assert(sizeof(TigFileList) == 0x8, "wrong size");
 
 typedef void(TigFileOutputFunc)(const char*);
 

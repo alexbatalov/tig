@@ -52,8 +52,6 @@ typedef struct TigVideoBufferCreateInfo {
     /* 0010 */ unsigned int color_key;
 } TigVideoBufferCreateInfo;
 
-static_assert(sizeof(TigVideoBufferCreateInfo) == 0x14, "wrong size");
-
 typedef struct TigVideoBufferData {
     /* 0000 */ TigVideoBufferFlags flags;
     /* 0004 */ int width;
@@ -70,8 +68,6 @@ typedef struct TigVideoBufferData {
     } surface_data;
 } TigVideoBufferData;
 
-static_assert(sizeof(TigVideoBufferData) == 0x20, "wrong size");
-
 typedef struct TigVideoBufferBlitInfo {
     /* 0000 */ TigVideoBufferBlitFlags flags;
     /* 0004 */ TigVideoBuffer* src_video_buffer;
@@ -85,8 +81,6 @@ typedef struct TigVideoBufferBlitInfo {
     /* 0024 */ TigVideoBuffer* dst_video_buffer;
     /* 0028 */ TigRect* dst_rect;
 } TigVideoBufferBlitInfo;
-
-static_assert(sizeof(TigVideoBufferBlitInfo) == 0x2C, "wrong size");
 
 typedef struct TigVideoScreenshotSettings {
     /* 0000 */ int key;
@@ -107,8 +101,6 @@ typedef struct TigVideoBufferSaveToBmpInfo {
     /* 0008 */ char path[TIG_MAX_PATH];
     /* 010C */ TigRect* rect;
 } TigVideoBufferSaveToBmpInfo;
-
-static_assert(sizeof(TigVideoBufferSaveToBmpInfo) == 0x110, "wrong size");
 
 int tig_video_init(TigInitInfo* init_info);
 void tig_video_exit();

@@ -17,16 +17,12 @@ typedef struct TigFileCacheEntry {
     char* path;
 } TigFileCacheEntry;
 
-static_assert(sizeof(TigFileCacheEntry) == 0x10, "wrong size");
-
 // An item in file cache.
 typedef struct TigFileCacheItem {
     TigFileCacheEntry entry;
     int refcount;
     time_t timestamp;
 } TigFileCacheItem;
-
-static_assert(sizeof(TigFileCacheItem) == 0x18, "wrong size");
 
 // A collection of cached files.
 typedef struct TigFileCache {
@@ -37,8 +33,6 @@ typedef struct TigFileCache {
     int items_count;
     TigFileCacheItem* items;
 } TigFileCache;
-
-static_assert(sizeof(TigFileCache) == 0x18, "wrong size");
 
 // Initializes file cache system.
 int tig_file_cache_init(TigInitInfo* init_info);
