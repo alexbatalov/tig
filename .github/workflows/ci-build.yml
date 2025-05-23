@@ -27,6 +27,16 @@ jobs:
   build:
     name: Build & test
     runs-on: windows-2019
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86
+            generator-platform: Win32
+          - arch: x64
+            generator-platform: x64
+
     steps:
       - name: Clone
         uses: actions/checkout@v4
@@ -34,31 +44,19 @@ jobs:
       - name: Cache
         uses: actions/cache@v4
         with:
-          path: build
-          key: windows-x86-cmake-v1
+          path: out/build/windows-${{ matrix.arch }}
+          key: windows-${{ matrix.arch }}-cmake-v2
 
       - name: Configure
         run: |
-          cmake \
-            -B build \
-            -G "Visual Studio 16 2019" \
-            -A Win32 \
+          cmake --preset windows-${{ matrix.arch }} \
             -D TIG_BUILD_TESTS=ON \
-            -D TIG_BUILD_EXAMPLE=OFF \
+            -D TIG_BUILD_EXAMPLE=ON \
             # EOL
 
       - name: Build
         run: |
-          cmake \
-            --build build \
-            --config Debug \
-            # EOL
+          cmake --build --preset windows-${{ matrix.arch }}-debug
 
       - name: Test
-        run: |
-          cd build
-          ctest \
-            --build-config Debug \
-            --output-on-failure \
-            --parallel 1 \
-            # EOL
+        run: ctest --preset windows-${{ matrix.arch }}
