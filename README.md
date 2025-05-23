@@ -30,7 +30,7 @@ Roadmap:
  - [ ] ~~Replace WinSock with SDL_Net~~
  - [ ] Replace Bink (not sure if there is an obvious replacement)
  - [ ] Replace Miles Sound System with OpenAL + minimp3
- - [ ] x64
+ - [x] x64
 
 You're welcome to help with any of these. Keep it C and match surrounding code style.
 
