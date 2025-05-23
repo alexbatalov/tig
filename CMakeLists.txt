@@ -116,7 +116,6 @@ if(WIN32)
     target_compile_definitions(tig_common INTERFACE
         _CRT_NONSTDC_NO_WARNINGS
         _CRT_SECURE_NO_WARNINGS
-        WIN32_LEAN_AND_MEAN
     )
 endif()
 
