@@ -1,5 +1,6 @@
 #include "tig/art.h"
 
+#include <limits.h>
 #include <stdio.h>
 
 #include "tig/bmp.h"
