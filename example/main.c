@@ -124,9 +124,12 @@ int main(int argc, char** argv)
         cmd_line_len += strlen(argv[i]) + 1;
     }
 
-    char* cmd_line = MALLOC(cmd_line_len);
+    char* cmd_line = MALLOC(cmd_line_len + 1);
     cmd_line[0] = '\0';
     for (int i = 1; i < argc; i++) {
+        if (i != 1) {
+            strcat(cmd_line, " ");
+        }
         strcat(cmd_line, argv[i]);
     }
 
