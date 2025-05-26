@@ -7,10 +7,10 @@
 extern "C" {
 #endif
 
-typedef enum TigPaletteModifyFlags {
-    TIG_PALETTE_MODIFY_TINT = 0x1,
-    TIG_PALETTE_MODIFY_GRAYSCALE = 0x2,
-} TigPaletteModifyFlags;
+typedef unsigned int TigPaletteModifyFlags;
+
+#define TIG_PALETTE_MODIFY_TINT 0x1
+#define TIG_PALETTE_MODIFY_GRAYSCALE 0x2
 
 typedef struct TigPaletteModifyInfo {
     /* 0000 */ TigPaletteModifyFlags flags;
