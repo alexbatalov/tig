@@ -557,12 +557,11 @@ void tig_file_exit()
 // 0x52ED40
 bool tig_file_repository_add(const char* path)
 {
-    bool added = false;
     TigFileRepository* curr;
     TigFileRepository* prev;
     TigFileRepository* next;
     TigFileRepository* repo;
-    TigFindFileData ffd;
+    SDL_PathInfo path_info;
     TigDatabase* database;
     char cache_path[TIG_MAX_PATH];
 
@@ -592,9 +591,34 @@ bool tig_file_repository_add(const char* path)
         return true;
     }
 
-    if (tig_find_first_file(path, &ffd)) {
-        do {
-            if ((ffd.find_data.attrib & _A_SUBDIR) != 0) {
+    // NOTE: Original code is slightly different. For unknown reason (likely a
+    // bug) it treats `path` as a pattern and loops over it using
+    // `tig_find_first_file` and `tig_find_next_file`. However, it does not use
+    // the resolved file name, only the provided `path`. This means that the
+    // same repository can be added multiple times if the pattern given to this
+    // function has several matches.
+    if (SDL_GetPathInfo(path, &path_info)) {
+        if (path_info.type == SDL_PATHTYPE_DIRECTORY) {
+            repo = (TigFileRepository*)MALLOC(sizeof(TigFileRepository));
+            repo->type = 0;
+            repo->path = NULL;
+            repo->database = NULL;
+            repo->next = NULL;
+
+            repo->path = STRDUP(path);
+            repo->type = TIG_FILE_REPOSITORY_DIRECTORY;
+            repo->next = tig_file_repositories_head;
+            tig_file_repositories_head = repo;
+
+            tig_debug_printf("TIG File: Added path \"%s\"\n", path);
+
+            sprintf(cache_path, "%s\\%s", tig_file_repositories_head->path, CACHE_DIR_NAME);
+            tig_file_rmdir_recursively(cache_path);
+
+            return true;
+        } else {
+            database = tig_database_open(path);
+            if (database != NULL) {
                 repo = (TigFileRepository*)MALLOC(sizeof(TigFileRepository));
                 repo->type = 0;
                 repo->path = NULL;
@@ -602,47 +626,16 @@ bool tig_file_repository_add(const char* path)
                 repo->next = NULL;
 
                 repo->path = STRDUP(path);
-                repo->type = TIG_FILE_REPOSITORY_DIRECTORY;
+                repo->type = TIG_FILE_REPOSITORY_DATABASE;
+                repo->database = database;
+
                 repo->next = tig_file_repositories_head;
                 tig_file_repositories_head = repo;
 
-                tig_debug_printf("TIG File: Added path \"%s\"\n", path);
-                added = true;
-            } else {
-                database = tig_database_open(path);
-                if (database != NULL) {
-                    repo = (TigFileRepository*)MALLOC(sizeof(TigFileRepository));
-                    repo->type = 0;
-                    repo->path = NULL;
-                    repo->database = NULL;
-                    repo->next = NULL;
+                tig_debug_printf("TIG File: Added database \"%s\"\n", path);
 
-                    repo->path = STRDUP(path);
-                    repo->type = TIG_FILE_REPOSITORY_DATABASE;
-                    repo->database = database;
-
-                    if (added) {
-                        repo->next = tig_file_repositories_head->next;
-                        tig_file_repositories_head->next = repo;
-                    } else {
-                        repo->next = tig_file_repositories_head;
-                        tig_file_repositories_head = repo;
-                        added = true;
-                    }
-
-                    tig_debug_printf("TIG File: Added database \"%s\"\n", path);
-                }
+                return true;
             }
-        } while (tig_find_next_file(&ffd));
-
-        // FIXME: Missing `tig_find_close`, leaking `ffd`.
-
-        if (added) {
-            if ((tig_file_repositories_head->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
-                sprintf(cache_path, "%s\\%s", tig_file_repositories_head->path, CACHE_DIR_NAME);
-                tig_file_rmdir_recursively(cache_path);
-            }
-            return true;
         }
     }
 
