@@ -173,10 +173,13 @@ int main(int argc, char** argv)
     }
 
     // Add assets to resource manager.
-    tig_file_repository_add("arcanum1.dat");
-    tig_file_repository_add("arcanum2.dat");
-    tig_file_repository_add("arcanum3.dat");
-    tig_file_repository_add("arcanum4.dat");
+    TigFileList file_list;
+    tig_file_list_create(&file_list, "arcanum*.dat");
+    for (unsigned index = 0; index < file_list.count; index++) {
+        tig_file_repository_add(file_list.entries[index].path);
+    }
+    tig_file_list_destroy(&file_list);
+
     tig_file_repository_add("modules\\arcanum");
 
     // Play startup movie. Observe that movie does not require window at all.
