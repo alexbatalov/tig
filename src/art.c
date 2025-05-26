@@ -5785,7 +5785,7 @@ void tig_art_cache_check_fullness()
 
         // Calculate target size we'd like to evict (30% of total system
         // memory).
-        tgt = (size_t)((double)tig_art_total_system_memory * 0.3f);
+        tgt = (art_size_t)((double)tig_art_total_system_memory * 0.3f);
 
         // Sort cache entries by last access time, earliest first.
         qsort(tig_art_cache_entries,
@@ -6199,7 +6199,7 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
             } else {
                 hdr->palette_tbl[palette] = tig_palette_create();
                 palette_tbl[palette] = tig_palette_create();
-                *size_ptr += 2 * tig_palette_system_memory_size();
+                *size_ptr += (art_size_t)tig_palette_system_memory_size() * 2;
 
                 switch (tig_art_bits_per_pixel) {
                 case 8:
