@@ -770,7 +770,6 @@ void tig_database_load_ignored(TigDatabase* database)
             file_name[file_name_length - 1] = '\0';
         }
 
-
         if (fpattern_isvalid(file_name)) {
             file_name_segments_count = num_path_segments(file_name);
 
