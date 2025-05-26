@@ -25,63 +25,38 @@
 typedef int(TigInitFunc)(TigInitInfo* init_info);
 typedef void(TigExitFunc)();
 
-static void tig_init_executable();
+typedef struct TigModule {
+    const char* name;
+    TigInitFunc* init_func;
+    TigExitFunc* exit_func;
+} TigModule;
 
-// 0x5BF2D4
-static TigInitFunc* init_funcs[] = {
-    tig_memory_init,
-    tig_debug_init,
-    tig_rect_init,
-    tig_file_init,
-    tig_color_init,
-    tig_video_init,
-    tig_palette_init,
-    tig_window_init,
-    tig_timer_init,
-    tig_kb_init,
-    tig_art_init,
-    tig_mouse_init,
-    tig_message_init,
-    tig_button_init,
-    tig_menu_init,
-    tig_font_init,
-    tig_draw_init,
-    tig_str_parse_init,
-    tig_file_cache_init,
-    tig_sound_init,
-    tig_movie_init,
+// NOTE: Original code is slightly different. It has two separate arrays of
+// init and exit funcs, and does not have human-readable name. This approach is
+// borrowed from ToEE.
+static TigModule modules[] = {
+    { "memory", tig_memory_init, tig_memory_exit },
+    { "debug", tig_debug_init, tig_debug_exit },
+    { "rect", tig_rect_init, tig_rect_exit },
+    { "file", tig_file_init, tig_file_exit },
+    { "color", tig_color_init, tig_color_exit },
+    { "video", tig_video_init, tig_video_exit },
+    { "palette", tig_palette_init, tig_palette_exit },
+    { "window", tig_window_init, tig_window_exit },
+    { "timer", tig_timer_init, tig_timer_exit },
+    { "kb", tig_kb_init, tig_kb_exit },
+    { "art", tig_art_init, tig_art_exit },
+    { "mouse", tig_mouse_init, tig_mouse_exit },
+    { "message", tig_message_init, tig_message_exit },
+    { "button", tig_button_init, tig_button_exit },
+    { "menu", tig_menu_init, tig_menu_exit },
+    { "font", tig_font_init, tig_font_exit },
+    { "draw", tig_draw_init, tig_draw_exit },
+    { "str_parse", tig_str_parse_init, tig_str_parse_exit },
+    { "file_cache", tig_file_cache_init, tig_file_cache_exit },
+    { "sound", tig_sound_init, tig_sound_exit },
+    { "movie", tig_movie_init, tig_movie_exit },
 };
-
-#define NUM_INIT_FUNCS (sizeof(init_funcs) / sizeof(init_funcs[0]))
-
-// 0x5BF330
-static TigExitFunc* exit_funcs[] = {
-    tig_memory_exit,
-    tig_debug_exit,
-    tig_rect_exit,
-    tig_file_exit,
-    tig_color_exit,
-    tig_video_exit,
-    tig_palette_exit,
-    tig_window_exit,
-    tig_timer_exit,
-    tig_kb_exit,
-    tig_art_exit,
-    tig_mouse_exit,
-    tig_message_exit,
-    tig_button_exit,
-    tig_menu_exit,
-    tig_font_exit,
-    tig_draw_exit,
-    tig_str_parse_exit,
-    tig_file_cache_exit,
-    tig_sound_exit,
-    tig_movie_exit,
-};
-
-#define NUM_EXIT_FUNCS (sizeof(exit_funcs) / sizeof(exit_funcs[0]))
-
-static_assert(NUM_INIT_FUNCS == NUM_EXIT_FUNCS, "number of init and exit funcs does not match");
 
 // 0x60F23C
 static bool tig_initialized;
@@ -98,7 +73,7 @@ tig_timestamp_t tig_ping_timestamp;
 // 0x51F130
 int tig_init(TigInitInfo* init_info)
 {
-    int index;
+    size_t index;
     int rc;
 
     if (tig_initialized) {
@@ -112,22 +87,23 @@ int tig_init(TigInitInfo* init_info)
 
     atexit(SDL_Quit);
 
-    for (index = 0; index < NUM_INIT_FUNCS; ++index) {
+    for (index = 0; index < SDL_arraysize(modules); ++index) {
         // NOTE: For unknown reason skipping sound is done this way instead
         // of checking for appropriate flag in `tig_sound_init`.
         if ((init_info->flags & TIG_INITIALIZE_NO_SOUND) != 0
-            && init_funcs[index] == tig_sound_init) {
+            && modules[index].init_func == tig_sound_init) {
             continue;
         }
 
-        rc = init_funcs[index](init_info);
+        rc = modules[index].init_func(init_info);
         if (rc != TIG_OK) {
-            tig_debug_printf("Error initializing TIG init_func %d", index);
+            tig_debug_printf("Error initializing TIG: %s\n", modules[index].name);
 
             // Unwind initialized modules.
-            for (; index >= 0; --index) {
-                exit_funcs[index]();
+            while (index > 0) {
+                modules[--index].exit_func();
             }
+
             return rc;
         }
     }
@@ -142,7 +118,7 @@ int tig_init(TigInitInfo* init_info)
 // 0x51F1D0
 void tig_exit(void)
 {
-    int index;
+    size_t index;
 
     if (!tig_initialized) {
         return;
@@ -151,8 +127,9 @@ void tig_exit(void)
     if (!in_tig_exit) {
         in_tig_exit = true;
 
-        for (index = NUM_EXIT_FUNCS - 1; index >= 0; index--) {
-            exit_funcs[index]();
+        index = SDL_arraysize(modules);
+        while (index > 0) {
+            modules[--index].exit_func();
         }
 
         tig_initialized = false;
