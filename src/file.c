@@ -951,10 +951,10 @@ void tig_file_list_create(TigFileList* list, const char* pattern)
     if (mutable_pattern[0] == '.' || mutable_pattern[0] == '\\' || mutable_pattern[1] == ':') {
         if (tig_find_first_file(mutable_pattern, &directory_ffd)) {
             do {
-                tig_file_process_attribs(directory_ffd.find_data.attrib, &(info.attributes));
-                info.size = directory_ffd.find_data.size;
-                strcpy(info.path, directory_ffd.find_data.name);
-                info.modify_time = directory_ffd.find_data.time_write;
+                tig_file_process_attribs(directory_ffd.path_info.type, &(info.attributes));
+                info.size = directory_ffd.path_info.size;
+                strcpy(info.path, directory_ffd.name);
+                info.modify_time = SDL_NS_TO_SECONDS(directory_ffd.path_info.modify_time);
 
                 tig_file_list_add(list, &info);
             } while (tig_find_next_file(&directory_ffd));
@@ -991,10 +991,10 @@ void tig_file_list_create(TigFileList* list, const char* pattern)
 
                     if (tig_find_first_file(path, &directory_ffd)) {
                         do {
-                            tig_file_process_attribs(directory_ffd.find_data.attrib, &(info.attributes));
-                            info.size = directory_ffd.find_data.size;
-                            strcpy(info.path, directory_ffd.find_data.name);
-                            info.modify_time = directory_ffd.find_data.time_write;
+                            tig_file_process_attribs(directory_ffd.path_info.type, &(info.attributes));
+                            info.size = directory_ffd.path_info.size;
+                            strcpy(info.path, directory_ffd.name);
+                            info.modify_time = SDL_NS_TO_SECONDS(directory_ffd.path_info.modify_time);
 
                             tig_file_list_add(list, &info);
                         } while (tig_find_next_file(&directory_ffd));
@@ -1073,10 +1073,10 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
         }
 
         if (info != NULL) {
-            tig_file_process_attribs(ffd.find_data.attrib, &(info->attributes));
-            info->size = ffd.find_data.size;
-            strcpy(info->path, ffd.find_data.name);
-            info->modify_time = ffd.find_data.time_write;
+            tig_file_process_attribs(ffd.path_info.type, &(info->attributes));
+            info->size = ffd.path_info.size;
+            strcpy(info->path, ffd.name);
+            info->modify_time = SDL_NS_TO_SECONDS(ffd.path_info.modify_time);
         }
 
         tig_find_close(&ffd);
@@ -1093,10 +1093,10 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
 
                 if (tig_find_first_file(path, &ffd)) {
                     if (info != NULL) {
-                        tig_file_process_attribs(ffd.find_data.attrib, &(info->attributes));
-                        info->size = ffd.find_data.size;
-                        strcpy(info->path, ffd.find_data.name);
-                        info->modify_time = ffd.find_data.time_write;
+                        tig_file_process_attribs(ffd.path_info.type, &(info->attributes));
+                        info->size = ffd.path_info.size;
+                        strcpy(info->path, ffd.name);
+                        info->modify_time = SDL_NS_TO_SECONDS(ffd.path_info.modify_time);
                     }
 
                     tig_find_close(&ffd);
@@ -1156,10 +1156,10 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
 
                 if (tig_find_first_file(path, &ffd)) {
                     if (info != NULL) {
-                        tig_file_process_attribs(ffd.find_data.attrib, &(info->attributes));
-                        info->size = ffd.find_data.size;
-                        strcpy(info->path, ffd.find_data.name);
-                        info->modify_time = ffd.find_data.time_write;
+                        tig_file_process_attribs(ffd.path_info.type, &(info->attributes));
+                        info->size = ffd.path_info.size;
+                        strcpy(info->path, ffd.name);
+                        info->modify_time = SDL_NS_TO_SECONDS(ffd.path_info.modify_time);
                     }
 
                     tig_find_close(&ffd);
@@ -1868,28 +1868,12 @@ int tig_file_open_internal(const char* path, const char* mode, TigFile* stream)
 }
 
 // 0x530F90
-void tig_file_process_attribs(unsigned int attribs, unsigned int* flags)
+void tig_file_process_attribs(SDL_PathType type, unsigned int* flags)
 {
     *flags = 0;
 
-    if ((attribs & _A_SUBDIR) != 0) {
+    if (type == SDL_PATHTYPE_DIRECTORY) {
         *flags |= TIG_FILE_ATTRIBUTE_SUBDIR;
-    }
-
-    if ((attribs & _A_RDONLY) != 0) {
-        *flags |= TIG_FILE_ATTRIBUTE_READONLY;
-    }
-
-    if ((attribs & _A_HIDDEN) != 0) {
-        *flags |= TIG_FILE_ATTRIBUTE_HIDDEN;
-    }
-
-    if ((attribs & _A_SYSTEM) != 0) {
-        *flags |= TIG_FILE_ATTRIBUTE_SYSTEM;
-    }
-
-    if ((attribs & _A_ARCH) != 0) {
-        *flags |= TIG_FILE_ATTRIBUTE_ARCHIVE;
     }
 }
 
@@ -2052,11 +2036,11 @@ int tig_file_rmdir_recursively(const char* path)
     if (tig_find_first_file(mutable_path, &ffd)) {
         strcpy(mutable_path, path);
         strcat(mutable_path, "\\");
-        strcat(mutable_path, ffd.find_data.name);
+        strcat(mutable_path, ffd.name);
 
-        if ((ffd.find_data.attrib & _A_SUBDIR) != 0) {
-            if (strcmp(ffd.find_data.name, ".") != 0
-                && strcmp(ffd.find_data.name, "..") != 0) {
+        if (ffd.path_info.type == SDL_PATHTYPE_DIRECTORY) {
+            if (strcmp(ffd.name, ".") != 0
+                && strcmp(ffd.name, "..") != 0) {
                 tig_file_rmdir_recursively(mutable_path);
             }
         } else {

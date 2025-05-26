@@ -1,8 +1,6 @@
 #ifndef TIG_FIND_FILE_H_
 #define TIG_FIND_FILE_H_
 
-#include <io.h>
-
 #include "tig/types.h"
 
 #ifdef __cplusplus
@@ -10,7 +8,8 @@ extern "C" {
 #endif
 
 typedef struct TigFindFileData {
-    struct _finddata_t find_data;
+    char name[TIG_MAX_PATH];
+    SDL_PathInfo path_info;
     intptr_t handle;
 } TigFindFileData;
 
