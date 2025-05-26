@@ -8,6 +8,7 @@
 
 #include <fpattern/fpattern.h>
 
+#include "tig/compat.h"
 #include "tig/core.h"
 #include "tig/database.h"
 #include "tig/debug.h"
@@ -877,7 +878,7 @@ bool tig_file_extract(const char* filename, char* path)
         } else if ((repo->type & TIG_FILE_REPOSITORY_DATABASE) != 0) {
             if ((ignored & TIG_FILE_IGNORE_DATABASE) == 0) {
                 if (tig_database_get_entry(repo->database, filename, &database_entry)) {
-                    _splitpath(path, NULL, tmp, NULL, NULL);
+                    compat_splitpath(path, NULL, tmp, NULL, NULL);
                     tig_file_mkdir_ex(tmp);
 
                     out = tig_file_fopen(path, "wb");
@@ -935,8 +936,8 @@ void tig_file_list_create(TigFileList* list, const char* pattern)
     unsigned int ignored;
     TigDatabaseFindFileData database_ffd;
     char path[TIG_MAX_PATH];
-    char fname[_MAX_FNAME];
-    char ext[_MAX_EXT];
+    char fname[COMPAT_MAX_FNAME];
+    char ext[COMPAT_MAX_EXT];
 
     strcpy(mutable_pattern, pattern);
 
@@ -975,8 +976,8 @@ void tig_file_list_create(TigFileList* list, const char* pattern)
                             }
                             info.size = database_ffd.size;
 
-                            _splitpath(database_ffd.name, NULL, NULL, fname, ext);
-                            _makepath(info.path, NULL, NULL, fname, ext);
+                            compat_splitpath(database_ffd.name, NULL, NULL, fname, ext);
+                            compat_makepath(info.path, NULL, NULL, fname, ext);
 
                             tig_file_list_add(list, &info);
                         } while (tig_database_find_next_entry(&database_ffd));
@@ -1061,8 +1062,8 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
     TigDatabaseEntry* database_entry;
     unsigned int ignored;
     char path[TIG_MAX_PATH];
-    char fname[_MAX_FNAME];
-    char ext[_MAX_EXT];
+    char fname[COMPAT_MAX_FNAME];
+    char ext[COMPAT_MAX_EXT];
 
     ignored = tig_file_ignored(file_name);
 
@@ -1114,8 +1115,8 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
                         }
                         info->size = database_entry->size;
 
-                        _splitpath(database_entry->path, NULL, NULL, fname, ext);
-                        _makepath(info->path, 0, 0, fname, ext);
+                        compat_splitpath(database_entry->path, NULL, NULL, fname, ext);
+                        compat_makepath(info->path, 0, 0, fname, ext);
                     }
 
                     return true;
@@ -1136,8 +1137,8 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
     TigDatabaseEntry* database_entry;
     unsigned int ignored;
     char path[TIG_MAX_PATH];
-    char fname[_MAX_FNAME];
-    char ext[_MAX_EXT];
+    char fname[COMPAT_MAX_FNAME];
+    char ext[COMPAT_MAX_EXT];
 
     if (file_name[0] == '.' || file_name[0] == '\\' || file_name[1] == ':') {
         return tig_file_exists(file_name, info);
@@ -1178,8 +1179,8 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
                         }
                         info->size = database_entry->size;
 
-                        _splitpath(database_entry->path, NULL, NULL, fname, ext);
-                        _makepath(info->path, 0, 0, fname, ext);
+                        compat_splitpath(database_entry->path, NULL, NULL, fname, ext);
+                        compat_makepath(info->path, 0, 0, fname, ext);
                     }
 
                     return true;
@@ -1678,19 +1679,19 @@ bool tig_file_lock(const char* filename, const void* owner, size_t size)
 bool tig_file_unlock(const char* filename, const void* owner, size_t size)
 {
     bool unlocked = true;
-    char drive[_MAX_DRIVE];
-    char dir[_MAX_DIR];
+    char drive[COMPAT_MAX_DRIVE];
+    char dir[COMPAT_MAX_DIR];
     char path[TIG_MAX_PATH];
     TigFileList file_list;
     unsigned int index;
 
-    _splitpath(filename, drive, dir, NULL, NULL);
+    compat_splitpath(filename, drive, dir, NULL, NULL);
 
     tig_file_list_create(&file_list, filename);
 
     for (index = 0; index < file_list.count; index++) {
         if ((file_list.entries[index].attributes & (TIG_FILE_ATTRIBUTE_SUBDIR | TIG_FILE_ATTRIBUTE_0x80)) == 0) {
-            _makepath(path, drive, dir, file_list.entries[index].path, NULL);
+            compat_makepath(path, drive, dir, file_list.entries[index].path, NULL);
             if (!tig_file_locked_by(path, owner, size)
                 || tig_file_remove(path) == -1) {
                 unlocked = false;
