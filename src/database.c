@@ -34,7 +34,7 @@ typedef struct TigDatabaseFileHandle {
 } TigDatabaseFileHandle;
 
 static void tig_database_find_prepare(TigDatabaseFindFileData* ffd);
-static void sub_53CCE0(TigDatabase* database);
+static void tig_database_load_ignored(TigDatabase* database);
 static int num_path_segments(const char* path);
 static int tig_database_find_entry_by_path(const void* a1, const void* a2);
 static bool tig_database_fclose_internal(TigDatabaseFileHandle* stream);
@@ -202,7 +202,7 @@ TigDatabase* tig_database_open(const char* path)
     database->next = tig_database_open_databases_head;
     tig_database_open_databases_head = database;
 
-    sub_53CCE0(database);
+    tig_database_load_ignored(database);
 
     return database;
 }
@@ -742,10 +742,10 @@ void tig_database_set_pack_funcs(TigDatabaseOutputFunc* error_func, TigDatabaseO
 }
 
 // 0x53CCE0
-void sub_53CCE0(TigDatabase* database)
+void tig_database_load_ignored(TigDatabase* database)
 {
     char path[TIG_MAX_PATH];
-    TigFindFileData ffd;
+    SDL_PathInfo path_info;
     FILE* stream;
     char file_name[TIG_MAX_PATH];
     size_t file_name_length;
@@ -755,30 +755,35 @@ void sub_53CCE0(TigDatabase* database)
     strcpy(path, database->path);
     strcat(path, ".ignore");
 
-    if (tig_find_first_file(path, &ffd)) {
-        stream = fopen(path, "rt");
-        if (stream != NULL) {
-            while (fgets(file_name, sizeof(file_name), stream) != NULL) {
-                file_name_length = strlen(file_name);
-                if (file_name[file_name_length - 1] == '\n') {
-                    file_name[file_name_length - 1] = '\0';
-                }
+    if (!SDL_GetPathInfo(path, &path_info)) {
+        return;
+    }
 
-                if (fpattern_isvalid(file_name)) {
-                    file_name_segments_count = num_path_segments(file_name);
+    stream = fopen(path, "rt");
+    if (stream == NULL) {
+        return;
+    }
 
-                    for (index = 0; index < database->entries_count; index++) {
-                        if (fpattern_matchn(file_name, database->entries[index].path)
-                            && num_path_segments(database->entries[index].path) == file_name_segments_count) {
-                            database->entries[index].flags |= TIG_DATABASE_ENTRY_IGNORED;
-                        }
-                    }
+    while (fgets(file_name, sizeof(file_name), stream) != NULL) {
+        file_name_length = strlen(file_name);
+        if (file_name[file_name_length - 1] == '\n') {
+            file_name[file_name_length - 1] = '\0';
+        }
+
+
+        if (fpattern_isvalid(file_name)) {
+            file_name_segments_count = num_path_segments(file_name);
+
+            for (index = 0; index < database->entries_count; index++) {
+                if (fpattern_matchn(file_name, database->entries[index].path)
+                    && num_path_segments(database->entries[index].path) == file_name_segments_count) {
+                    database->entries[index].flags |= TIG_DATABASE_ENTRY_IGNORED;
                 }
             }
-            fclose(stream);
         }
     }
-    tig_find_close(&ffd);
+
+    fclose(stream);
 }
 
 // 0x53CE80
