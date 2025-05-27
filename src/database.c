@@ -9,6 +9,8 @@
 #include "tig/find_file.h"
 #include "tig/memory.h"
 
+#define FOURCC_DAT SDL_FOURCC(' ', 'T', 'A', 'D')
+#define FOURCC_DAT1 SDL_FOURCC('1', 'T', 'A', 'D')
 #define DECOMPRESSION_BUFFER_SIZE 0x4000
 
 typedef struct DecompressionContext {
@@ -94,9 +96,9 @@ TigDatabase* tig_database_open(const char* path)
         return false;
     }
 
-    if (id == 'DAT ') {
+    if (id == FOURCC_DAT) {
         memset(&guid, 0, sizeof(guid));
-    } else if (id == 'DAT1') {
+    } else if (id == FOURCC_DAT1) {
         if (fseek(stream, -24, SEEK_END) != 0) {
             fclose(stream);
             return false;

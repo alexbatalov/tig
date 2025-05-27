@@ -27,6 +27,8 @@
 #include "tig/file.h"
 #include "tig/memory.h"
 
+#define FOURCC_FILC SDL_FOURCC('C', 'L', 'I', 'F')
+
 static void tig_file_cache_entry_remove(TigFileCache* cache, TigFileCacheItem* entry);
 static bool tig_file_cache_read_contents_into(const char* path, void** data, int* size);
 static bool tig_file_cache_prepare_item(TigFileCache* cache, TigFileCacheItem* item, const char* path);
@@ -103,7 +105,7 @@ TigFileCache* tig_file_cache_create(int capacity, int max_size)
     TigFileCache* cache;
 
     cache = (TigFileCache*)MALLOC(sizeof(*cache));
-    cache->signature = 'FILC';
+    cache->signature = FOURCC_FILC;
     cache->capacity = capacity;
     cache->max_size = max_size;
     cache->items = (TigFileCacheItem*)CALLOC(sizeof(*cache->items), capacity);
