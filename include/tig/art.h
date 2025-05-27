@@ -372,8 +372,6 @@ int sub_5006E0(tig_art_id_t art_id, TigPalette palette);
 int tig_art_misc_id_create(unsigned int num, unsigned int palette, tig_art_id_t* art_id);
 int tig_art_set_fps(tig_art_id_t art_id, int fps);
 int tig_art_set_action_frame(tig_art_id_t art_id, short action_frame);
-int sub_501EB0(tig_art_id_t art_id, const char* filename);
-int sub_501F60(const char* filename, uint32_t* new_palette_entries, int new_palette_index);
 void tig_art_flush();
 int tig_art_exists(tig_art_id_t art_id);
 int sub_502270(tig_art_id_t art_id, char* path);
