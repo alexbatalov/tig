@@ -107,12 +107,6 @@ static bool tig_mouse_active;
 // 0x60467C
 static tig_timestamp_t tig_mouse_move_timestamp;
 
-// The timestamps of last "button down" or "button up" events used in Windows
-// Messages mode.
-//
-// 0x604680
-static tig_timestamp_t tig_mouse_hardware_button_timestamps[TIG_MOUSE_BUTTON_COUNT];
-
 // 0x604690
 static TigMouseState tig_mouse_state;
 
@@ -128,22 +122,8 @@ static int tig_mouse_cursor_art_num_frames;
 // 0x6046C0
 static TigRect tig_mouse_cursor_bounds;
 
-// The timestamp of the last mouse update in DirectInput mode.
-//
-// 0x6046D0
-static tig_timestamp_t tig_mouse_update_timestamp;
-
-// A boolean value indicating left and right mouse buttons are swapped at OS
-// level.
-//
-// 0x6046D4
-static bool tig_mouse_buttons_swapped;
-
 // 0x6046D8
 static TigRect tig_mouse_cursor_art_frame_bounds;
-
-// 0x6046E8
-static int dword_6046E8;
 
 // The timestamps of the last "mouse down" or "mouse up" events used in
 // DirectInput mode.
