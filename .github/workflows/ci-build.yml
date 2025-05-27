@@ -24,8 +24,36 @@ jobs:
       - name: clang-format
         run: find example first_party include src test -type f -name \*.c -o -name \*.cc -o -name \*.h | xargs clang-format --dry-run --Werror
 
-  build:
-    name: Build & test
+  linux:
+    name: Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+
+      - name: Dependencies
+        run: |
+          sudo apt update
+          sudo apt install libx11-dev libxext-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: out/build/linux-x64-debug
+          key: linux-x64-cmake-v1
+
+      - name: Configure
+        run: cmake --preset linux-x64-debug
+
+      - name: Build
+        run: cmake --build --preset linux-x64-debug
+
+      - name: Test
+        run: ctest --preset linux-x64
+
+  windows:
+    name: Windows (${{ matrix.arch }})
     runs-on: windows-2025
 
     strategy:

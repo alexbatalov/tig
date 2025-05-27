@@ -38,6 +38,37 @@
             ],
             "generator": "Visual Studio 17 2022",
             "architecture": "x64"
+        },
+
+        {
+            "name": "linux-base",
+            "hidden": true,
+            "inherits": [
+                "base"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
+            "name": "linux-x64-debug",
+            "inherits": [
+                "linux-base"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "linux-x64-release",
+            "inherits": [
+                "linux-base"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
     ],
     "buildPresets": [
@@ -60,6 +91,14 @@
             "name": "windows-x64-release",
             "configurePreset": "windows-x64",
             "configuration": "Release"
+        },
+        {
+            "name": "linux-x64-debug",
+            "configurePreset": "linux-x64-debug"
+        },
+        {
+            "name": "linux-x64-release",
+            "configurePreset": "linux-x64-release"
         }
     ],
     "testPresets": [
@@ -88,6 +127,21 @@
             },
             "configurePreset": "windows-x64",
             "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "jobs": 1
+            }
+        },
+        {
+            "name": "linux-x64",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "configurePreset": "linux-x64-debug",
             "output": {
                 "outputOnFailure": true
             },
