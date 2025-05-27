@@ -58,7 +58,7 @@ static TigFile* tig_file_create();
 static void tig_file_destroy(TigFile* stream);
 static bool tig_file_close_internal(TigFile* stream);
 static int tig_file_open_internal(const char* path, const char* mode, TigFile* stream);
-static void tig_file_process_attribs(unsigned int attribs, unsigned int* flags);
+static void tig_file_process_attribs(SDL_PathType type, unsigned int* flags);
 static void tig_file_list_add(TigFileList* list, TigFileInfo* info);
 static bool sub_5310C0(const char* filename, const void* owner, size_t size);
 static unsigned int tig_file_ignored(const char* path);
