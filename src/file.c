@@ -953,7 +953,7 @@ void tig_file_list_create(TigFileList* list, const char* pattern)
         if (tig_find_first_file(mutable_pattern, &directory_ffd)) {
             do {
                 tig_file_process_attribs(directory_ffd.path_info.type, &(info.attributes));
-                info.size = directory_ffd.path_info.size;
+                info.size = (size_t)directory_ffd.path_info.size;
                 strcpy(info.path, directory_ffd.name);
                 info.modify_time = SDL_NS_TO_SECONDS(directory_ffd.path_info.modify_time);
 
@@ -993,7 +993,7 @@ void tig_file_list_create(TigFileList* list, const char* pattern)
                     if (tig_find_first_file(path, &directory_ffd)) {
                         do {
                             tig_file_process_attribs(directory_ffd.path_info.type, &(info.attributes));
-                            info.size = directory_ffd.path_info.size;
+                            info.size = (size_t)directory_ffd.path_info.size;
                             strcpy(info.path, directory_ffd.name);
                             info.modify_time = SDL_NS_TO_SECONDS(directory_ffd.path_info.modify_time);
 
@@ -1075,7 +1075,7 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
 
         if (info != NULL) {
             tig_file_process_attribs(ffd.path_info.type, &(info->attributes));
-            info->size = ffd.path_info.size;
+            info->size = (size_t)ffd.path_info.size;
             strcpy(info->path, ffd.name);
             info->modify_time = SDL_NS_TO_SECONDS(ffd.path_info.modify_time);
         }
@@ -1095,7 +1095,7 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
                 if (tig_find_first_file(path, &ffd)) {
                     if (info != NULL) {
                         tig_file_process_attribs(ffd.path_info.type, &(info->attributes));
-                        info->size = ffd.path_info.size;
+                        info->size = (size_t)ffd.path_info.size;
                         strcpy(info->path, ffd.name);
                         info->modify_time = SDL_NS_TO_SECONDS(ffd.path_info.modify_time);
                     }
@@ -1158,7 +1158,7 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
                 if (tig_find_first_file(path, &ffd)) {
                     if (info != NULL) {
                         tig_file_process_attribs(ffd.path_info.type, &(info->attributes));
-                        info->size = ffd.path_info.size;
+                        info->size = (size_t)ffd.path_info.size;
                         strcpy(info->path, ffd.name);
                         info->modify_time = SDL_NS_TO_SECONDS(ffd.path_info.modify_time);
                     }
