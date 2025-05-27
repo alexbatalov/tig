@@ -27,7 +27,6 @@ add_subdirectory("first_party/mss_compat" EXCLUDE_FROM_ALL)
 # Keep alphabetically sorted.
 set(HDRS
     "include/tig/art.h"
-    "include/tig/bmp_utils.h"
     "include/tig/bmp.h"
     "include/tig/bsearch.h"
     "include/tig/button.h"
@@ -61,7 +60,6 @@ set(HDRS
 # Keep alphabetically sorted.
 set(SRCS
     "src/art.c"
-    "src/bmp_utils.c"
     "src/bmp.c"
     "src/bsearch.c"
     "src/button.c"
@@ -148,7 +146,6 @@ if(TIG_BUILD_TESTS)
     # Keep alphabetically sorted.
     set(TSTS
         "test/art_tests.cc"
-        "test/bmp_utils_tests.cc"
         "test/bsearch_tests.cc"
         "test/color_tests.cc"
         "test/database_tests.cc"

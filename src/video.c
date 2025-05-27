@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "tig/art.h"
-#include "tig/bmp_utils.h"
 #include "tig/color.h"
 #include "tig/core.h"
 #include "tig/debug.h"
