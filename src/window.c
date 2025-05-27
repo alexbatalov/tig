@@ -1716,6 +1716,8 @@ bool tig_window_modal_dialog_message_filter(TigMessage* msg)
             }
         }
         break;
+    default:
+        break;
     }
 
     return true;
