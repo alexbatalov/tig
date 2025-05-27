@@ -15,17 +15,17 @@
 #define FIRST_EFFECT_HANDLE 6
 #define SOUND_HANDLE_MAX 60
 
-typedef enum TigSoundFlags {
-    TIG_SOUND_STREAMED = 0x01,
-    TIG_SOUND_MEMORY = 0x02,
-    TIG_SOUND_FADE_OUT = 0x04,
-    TIG_SOUND_WAIT = 0x08,
-    TIG_SOUND_FADE_IN = 0x10,
-    TIG_SOUND_DESTROY = 0x20,
-    TIG_SOUND_EFFECT = 0x80,
-    TIG_SOUND_MUSIC = 0x100,
-    TIG_SOUND_VOICE = 0x200,
-} TigSoundFlags;
+typedef unsigned int TigSoundFlags;
+
+#define TIG_SOUND_STREAMED 0x01u
+#define TIG_SOUND_MEMORY 0x02u
+#define TIG_SOUND_FADE_OUT 0x04u
+#define TIG_SOUND_WAIT 0x08u
+#define TIG_SOUND_FADE_IN 0x10u
+#define TIG_SOUND_DESTROY 0x20u
+#define TIG_SOUND_EFFECT 0x80u
+#define TIG_SOUND_MUSIC 0x100u
+#define TIG_SOUND_VOICE 0x200u
 
 typedef struct TigSound {
     /* 0000 */ unsigned char active; // boolean
