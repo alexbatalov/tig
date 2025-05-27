@@ -50,9 +50,6 @@ static TigVideoState tig_video_state;
 // 0x60FEF8
 static float tig_video_gamma;
 
-// 0x60FF0C
-static unsigned int tig_video_palette[256];
-
 // 0x61030C
 static int tig_video_bpp;
 
@@ -595,7 +592,6 @@ int tig_video_buffer_line(TigVideoBuffer* video_buffer, TigLine* line, TigRect* 
     bool reversed;
     TigDrawLineModeInfo mode_info;
     TigDrawLineStyleInfo style_info;
-    int thickness;
     int dx;
     int dy;
     int step_x;
@@ -629,7 +625,6 @@ int tig_video_buffer_line(TigVideoBuffer* video_buffer, TigLine* line, TigRect* 
     tig_draw_get_line_mode(&mode_info);
     tig_draw_get_line_style(&style_info);
 
-    thickness = mode_info.thickness / 2 + 1;
     dx = abs(line->x2 - line->x1);
     dy = abs(line->y2 - line->y1);
 
