@@ -340,6 +340,9 @@ int tig_sound_acquire_handle(TigSoundType type)
             }
         }
         break;
+    default:
+        // Should be unreachable.
+        abort();
     }
 
     tig_debug_printf("No sound handle available for sound type %d! Current sounds are:\n");

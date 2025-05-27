@@ -981,6 +981,9 @@ int tig_video_buffer_tint(TigVideoBuffer* video_buffer, TigRect* rect, tig_color
                         *dst++ = tig_color_rgb_to_grayscale(src_color);
                     }
                     break;
+                default:
+                    // Should be unreachable.
+                    abort();
                 }
             }
             break;
