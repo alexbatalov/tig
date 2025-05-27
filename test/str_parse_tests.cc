@@ -59,7 +59,7 @@ TEST_F(StrParseTest, ParseValue64)
     EXPECT_EQ(value, 9223372036854775807ll);
 
     tig_str_parse_value_64(&str, &value);
-    EXPECT_EQ(value, -9223372036854775808ll);
+    EXPECT_EQ(value, -9223372036854775807ll - 1);
 
     EXPECT_EQ(str, nullptr);
 }
