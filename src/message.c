@@ -247,15 +247,23 @@ int tig_message_dequeue(TigMessage* message)
         tig_message_node_release(tig_message_queue_head);
         tig_message_queue_head = next;
 
-        if (tig_movie_is_playing()
-            || (temp_message.type != TIG_MESSAGE_MOUSE || !tig_button_process_mouse_msg(&(temp_message.data.mouse)))
-                && (!tig_window_filter_message(&temp_message) || temp_message.type == TIG_MESSAGE_REDRAW)) {
-            *message = temp_message;
+        if (!tig_movie_is_playing()) {
+            if (temp_message.type == TIG_MESSAGE_MOUSE
+                && tig_button_process_mouse_msg(&(temp_message.data.mouse))) {
+                continue;
+            }
 
-            SDL_UnlockMutex(tig_message_mutex);
-
-            return TIG_OK;
+            if (tig_window_filter_message(&temp_message)
+                && temp_message.type != TIG_MESSAGE_REDRAW) {
+                continue;
+            }
         }
+
+        *message = temp_message;
+
+        SDL_UnlockMutex(tig_message_mutex);
+
+        return TIG_OK;
     }
 
     SDL_UnlockMutex(tig_message_mutex);
