@@ -33,8 +33,6 @@ typedef struct TigFileList {
     TigFileInfo* entries;
 } TigFileList;
 
-typedef void(TigFileOutputFunc)(const char*);
-
 bool tig_file_mkdir(const char* path);
 bool tig_file_rmdir(const char* path);
 bool sub_52E040(const char* path);
@@ -85,7 +83,6 @@ void tig_file_rewind(TigFile* stream);
 void tig_file_clearerr(TigFile* stream);
 int tig_file_feof(TigFile* stream);
 int tig_file_ferror(TigFile* stream);
-void sub_530880(TigFileOutputFunc* error_func, TigFileOutputFunc* info_func);
 void sub_5308A0(int a1, int a2);
 void sub_5308C0(int a1, int a2);
 bool tig_file_lock(const char* filename, const void* owner, size_t size);

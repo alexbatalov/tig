@@ -43,20 +43,12 @@ static bool tig_database_fclose_internal(TigDatabaseFileHandle* stream);
 static bool tig_database_fopen_internal(TigDatabase* database, TigDatabaseEntry* entry, const char* mode, TigDatabaseFileHandle* stream);
 static int tig_database_fgetc_internal(TigDatabaseFileHandle* stream);
 static bool tig_database_fread_internal(void* buffer, size_t size, TigDatabaseFileHandle* stream);
-static void tig_database_print_info(const char* fmt, ...);
-static void tig_database_print_error(const char* fmt, ...);
 
 // 0x638BBC
 static unsigned char tig_database_decompression_buffer[DECOMPRESSION_BUFFER_SIZE];
 
-// 0x63CBBC
-static TigDatabaseOutputFunc* tig_database_pack_info_func;
-
 // 0x63CBC0
 static TigDatabase* tig_database_open_databases_head;
-
-// 0x63CBC4
-static TigDatabaseOutputFunc* tig_database_pack_error_func;
 
 // 0x53BC50
 TigDatabase* tig_database_open(const char* path)
@@ -456,18 +448,6 @@ int tig_database_setvbuf(TigDatabaseFileHandle* stream, char* buffer, int mode, 
     return 1;
 }
 
-// 0x53C380
-int sub_53C380()
-{
-    return -1;
-}
-
-// 0x53C390
-int sub_53C390()
-{
-    return -1;
-}
-
 // 0x53C3A0
 int tig_database_vfprintf(TigDatabaseFileHandle* stream, const char* fmt, va_list args)
 {
@@ -736,13 +716,6 @@ int tig_database_ferror(TigDatabaseFileHandle* stream)
     return stream->flags & TIG_DATABASE_FILE_ERROR;
 }
 
-// 0x53C740
-void tig_database_set_pack_funcs(TigDatabaseOutputFunc* error_func, TigDatabaseOutputFunc* info_func)
-{
-    tig_database_pack_error_func = error_func;
-    tig_database_pack_info_func = info_func;
-}
-
 // 0x53CCE0
 void tig_database_load_ignored(TigDatabase* database)
 {
@@ -962,36 +935,4 @@ bool tig_database_fread_internal(void* buffer, size_t size, TigDatabaseFileHandl
     stream->pos += size;
 
     return true;
-}
-
-// 0x53E1B0
-void tig_database_print_info(const char* fmt, ...)
-{
-    char buffer[1024];
-
-    va_list args;
-    va_start(args, fmt);
-
-    if (tig_database_pack_info_func != NULL) {
-        vsprintf(buffer, fmt, args);
-        tig_database_pack_info_func(buffer);
-    }
-
-    va_end(args);
-}
-
-// 0x53E1F0
-void tig_database_print_error(const char* fmt, ...)
-{
-    char buffer[1024];
-
-    va_list args;
-    va_start(args, fmt);
-
-    if (tig_database_pack_error_func != NULL) {
-        vsprintf(buffer, fmt, args);
-        tig_database_pack_error_func(buffer);
-    }
-
-    va_end(args);
 }

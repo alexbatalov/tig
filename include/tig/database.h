@@ -49,8 +49,6 @@ typedef struct TigDatabaseFindFileData {
     /* 0018 */ bool is_directory;
 } TigDatabaseFindFileData;
 
-typedef void(TigDatabaseOutputFunc)(const char*);
-
 TigDatabase* tig_database_open(const char* path);
 bool tig_database_close(TigDatabase* database);
 bool tig_database_find_first_entry(TigDatabase* database, const char* pattern, TigDatabaseFindFileData* ffd);
@@ -65,8 +63,6 @@ TigDatabaseFileHandle* tig_database_reopen(TigDatabase* database, const char* pa
 TigDatabaseFileHandle* tig_database_fopen_entry(TigDatabase* database, TigDatabaseEntry* entry, const char* mode);
 int tig_database_setbuf(TigDatabaseFileHandle* stream, char* buffer);
 int tig_database_setvbuf(TigDatabaseFileHandle* fp, char* buffer, int mode, size_t size);
-int sub_53C380();
-int sub_53C390();
 int tig_database_vfprintf(TigDatabaseFileHandle* stream, const char* fmt, va_list args);
 int tig_database_fgetc(TigDatabaseFileHandle* stream);
 int tig_database_fputc(int ch, TigDatabaseFileHandle* stream);
@@ -86,7 +82,6 @@ void tig_database_rewind(TigDatabaseFileHandle* stream);
 void tig_database_clearerr(TigDatabaseFileHandle* stream);
 int tig_database_feof(TigDatabaseFileHandle* stream);
 int tig_database_ferror(TigDatabaseFileHandle* stream);
-void tig_database_set_pack_funcs(TigDatabaseOutputFunc* error_func, TigDatabaseOutputFunc* info_func);
 
 #ifdef __cplusplus
 }

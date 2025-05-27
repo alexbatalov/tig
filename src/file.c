@@ -1605,12 +1605,6 @@ int tig_file_ferror(TigFile* stream)
     return 0;
 }
 
-// 0x530880
-void sub_530880(TigFileOutputFunc* error_func, TigFileOutputFunc* info_func)
-{
-    tig_database_set_pack_funcs(error_func, info_func);
-}
-
 // 0x5308A0
 void sub_5308A0(int a1, int a2)
 {
