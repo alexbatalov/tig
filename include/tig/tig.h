@@ -19,7 +19,6 @@
 #include "tig/idxtable.h"
 #include "tig/kb.h"
 #include "tig/memory.h"
-#include "tig/menu.h"
 #include "tig/message.h"
 #include "tig/mouse.h"
 #include "tig/movie.h"

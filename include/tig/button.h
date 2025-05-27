@@ -23,7 +23,6 @@ typedef enum TigButtonFlags {
     TIG_BUTTON_FLAG_0x04 = 1 << 2,
     TIG_BUTTON_FLAG_HIDDEN = 1 << 3,
     TIG_BUTTON_FLAG_0x10 = 1 << 4,
-    TIG_BUTTON_MENU_BAR = 1 << 12,
 } TigButtonFlags;
 
 typedef struct TigButtonData {

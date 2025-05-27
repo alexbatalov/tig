@@ -2,7 +2,6 @@
 
 #include "tig/art.h"
 #include "tig/debug.h"
-#include "tig/menu.h"
 #include "tig/rect.h"
 #include "tig/sound.h"
 #include "tig/window.h"
@@ -492,12 +491,6 @@ bool tig_button_process_mouse_msg(TigMouseMessageData* mouse)
         int new_state;
 
         button_index = tig_button_handle_to_index(button_handle);
-
-        if ((buttons[button_index].flags & TIG_BUTTON_MENU_BAR) != 0) {
-            // Let menu system handle this click.
-            tig_menu_bar_on_click(button_handle);
-            return true;
-        }
 
         new_state = TIG_BUTTON_STATE_PRESSED;
         if (tig_button_pressed_button_handle == TIG_BUTTON_HANDLE_INVALID) {

@@ -10,7 +10,6 @@
 #include "tig/font.h"
 #include "tig/kb.h"
 #include "tig/memory.h"
-#include "tig/menu.h"
 #include "tig/message.h"
 #include "tig/mouse.h"
 #include "tig/movie.h"
@@ -49,7 +48,6 @@ static TigModule modules[] = {
     { "mouse", tig_mouse_init, tig_mouse_exit },
     { "message", tig_message_init, tig_message_exit },
     { "button", tig_button_init, tig_button_exit },
-    { "menu", tig_menu_init, tig_menu_exit },
     { "font", tig_font_init, tig_font_exit },
     { "draw", tig_draw_init, tig_draw_exit },
     { "str_parse", tig_str_parse_init, tig_str_parse_exit },
