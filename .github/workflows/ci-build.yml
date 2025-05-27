@@ -24,8 +24,8 @@ jobs:
       - name: clang-format
         run: find example first_party include src test -type f -name \*.c -o -name \*.cc -o -name \*.h | xargs clang-format --dry-run --Werror
 
-  build:
-    name: Build & test
+  windows:
+    name: Windows (${{ matrix.arch }})
     runs-on: windows-2025
 
     strategy:
