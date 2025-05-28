@@ -1265,30 +1265,6 @@ int tig_file_rename(const char* old_file_name, const char* new_file_name)
     return 1;
 }
 
-// 0x5302D0
-TigFile* tig_file_tmpfile()
-{
-    TigFile* stream;
-
-    stream = tig_file_create();
-    stream->flags |= TIG_FILE_DELETE_ON_CLOSE;
-    stream->path = STRDUP(tig_file_tmpnam(NULL));
-
-    if (tig_file_open_internal(stream->path, "wb", stream) == 0) {
-        FREE(stream->path);
-        tig_file_destroy(stream);
-        return NULL;
-    }
-
-    return stream;
-}
-
-// 0x530320
-char* tig_file_tmpnam(char* buffer)
-{
-    return tmpnam(buffer);
-}
-
 // 0x530330
 int tig_file_fclose(TigFile* stream)
 {

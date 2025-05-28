@@ -57,8 +57,6 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info);
 bool tig_file_exists_in_path(const char* search_path, const char* file_name, TigFileInfo* info);
 int tig_file_remove(const char* file_name);
 int tig_file_rename(const char* old_file_name, const char* new_file_name);
-TigFile* tig_file_tmpfile();
-char* tig_file_tmpnam(char* buffer);
 int tig_file_fclose(TigFile* stream);
 int tig_file_fflush(TigFile* stream);
 TigFile* tig_file_fopen(const char* path, const char* mode);
