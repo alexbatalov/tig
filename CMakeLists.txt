@@ -174,7 +174,7 @@ endif()
 # ------------------------------------------------------------------------------
 
 if(TIG_BUILD_EXAMPLE)
-    add_executable(example WIN32
+    add_executable(example WIN32 MACOSX_BUNDLE
         "example/main.c"
     )
 

@@ -24,6 +24,26 @@ jobs:
       - name: clang-format
         run: find example first_party include src test -type f -name \*.c -o -name \*.cc -o -name \*.h | xargs clang-format --dry-run --Werror
 
+  ios:
+    name: iOS
+    runs-on: macos-13
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: out/build/ios
+          key: ios-cmake-v1
+
+      - name: Configure
+        run: cmake --preset ios
+
+      - name: Build
+        run: cmake --build --preset ios-debug
+
   linux:
     name: Linux
     runs-on: ubuntu-latest
@@ -51,6 +71,26 @@ jobs:
 
       - name: Test
         run: ctest --preset linux-x64
+
+  macos:
+    name: macOS
+    runs-on: macos-13
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: out/build/macos
+          key: macos-cmake-v1
+
+      - name: Configure
+        run: cmake --preset macos
+
+      - name: Build
+        run: cmake --build --preset macos-debug
 
   windows:
     name: Windows (${{ matrix.arch }})
