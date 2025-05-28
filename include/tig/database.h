@@ -72,8 +72,8 @@ char* tig_database_fgets(char* buffer, int max_count, TigDatabaseFileHandle* str
 int tig_database_fputc(int ch, TigDatabaseFileHandle* stream);
 int tig_database_fputs(const char* buffer, TigDatabaseFileHandle* stream);
 int tig_database_ungetc(int ch, TigDatabaseFileHandle* stream);
-int tig_database_fread(void* buffer, size_t size, size_t count, TigDatabaseFileHandle* stream);
-int tig_database_fwrite(const void* buffer, size_t size, size_t count, TigDatabaseFileHandle* stream);
+size_t tig_database_fread(void* buffer, size_t size, size_t count, TigDatabaseFileHandle* stream);
+size_t tig_database_fwrite(const void* buffer, size_t size, size_t count, TigDatabaseFileHandle* stream);
 int tig_database_fgetpos(TigDatabaseFileHandle* stream, int* off);
 int tig_database_fseek(TigDatabaseFileHandle* stream, int offset, int origin);
 int tig_database_fsetpos(TigDatabaseFileHandle* stream, int off);

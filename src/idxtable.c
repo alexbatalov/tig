@@ -95,13 +95,13 @@ void tig_idxtable_copy(TigIdxTable* dst, TigIdxTable* src)
 }
 
 // 0x534430
-int tig_idxtable_write(TigIdxTable* idxtable, TigFile* stream)
+size_t tig_idxtable_write(TigIdxTable* idxtable, TigFile* stream)
 {
     unsigned int grd;
     int index;
     int count;
     TigIdxTableEntry* entry;
-    int bytes_written = 0;
+    size_t bytes_written = 0;
 
     grd = START_SENTINEL;
     bytes_written += tig_file_fwrite(&grd, sizeof(grd), 1, stream);

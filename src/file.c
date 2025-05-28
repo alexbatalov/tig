@@ -1453,7 +1453,7 @@ int tig_file_ungetc(int ch, TigFile* stream)
 }
 
 // 0x530640
-int tig_file_fread(void* buffer, size_t size, size_t count, TigFile* stream)
+size_t tig_file_fread(void* buffer, size_t size, size_t count, TigFile* stream)
 {
     if (size == 0 || count == 0) {
         return 0;
@@ -1471,7 +1471,7 @@ int tig_file_fread(void* buffer, size_t size, size_t count, TigFile* stream)
 }
 
 // 0x5306A0
-int tig_file_fwrite(const void* buffer, size_t size, size_t count, TigFile* stream)
+size_t tig_file_fwrite(const void* buffer, size_t size, size_t count, TigFile* stream)
 {
     if ((stream->flags & TIG_FILE_DATABASE) != 0) {
         return tig_database_fwrite(buffer, size, count, stream->impl.database_file_stream);
@@ -2068,7 +2068,7 @@ static Sint64 tig_file_io_seek(void* userdata, Sint64 offset, SDL_IOWhence whenc
 static size_t tig_file_io_read(void* userdata, void* ptr, size_t size, SDL_IOStatus* status)
 {
     TigFile* stream = (TigFile*)userdata;
-    int bytes = tig_file_fread(ptr, 1, size, stream);
+    size_t bytes = tig_file_fread(ptr, 1, size, stream);
 
     (void)status;
 
@@ -2078,7 +2078,7 @@ static size_t tig_file_io_read(void* userdata, void* ptr, size_t size, SDL_IOSta
 static size_t tig_file_io_write(void* userdata, const void* ptr, size_t size, SDL_IOStatus* status)
 {
     TigFile* stream = (TigFile*)userdata;
-    int bytes = tig_file_fwrite(ptr, 1, size, stream);
+    size_t bytes = tig_file_fwrite(ptr, 1, size, stream);
 
     (void)status;
 

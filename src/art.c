@@ -6080,7 +6080,7 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
         hdr->frames_tbl[rotation] = (TigArtFileFrameData*)MALLOC(sizeof(TigArtFileFrameData) * hdr->num_frames);
         *size_ptr += sizeof(TigArtFileFrameData) * hdr->num_frames;
 
-        if (tig_file_fread(hdr->frames_tbl[rotation], sizeof(TigArtFileFrameData), hdr->num_frames, stream) != hdr->num_frames) {
+        if (tig_file_fread(hdr->frames_tbl[rotation], sizeof(TigArtFileFrameData), hdr->num_frames, stream) != (size_t)hdr->num_frames) {
             sub_51BE50(stream, hdr, palette_tbl);
             return TIG_ERR_GENERIC;
         }
@@ -6108,7 +6108,7 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
         for (frame = 0; frame < hdr->num_frames; ++frame) {
             if (hdr->frames_tbl[index][frame].data_size == hdr->frames_tbl[index][frame].width * hdr->frames_tbl[index][frame].height) {
                 // Pixels are not compressed, read everything in one go.
-                if (tig_file_fread(bytes, 1, hdr->frames_tbl[index][frame].data_size, stream) != hdr->frames_tbl[index][frame].data_size) {
+                if (tig_file_fread(bytes, 1, hdr->frames_tbl[index][frame].data_size, stream) != (size_t)hdr->frames_tbl[index][frame].data_size) {
                     sub_51BE50(stream, hdr, palette_tbl);
                     return TIG_ERR_GENERIC;
                 }
@@ -6128,7 +6128,7 @@ int sub_51B710(tig_art_id_t art_id, const char* filename, TigArtHeader* hdr, voi
 
                     len = value & 0x7F;
                     if ((value & 0x80) != 0) {
-                        if (tig_file_fread(bytes, 1, len, stream) != len) {
+                        if (tig_file_fread(bytes, 1, len, stream) != (size_t)len) {
                             sub_51BE50(stream, hdr, palette_tbl);
                             return TIG_ERR_GENERIC;
                         }

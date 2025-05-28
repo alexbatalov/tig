@@ -541,7 +541,7 @@ int tig_database_ungetc(int ch, TigDatabaseFileHandle* stream)
 }
 
 // 0x53C4A0
-int tig_database_fread(void* buffer, size_t size, size_t count, TigDatabaseFileHandle* stream)
+size_t tig_database_fread(void* buffer, size_t size, size_t count, TigDatabaseFileHandle* stream)
 {
     size_t bytes_to_read;
     size_t bytes_read;
@@ -575,7 +575,7 @@ int tig_database_fread(void* buffer, size_t size, size_t count, TigDatabaseFileH
 }
 
 // 0x53C520
-int tig_database_fwrite(const void* buffer, size_t size, size_t count, TigDatabaseFileHandle* stream)
+size_t tig_database_fwrite(const void* buffer, size_t size, size_t count, TigDatabaseFileHandle* stream)
 {
     // Database does not support writing.
     (void)buffer;
