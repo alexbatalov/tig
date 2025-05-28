@@ -354,12 +354,17 @@ bool tig_idxtable_entry_read(TigIdxTableEntry** entry_ptr, int size, int count, 
 
     for (index = 0; index < count; index++) {
         *entry_ptr = tig_idxtable_entry_create(size);
-        if (tig_file_fread(&((*entry_ptr)->key), sizeof((*entry_ptr)->key), 1, stream) != sizeof((*entry_ptr)->key)) {
+        // FIX: Original code expects return value to be `4`. This is wrong as
+        // `fread` is supposed to return number of elements read, not number of
+        // bytes.
+        if (tig_file_fread(&((*entry_ptr)->key), sizeof((*entry_ptr)->key), 1, stream) != 1) {
             tig_idxtable_entry_destroy(*entry_ptr);
             return false;
         }
 
-        if (tig_file_fread(&((*entry_ptr)->value), size, 1, stream) != size) {
+        // FIX: Original code expects return value to be `size`. Same error as
+        // above.
+        if (tig_file_fread(&((*entry_ptr)->value), size, 1, stream) != 1) {
             tig_idxtable_entry_destroy(*entry_ptr);
             return false;
         }
