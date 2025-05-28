@@ -39,7 +39,6 @@
             "generator": "Visual Studio 17 2022",
             "architecture": "x64"
         },
-
         {
             "name": "linux-base",
             "hidden": true,
@@ -68,6 +67,39 @@
             ],
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "darwin-base",
+            "hidden": true,
+            "inherits": [
+                "base"
+            ],
+            "generator": "Xcode",
+            "cacheVariables": {
+                "TIG_BUILD_TESTS": "OFF",
+                "TIG_BUILD_EXAMPLE": "ON",
+                "CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY": ""
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "macos",
+            "inherits": [
+                "darwin-base"
+            ]
+        },
+        {
+            "name": "ios",
+            "inherits": [
+                "darwin-base"
+            ],
+            "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "iOS"
             }
         }
     ],
@@ -99,6 +131,26 @@
         {
             "name": "linux-x64-release",
             "configurePreset": "linux-x64-release"
+        },
+        {
+            "name": "macos-debug",
+            "configurePreset": "macos",
+            "configuration": "Debug"
+        },
+        {
+            "name": "macos-release",
+            "configurePreset": "macos",
+            "configuration": "Release"
+        },
+        {
+            "name": "ios-debug",
+            "configurePreset": "ios",
+            "configuration": "Debug"
+        },
+        {
+            "name": "ios-release",
+            "configurePreset": "ios",
+            "configuration": "Release"
         }
     ],
     "testPresets": [
