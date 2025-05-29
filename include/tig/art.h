@@ -361,13 +361,9 @@ typedef bool(TigArtBlitPaletteAdjustCallback)(tig_art_id_t art_id, TigPaletteMod
 int tig_art_init(TigInitInfo* init_info);
 void tig_art_exit();
 void tig_art_ping();
-int sub_5006E0(tig_art_id_t art_id, TigPalette palette);
 int tig_art_misc_id_create(unsigned int num, unsigned int palette, tig_art_id_t* art_id);
-int tig_art_set_fps(tig_art_id_t art_id, int fps);
-int tig_art_set_action_frame(tig_art_id_t art_id, short action_frame);
 void tig_art_flush();
 int tig_art_exists(tig_art_id_t art_id);
-int sub_502270(tig_art_id_t art_id, char* path);
 int tig_art_touch(tig_art_id_t art_id);
 void sub_5022B0(TigArtBlitPaletteAdjustCallback* callback);
 TigArtBlitPaletteAdjustCallback* sub_5022C0();

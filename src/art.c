@@ -430,29 +430,6 @@ void tig_art_ping()
 {
 }
 
-// 0x5006E0
-int sub_5006E0(tig_art_id_t art_id, TigPalette palette)
-{
-    TigArtHeader hdr;
-    art_size_t size;
-    TigPalette palette_tbl[MAX_PALETTES];
-    char path[TIG_MAX_PATH];
-    int rc;
-
-    rc = tig_art_build_path(art_id, path);
-    if (rc != TIG_OK) {
-        return rc;
-    }
-
-    palette_tbl[0] = palette;
-    return sub_51B710(art_id,
-        path,
-        &hdr,
-        palette_tbl,
-        1,
-        &size);
-}
-
 // 0x501DD0
 int tig_art_misc_id_create(unsigned int num, unsigned int palette, tig_art_id_t* art_id_ptr)
 {
@@ -464,38 +441,6 @@ int tig_art_misc_id_create(unsigned int num, unsigned int palette, tig_art_id_t*
     *art_id_ptr = (TIG_ART_TYPE_MISC << ART_ID_TYPE_SHIFT)
         | ((num & (ART_ID_MAX_NUM - 1)) << ART_ID_NUM_SHIFT)
         | ((palette & (MAX_PALETTES - 1)) << ART_ID_PALETTE_SHIFT);
-
-    return TIG_OK;
-}
-
-// 0x501E10
-int tig_art_set_fps(tig_art_id_t art_id, int fps)
-{
-    int cache_entry_index;
-
-    cache_entry_index = sub_51AA90(art_id);
-    if (cache_entry_index == -1) {
-        return TIG_ERR_GENERIC;
-    }
-
-    tig_art_cache_entries[cache_entry_index].hdr.fps = fps;
-    tig_art_cache_entries[cache_entry_index].flags |= TIG_ART_CACHE_ENTRY_MODIFIED;
-
-    return TIG_OK;
-}
-
-// 0x501E60
-int tig_art_set_action_frame(tig_art_id_t art_id, short action_frame)
-{
-    int cache_entry_index;
-
-    cache_entry_index = sub_51AA90(art_id);
-    if (cache_entry_index == -1) {
-        return TIG_ERR_GENERIC;
-    }
-
-    tig_art_cache_entries[cache_entry_index].hdr.action_frame = action_frame;
-    tig_art_cache_entries[cache_entry_index].flags |= TIG_ART_CACHE_ENTRY_MODIFIED;
 
     return TIG_OK;
 }
@@ -529,12 +474,6 @@ int tig_art_exists(tig_art_id_t art_id)
     }
 
     return TIG_OK;
-}
-
-// 0x502270
-int sub_502270(tig_art_id_t art_id, char* path)
-{
-    return tig_art_build_path(art_id, path);
 }
 
 // 0x502290
