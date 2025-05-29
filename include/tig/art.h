@@ -380,7 +380,7 @@ int tig_art_id_frame_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_frame_inc(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_frame_dec(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_frame_set(tig_art_id_t art_id, int value);
-tig_art_id_t sub_502D30(tig_art_id_t art_id, int value);
+tig_art_id_t tig_art_id_flags_set(tig_art_id_t art_id, int value);
 int tig_art_id_palette_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_palette_set(tig_art_id_t art_id, int value);
 int sub_502E00(tig_art_id_t art_id);
@@ -468,7 +468,7 @@ tig_art_id_t tig_art_eye_candy_id_translucency_set(tig_art_id_t art_id, int valu
 int tig_art_eye_candy_id_scale_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_eye_candy_id_scale_set(tig_art_id_t art_id, int value);
 bool sub_504CC0(const char* name);
-int sub_504FD0(tig_art_id_t art_id);
+int tig_art_id_flags_get(tig_art_id_t art_id);
 void sub_505000(tig_art_id_t art_id, TigPalette src_palette, TigPalette dst_palette);
 void tig_art_cache_set_video_memory_fullness(int fullness);
 tig_art_id_t tig_art_id_reset(tig_art_id_t art_id);
