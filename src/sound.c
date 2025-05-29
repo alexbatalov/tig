@@ -586,7 +586,7 @@ void tig_sound_set_volume(tig_sound_handle_t sound_handle, int volume)
         if ((snd->flags & TIG_SOUND_STREAMED) != 0) {
             AIL_set_stream_volume(snd->audio_stream, volume);
         } else if ((snd->flags & TIG_SOUND_MEMORY) != 0) {
-            AIL_quick_set_volume(snd->audio_stream, volume, snd->extra_volume);
+            AIL_quick_set_volume(snd->audio_handle, volume, snd->extra_volume);
         }
     }
 }
