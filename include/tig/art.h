@@ -358,13 +358,6 @@ typedef struct TigArtBlitInfo {
 
 typedef bool(TigArtBlitPaletteAdjustCallback)(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info);
 
-typedef struct TigArtPackInfo {
-    /* 0000 */ unsigned int flags;
-    /* 0004 */ int fps;
-    /* 0008 */ int field_8;
-    /* 000C */ int action_frame;
-} TigArtPackInfo;
-
 int tig_art_init(TigInitInfo* init_info);
 void tig_art_exit();
 void tig_art_ping();
