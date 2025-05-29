@@ -263,6 +263,9 @@ int main(int argc, char** argv)
     // Start music.
     do_music("sound\\music\\arcanum.mp3");
 
+    // Set the default volume for sound effects.
+    tig_sound_quick_play_set_volume(127);
+
     // Main game loop.
     TigMessage msg;
     bool done = false;
