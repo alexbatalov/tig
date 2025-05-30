@@ -495,7 +495,6 @@ int tig_art_eye_candy_id_translucency_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_eye_candy_id_translucency_set(tig_art_id_t art_id, int value);
 int tig_art_eye_candy_id_scale_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_eye_candy_id_scale_set(tig_art_id_t art_id, int value);
-bool sub_504CC0(const char* name);
 int tig_art_id_flags_get(tig_art_id_t art_id);
 void sub_505000(tig_art_id_t art_id, TigPalette src_palette, TigPalette dst_palette);
 void tig_art_cache_set_video_memory_fullness(int fullness);
