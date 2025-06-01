@@ -1268,16 +1268,16 @@ int tig_file_rename(const char* old_file_name, const char* new_file_name)
 // 0x530330
 int tig_file_fclose(TigFile* stream)
 {
-    int rc;
+    bool success;
 
-    rc = tig_file_close_internal(stream);
+    success = tig_file_close_internal(stream);
     tig_file_destroy(stream);
 
-    if (rc != 0) {
-        return false;
+    if (!success) {
+        return EOF;
     }
 
-    return true;
+    return 0;
 }
 
 // 0x530360
@@ -1736,7 +1736,7 @@ void tig_file_destroy(TigFile* stream)
 // 0x530C00
 bool tig_file_close_internal(TigFile* stream)
 {
-    bool success = 0;
+    bool success = false;
 
     if ((stream->flags & TIG_FILE_DATABASE) != 0) {
         if (tig_database_fclose(stream->impl.database_file_stream) == 0) {
@@ -2089,7 +2089,7 @@ static bool tig_file_io_close(void* userdata)
 {
     TigFile* stream = (TigFile*)userdata;
 
-    if (!tig_file_fclose(stream)) {
+    if (tig_file_fclose(stream) != 0) {
         return false;
     }
 
