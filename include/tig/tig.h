@@ -8,6 +8,7 @@
 #include "tig/bsearch.h"
 #include "tig/button.h"
 #include "tig/color.h"
+#include "tig/compat.h"
 #include "tig/core.h"
 #include "tig/debug.h"
 #include "tig/draw.h"
