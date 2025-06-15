@@ -35,7 +35,7 @@
 
 #define CRITTER_ID_SHIELD_SHIFT 19
 #define CRITTER_ID_ARMOR_SHIFT 20
-#define CRITTER_ID_RACE_SHIFT 24
+#define CRITTER_ID_BODY_TYPE_SHIFT 24
 #define CRITTER_ID_GENDER_SHIFT 27
 
 #define PORTAL_ID_MAX_TYPE 2
@@ -1761,10 +1761,10 @@ tig_art_id_t tig_art_id_damaged_set(tig_art_id_t art_id, int value)
 }
 
 // 0x503C00
-int tig_art_critter_id_create(unsigned int gender, int race, int armor, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr)
+int tig_art_critter_id_create(unsigned int gender, int body_type, int armor, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr)
 {
     if (gender >= 2
-        || race >= 8
+        || body_type >= 8
         || armor >= 16
         || shield >= 2
         || frame >= 0x20
@@ -1777,7 +1777,7 @@ int tig_art_critter_id_create(unsigned int gender, int race, int armor, unsigned
 
     *art_id_ptr = (TIG_ART_TYPE_CRITTER << ART_ID_TYPE_SHIFT)
         | ((gender & 1) << CRITTER_ID_GENDER_SHIFT)
-        | ((race & 7) << CRITTER_ID_RACE_SHIFT)
+        | ((body_type & 7) << CRITTER_ID_BODY_TYPE_SHIFT)
         | ((armor & 0xF) << CRITTER_ID_ARMOR_SHIFT)
         | ((shield & 1) << CRITTER_ID_SHIELD_SHIFT)
         | ((frame & 0x1F) << ART_ID_FRAME_SHIFT)
@@ -1872,27 +1872,27 @@ tig_art_id_t tig_art_id_anim_set(tig_art_id_t art_id, int value)
 }
 
 // 0x503EA0
-int tig_art_critter_id_race_get(tig_art_id_t art_id)
+int tig_art_critter_id_body_type_get(tig_art_id_t art_id)
 {
     if (tig_art_type(art_id) == TIG_ART_TYPE_CRITTER) {
-        return (art_id >> CRITTER_ID_RACE_SHIFT) & 7;
+        return (art_id >> CRITTER_ID_BODY_TYPE_SHIFT) & 7;
     }
 
     return 0;
 }
 
 // 0x503ED0
-tig_art_id_t tig_art_critter_id_race_set(tig_art_id_t art_id, int value)
+tig_art_id_t tig_art_critter_id_body_type_set(tig_art_id_t art_id, int value)
 {
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
     case TIG_ART_TYPE_MONSTER:
     case TIG_ART_TYPE_UNIQUE_NPC:
-        if (value >= TIG_ART_CRITTER_RACE_COUNT) {
+        if (value >= TIG_ART_CRITTER_BODY_TYPE_COUNT) {
             tig_debug_println("Range exceeded in art set.");
             value = 0;
         }
-        return (art_id & ~0x7000000) | (value << CRITTER_ID_RACE_SHIFT);
+        return (art_id & ~0x7000000) | (value << CRITTER_ID_BODY_TYPE_SHIFT);
     default:
         return art_id;
     }

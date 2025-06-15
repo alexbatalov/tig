@@ -45,14 +45,14 @@ typedef enum TigArtTileType {
     TIG_ART_TILE_TYPE_OUTDOOR,
 } TigArtTileType;
 
-typedef enum TigArtCritterRace {
-    TIG_ART_CRITTER_RACE_HUMAN,
-    TIG_ART_CRITTER_RACE_DWARF,
-    TIG_ART_CRITTER_RACE_HALFLING,
-    TIG_ART_CRITTER_RACE_HALF_OGRE,
-    TIG_ART_CRITTER_RACE_ELF,
-    TIG_ART_CRITTER_RACE_COUNT,
-} TigArtCritterRace;
+typedef enum TigArtCritterBodyType {
+    TIG_ART_CRITTER_BODY_TYPE_HUMAN,
+    TIG_ART_CRITTER_BODY_TYPE_DWARF,
+    TIG_ART_CRITTER_BODY_TYPE_HALFLING,
+    TIG_ART_CRITTER_BODY_TYPE_HALF_OGRE,
+    TIG_ART_CRITTER_BODY_TYPE_ELF,
+    TIG_ART_CRITTER_BODY_TYPE_COUNT,
+} TigArtCritterBodyType;
 
 typedef enum TigArtCritterGender {
     TIG_ART_CRITTER_GENDER_FEMALE,
@@ -438,13 +438,13 @@ int tig_art_wall_id_variation_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_wall_id_variation_set(tig_art_id_t art_id, int value);
 int tig_art_id_damaged_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_damaged_set(tig_art_id_t art_id, int value);
-int tig_art_critter_id_create(unsigned int gender, int race, int armor, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr);
+int tig_art_critter_id_create(unsigned int gender, int body_type, int armor, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr);
 int tig_art_monster_id_create(int specie, int armor, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr);
 int tig_art_unique_npc_id_create(int num, unsigned int shield, unsigned int frame, int rotation, int anim, int weapon, unsigned int palette, tig_art_id_t* art_id_ptr);
 int tig_art_id_anim_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_id_anim_set(tig_art_id_t art_id, int value);
-int tig_art_critter_id_race_get(tig_art_id_t art_id);
-tig_art_id_t tig_art_critter_id_race_set(tig_art_id_t art_id, int value);
+int tig_art_critter_id_body_type_get(tig_art_id_t art_id);
+tig_art_id_t tig_art_critter_id_body_type_set(tig_art_id_t art_id, int value);
 int tig_art_monster_id_specie_get(tig_art_id_t art_id);
 int sub_503F50(int a1);
 int sub_503F60(tig_art_id_t art_id);
