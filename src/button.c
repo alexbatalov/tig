@@ -149,7 +149,7 @@ int tig_button_create(TigButtonData* button_data, tig_button_handle_t* button_ha
     }
 
     if ((button_data->flags & TIG_BUTTON_FLAG_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&(btn->rect));
+        tig_window_invalidate_rect(&(btn->rect));
         tig_button_refresh_rect(btn->window_handle, &(btn->rect));
     }
 
@@ -179,7 +179,7 @@ int tig_button_destroy(tig_button_handle_t button_handle)
         sub_5387D0();
     }
 
-    tig_window_set_needs_display_in_rect(&(buttons[button_index].rect));
+    tig_window_invalidate_rect(&(buttons[button_index].rect));
     tig_button_refresh_rect(buttons[button_index].window_handle, &(buttons[button_index].rect));
     buttons[button_index].usage = TIG_BUTTON_USAGE_FREE;
 
@@ -353,7 +353,7 @@ void tig_button_state_change(tig_button_handle_t button_handle, int state)
 
         buttons[button_index].state = state;
         tig_button_refresh_rect(buttons[button_index].window_handle, &(buttons[button_index].rect));
-        tig_window_set_needs_display_in_rect(&(buttons[button_index].rect));
+        tig_window_invalidate_rect(&(buttons[button_index].rect));
     }
 }
 
@@ -741,7 +741,7 @@ int tig_button_show(tig_button_handle_t button_handle)
     btn->flags &= ~TIG_BUTTON_FLAG_HIDDEN;
 
     tig_button_refresh_rect(btn->window_handle, &(btn->rect));
-    tig_window_set_needs_display_in_rect(&(btn->rect));
+    tig_window_invalidate_rect(&(btn->rect));
 
     return TIG_OK;
 }
@@ -769,7 +769,7 @@ int tig_button_hide(tig_button_handle_t button_handle)
     btn->flags |= TIG_BUTTON_FLAG_HIDDEN;
 
     tig_button_refresh_rect(btn->window_handle, &(btn->rect));
-    tig_window_set_needs_display_in_rect(&(btn->rect));
+    tig_window_invalidate_rect(&(btn->rect));
 
     return TIG_OK;
 }
@@ -818,7 +818,7 @@ int tig_button_show_force(tig_button_handle_t button_handle)
     btn->usage &= ~TIG_BUTTON_USAGE_FORCE_HIDDEN;
 
     tig_button_refresh_rect(btn->window_handle, &(btn->rect));
-    tig_window_set_needs_display_in_rect(&(btn->rect));
+    tig_window_invalidate_rect(&(btn->rect));
 
     return TIG_OK;
 }
@@ -844,7 +844,7 @@ int tig_button_hide_force(tig_button_handle_t button_handle)
     btn->usage |= TIG_BUTTON_USAGE_FORCE_HIDDEN;
 
     tig_button_refresh_rect(btn->window_handle, &(btn->rect));
-    tig_window_set_needs_display_in_rect(&(btn->rect));
+    tig_window_invalidate_rect(&(btn->rect));
 
     return TIG_OK;
 }
@@ -873,7 +873,7 @@ void tig_button_set_art(tig_button_handle_t button_handle, tig_art_id_t art_id)
     btn->art_id = art_id;
 
     if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&(btn->rect));
+        tig_window_invalidate_rect(&(btn->rect));
         tig_button_refresh_rect(btn->window_handle, &(btn->rect));
     }
 }

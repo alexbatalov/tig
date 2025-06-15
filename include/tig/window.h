@@ -109,7 +109,7 @@ int tig_window_copy_to_vbuffer(tig_window_handle_t src_window_handle, TigRect* s
 int tig_window_copy_from_bmp(tig_window_handle_t window_handle, TigRect* dst_rect, TigBmp* bmp, TigRect* src_rect);
 int tig_window_tint(tig_window_handle_t window_handle, TigRect* rect, int a3, int a4);
 int tig_window_text_write(tig_window_handle_t window_handle, const char* text, TigRect* rect);
-void tig_window_set_needs_display_in_rect(TigRect* rect);
+void tig_window_invalidate_rect(TigRect* rect);
 int tig_window_button_add(tig_window_handle_t window_handle, tig_button_handle_t button_handle);
 int tig_window_button_remove(tig_window_handle_t window_handle, tig_button_handle_t button_handle);
 int tig_window_button_list(tig_window_handle_t window_handle, tig_button_handle_t** buttons);

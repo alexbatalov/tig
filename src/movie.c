@@ -125,7 +125,7 @@ int tig_movie_play(const char* path, TigMovieFlags movie_flags, int sound_track)
     BinkClose(tig_movie_bink);
     tig_movie_bink = NULL;
 
-    tig_window_set_needs_display_in_rect(NULL);
+    tig_window_invalidate_rect(NULL);
 
     if ((movie_flags & TIG_MOVIE_FADE_OUT) != 0) {
         tig_video_fade(0, 0, 0.0f, 0);

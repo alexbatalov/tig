@@ -237,7 +237,7 @@ void tig_mouse_ping()
         tig_message_enqueue(&message);
 
         // Mark current cursor as dirty.
-        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+        tig_window_invalidate_rect(&(tig_mouse_state.frame));
     }
 
     for (button = 0; button < TIG_MOUSE_BUTTON_COUNT; button++) {
@@ -272,7 +272,7 @@ void tig_mouse_set_position(int x, int y, int z)
     tig_mouse_idle_emitted = false;
 
     // Mark old frame as dirty.
-    tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+    tig_window_invalidate_rect(&(tig_mouse_state.frame));
 
     tig_mouse_state.frame.x = x;
 
@@ -295,7 +295,7 @@ void tig_mouse_set_position(int x, int y, int z)
     tig_mouse_state.y = tig_mouse_state.frame.y + tig_mouse_state.offset_y;
 
     // Mark new frame as dirty.
-    tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+    tig_window_invalidate_rect(&(tig_mouse_state.frame));
 
     tig_timer_now(&tig_mouse_move_timestamp);
 
@@ -368,7 +368,7 @@ int tig_mouse_hide()
 {
     if ((tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) == 0) {
         tig_mouse_state.flags |= TIG_MOUSE_STATE_HIDDEN;
-        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+        tig_window_invalidate_rect(&(tig_mouse_state.frame));
     }
 
     return TIG_OK;
@@ -379,7 +379,7 @@ int tig_mouse_show()
 {
     if ((tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) != 0) {
         tig_mouse_state.flags &= ~TIG_MOUSE_STATE_HIDDEN;
-        tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+        tig_window_invalidate_rect(&(tig_mouse_state.frame));
     }
 
     return TIG_OK;
@@ -847,10 +847,10 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
 // 0x500520
 void tig_mouse_cursor_animate()
 {
-    tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+    tig_window_invalidate_rect(&(tig_mouse_state.frame));
     tig_mouse_cursor_art_id = tig_art_id_frame_inc(tig_mouse_cursor_art_id);
     tig_mouse_cursor_set_art_frame(tig_mouse_cursor_art_id, 0, 0);
-    tig_window_set_needs_display_in_rect(&(tig_mouse_state.frame));
+    tig_window_invalidate_rect(&(tig_mouse_state.frame));
 }
 
 // 0x500560

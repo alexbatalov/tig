@@ -241,7 +241,7 @@ int tig_window_create(TigWindowData* window_data, tig_window_handle_t* window_ha
     push_window_stack(*window_handle_ptr);
 
     if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&(win->frame));
+        tig_window_invalidate_rect(&(win->frame));
     }
 
     win->usage = 0;
@@ -274,7 +274,7 @@ int tig_window_destroy(tig_window_handle_t window_handle)
     }
 
     if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&(win->frame));
+        tig_window_invalidate_rect(&(win->frame));
     }
 
     tig_video_buffer_destroy(win->video_buffer);
@@ -670,7 +670,7 @@ int tig_window_fill(tig_window_handle_t window_handle, TigRect* rect, int color)
     clamped_normalized_rect.x += win->frame.x;
     clamped_normalized_rect.y += win->frame.y;
     if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&clamped_normalized_rect);
+        tig_window_invalidate_rect(&clamped_normalized_rect);
         tig_button_refresh_rect(window_handle, &clamped_normalized_rect);
     }
 
@@ -712,7 +712,7 @@ int tig_window_line(tig_window_handle_t window_handle, TigLine* line, int color)
 
     if (rc == 0) {
         if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
-            tig_window_set_needs_display_in_rect(&dirty_rect);
+            tig_window_invalidate_rect(&dirty_rect);
             tig_button_refresh_rect(window_handle, &dirty_rect);
         }
     }
@@ -791,7 +791,7 @@ int tig_window_blit(TigWindowBlitInfo* win_blit_info)
         dirty_rect.y += windows[dst_window_index].frame.y;
 
         if ((windows[dst_window_index].flags & TIG_WINDOW_HIDDEN) == 0) {
-            tig_window_set_needs_display_in_rect(&dirty_rect);
+            tig_window_invalidate_rect(&dirty_rect);
         }
         break;
     case TIG_WINDOW_BLIT_VIDEO_BUFFER_TO_WINDOW:
@@ -805,7 +805,7 @@ int tig_window_blit(TigWindowBlitInfo* win_blit_info)
         dirty_rect.y += windows[dst_window_index].frame.y;
 
         if ((windows[dst_window_index].flags & TIG_WINDOW_HIDDEN) == 0) {
-            tig_window_set_needs_display_in_rect(&dirty_rect);
+            tig_window_invalidate_rect(&dirty_rect);
         }
         break;
     case TIG_WINDOW_BLT_WINDOW_TO_VIDEO_BUFFER:
@@ -862,7 +862,7 @@ int tig_window_blit_art(tig_window_handle_t window_handle, TigArtBlitInfo* blit_
     rect.y += win->frame.y;
 
     if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&rect);
+        tig_window_invalidate_rect(&rect);
         tig_button_refresh_rect(window_handle, &rect);
     }
 
@@ -922,7 +922,7 @@ int tig_window_scroll(tig_window_handle_t window_handle, int dx, int dy)
     }
 
     if ((window->flags & TIG_WINDOW_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&(window->frame));
+        tig_window_invalidate_rect(&(window->frame));
     }
 
     return TIG_OK;
@@ -981,7 +981,7 @@ int tig_window_scroll_rect(tig_window_handle_t window_handle, TigRect* rect, int
     }
 
     if ((window->flags & TIG_WINDOW_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&(window->frame));
+        tig_window_invalidate_rect(&(window->frame));
     }
 
     return TIG_OK;
@@ -1020,7 +1020,7 @@ int tig_window_copy(tig_window_handle_t dst_window_handle, TigRect* dst_rect, ti
         dirty_rect.y = dst_rect->y + windows[dst_window_index].frame.y;
         dirty_rect.width = dst_rect->width;
         dirty_rect.width = dst_rect->height;
-        tig_window_set_needs_display_in_rect(&dirty_rect);
+        tig_window_invalidate_rect(&dirty_rect);
     }
 
     return TIG_OK;
@@ -1057,7 +1057,7 @@ int tig_window_copy_from_vbuffer(tig_window_handle_t dst_window_handle, TigRect*
         dirty_rect.y = dst_rect->y + windows[dst_window_index].frame.y;
         dirty_rect.width = dst_rect->width;
         dirty_rect.height = dst_rect->height;
-        tig_window_set_needs_display_in_rect(&dirty_rect);
+        tig_window_invalidate_rect(&dirty_rect);
     }
 
     return TIG_OK;
@@ -1115,7 +1115,7 @@ int tig_window_copy_from_bmp(tig_window_handle_t window_handle, TigRect* dst_rec
             dirty_rect = *dst_rect;
             dirty_rect.x += win->frame.x;
             dirty_rect.y += win->frame.y;
-            tig_window_set_needs_display_in_rect(&dirty_rect);
+            tig_window_invalidate_rect(&dirty_rect);
         }
     }
 
@@ -1154,7 +1154,7 @@ int tig_window_tint(tig_window_handle_t window_handle, TigRect* rect, int a3, in
 
     if (rc == TIG_OK) {
         if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
-            tig_window_set_needs_display_in_rect(&dirty_rect);
+            tig_window_invalidate_rect(&dirty_rect);
             tig_button_refresh_rect(window_handle, &dirty_rect);
         }
     }
@@ -1192,7 +1192,7 @@ int tig_window_text_write(tig_window_handle_t window_handle, const char* str, Ti
 
     if (rc == TIG_OK) {
         if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
-            tig_window_set_needs_display_in_rect(&dirty_rect);
+            tig_window_invalidate_rect(&dirty_rect);
             tig_button_refresh_rect(window_handle, &dirty_rect);
         }
     }
@@ -1295,7 +1295,7 @@ bool pop_window_stack(tig_window_handle_t window_handle)
 }
 
 // 0x51E430
-void tig_window_set_needs_display_in_rect(TigRect* rect)
+void tig_window_invalidate_rect(TigRect* rect)
 {
     TigRect dirty_rect;
     TigRectListNode* node;
@@ -1486,7 +1486,7 @@ int sub_51E850(tig_window_handle_t window_handle)
 
     window_index = tig_window_handle_to_index(window_handle);
     if ((windows[window_index].flags & TIG_WINDOW_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&(windows[window_index].frame));
+        tig_window_invalidate_rect(&(windows[window_index].frame));
     }
 
     return TIG_OK;
@@ -1508,7 +1508,7 @@ int tig_window_move_on_top(tig_window_handle_t window_handle)
     win = &(windows[window_index]);
 
     if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
-        tig_window_set_needs_display_in_rect(&(win->frame));
+        tig_window_invalidate_rect(&(win->frame));
     }
 
     return TIG_OK;
@@ -1524,7 +1524,7 @@ int tig_window_show(tig_window_handle_t window_handle)
     window_index = tig_window_handle_to_index(window_handle);
     win = &(windows[window_index]);
     win->flags &= ~TIG_WINDOW_HIDDEN;
-    tig_window_set_needs_display_in_rect(&(win->frame));
+    tig_window_invalidate_rect(&(win->frame));
 
     for (index = 0; index < win->num_buttons; index++) {
         tig_button_show_force(win->buttons[index]);
@@ -1543,7 +1543,7 @@ int tig_window_hide(tig_window_handle_t window_handle)
     window_index = tig_window_handle_to_index(window_handle);
     win = &(windows[window_index]);
     win->flags |= TIG_WINDOW_HIDDEN;
-    tig_window_set_needs_display_in_rect(&(win->frame));
+    tig_window_invalidate_rect(&(win->frame));
 
     for (index = 0; index < win->num_buttons; index++) {
         tig_button_hide_force(win->buttons[index]);
@@ -1638,7 +1638,7 @@ int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModal
                     modal_info->redraw();
                 }
 
-                tig_window_set_needs_display_in_rect(NULL);
+                tig_window_invalidate_rect(NULL);
             }
         }
 
