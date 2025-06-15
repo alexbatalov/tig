@@ -34,6 +34,11 @@ typedef struct TigVideoState {
     int fps;
 } TigVideoState;
 
+typedef struct TigFadeState {
+    bool enabled;
+    SDL_Color color;
+} TigFadeState;
+
 static bool tig_video_window_create(TigInitInfo* init_info);
 static void tig_video_window_destroy();
 static bool sub_524830();
@@ -72,6 +77,8 @@ static bool tig_video_show_fps;
 
 // 0x6103A4
 static int dword_6103A4;
+
+static TigFadeState tig_fade_state;
 
 // 0x51F330
 int tig_video_init(TigInitInfo* init_info)
@@ -236,6 +243,19 @@ int tig_video_flip()
     SDL_RenderClear(tig_video_state.renderer);
     SDL_RenderTexture(tig_video_state.renderer, tig_video_state.texture, NULL, NULL);
 
+    if (tig_fade_state.enabled) {
+        SDL_BlendMode blend_mode;
+        SDL_GetRenderDrawBlendMode(tig_video_state.renderer, &blend_mode);
+        SDL_SetRenderDrawBlendMode(tig_video_state.renderer, SDL_BLENDMODE_BLEND_PREMULTIPLIED);
+        SDL_SetRenderDrawColor(tig_video_state.renderer,
+            tig_fade_state.color.r,
+            tig_fade_state.color.g,
+            tig_fade_state.color.b,
+            tig_fade_state.color.a);
+        SDL_RenderFillRect(tig_video_state.renderer, NULL);
+        SDL_SetRenderDrawBlendMode(tig_video_state.renderer, blend_mode);
+    }
+
     if (tig_video_show_fps) {
         SDL_SetRenderDrawColor(tig_video_state.renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
         SDL_RenderDebugTextFormat(tig_video_state.renderer, 0, 0, "%d", tig_video_state.fps);
@@ -361,13 +381,51 @@ int tig_video_check_gamma_control()
     return TIG_OK;
 }
 
+// NOTE: The original code implements fading using DirectDraw gamma ramp
+// adjustments which is not available in SDL3. This implementation achieves
+// fading effect by drawing alpha-blended rectangle covering entire window in
+// `tig_video_flip`.
+//
+// This implementation prefers `steps` over `duration` - the decision is based
+// on subjective perception of default fade steps (48 steps) vs. default fade
+// duration (2 seconds) on a target 60 fps monitor. The steps approach takes
+// about 800 ms which is perfectly fine.
+//
 // 0x51FCA0
-int tig_video_fade(int color, int steps, float duration, unsigned int flags)
+int tig_video_fade(tig_color_t color, int steps, float duration, TigFadeFlags flags)
 {
-    (void)color;
-    (void)steps;
+    int step;
+
     (void)duration;
-    (void)flags;
+
+    if ((flags & TIG_FADE_IN) == 0) {
+        // Enable faded state.
+        tig_fade_state.enabled = true;
+        tig_fade_state.color.r = (Uint8)tig_color_get_red(color);
+        tig_fade_state.color.g = (Uint8)tig_color_get_green(color);
+        tig_fade_state.color.b = (Uint8)tig_color_get_blue(color);
+    }
+
+    if ((flags & TIG_FADE_IN) != 0) {
+        // Fade in by gradually reducing alpha from 255 (fully opaque) to 0
+        // (completely transparent).
+        for (step = 0; step < steps; step++) {
+            tig_fade_state.color.a = (Uint8)(255 - step * 255 / steps);
+            tig_video_flip();
+        }
+    } else {
+        // Fade out by gradually increasing alpha from 0 (completely
+        // transparent) to 255 (fully opaque).
+        for (step = 0; step < steps; step++) {
+            tig_fade_state.color.a = (Uint8)(step * 255 / steps);
+            tig_video_flip();
+        }
+    }
+
+    if ((flags & TIG_FADE_IN) != 0) {
+        // Disable faded state.
+        tig_fade_state.enabled = false;
+    }
 
     return TIG_OK;
 }

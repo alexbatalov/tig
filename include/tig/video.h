@@ -9,6 +9,11 @@
 extern "C" {
 #endif
 
+typedef unsigned TigFadeFlags;
+
+#define TIG_FADE_OUT 0x0u
+#define TIG_FADE_IN 0x1u
+
 typedef unsigned int TigVideoBufferCreateFlags;
 
 #define TIG_VIDEO_BUFFER_CREATE_COLOR_KEY 0x0001
@@ -119,7 +124,7 @@ int tig_video_3d_check_hardware();
 int tig_video_3d_begin_scene();
 int tig_video_3d_end_scene();
 int tig_video_check_gamma_control();
-int tig_video_fade(int color, int steps, float duration, unsigned int flags);
+int tig_video_fade(tig_color_t color, int steps, float duration, TigFadeFlags flags);
 int tig_video_set_gamma(float gamma);
 int tig_video_buffer_create(TigVideoBufferCreateInfo* vb_create_info, TigVideoBuffer** video_buffer);
 int tig_video_buffer_destroy(TigVideoBuffer* video_buffer);
