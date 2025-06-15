@@ -44,7 +44,7 @@ void tig_movie_exit()
 }
 
 // 0x531530
-int tig_movie_play(const char* path, unsigned int movie_flags, int sound_track)
+int tig_movie_play(const char* path, TigMovieFlags movie_flags, int sound_track)
 {
     unsigned int bink_open_flags = 0;
     TigMessage message;
@@ -131,7 +131,7 @@ int tig_movie_play(const char* path, unsigned int movie_flags, int sound_track)
         tig_video_fade(0, 0, 0.0f, 0);
     }
 
-    if ((movie_flags & TIG_MOVIE_BLACK_OUT) != 0) {
+    if ((movie_flags & TIG_MOVIE_NO_FINAL_FLIP) == 0) {
         tig_video_fill(NULL, tig_color_make(0, 0, 0));
         tig_video_flip();
     }

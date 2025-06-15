@@ -12,7 +12,7 @@ typedef unsigned int TigMovieFlags;
 #define TIG_MOVIE_IGNORE_KEYBOARD 0x01u
 #define TIG_MOVIE_FADE_IN 0x02u
 #define TIG_MOVIE_FADE_OUT 0x04u
-#define TIG_MOVIE_BLACK_OUT 0x08u
+#define TIG_MOVIE_NO_FINAL_FLIP 0x08u
 
 // Initializes movie system.
 int tig_movie_init(TigInitInfo* init_info);
