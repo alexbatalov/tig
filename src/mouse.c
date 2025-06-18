@@ -746,6 +746,11 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
         int extra_height;
 
         if (rc == TIG_OK) {
+            dx = dst_rect.x - x;
+            dy = dst_rect.y - y;
+            extra_width = art_frame_data.width + dst_rect.x - x - dst_rect.width;
+            extra_height = art_frame_data.height + dst_rect.y - y - dst_rect.height;
+        } else {
             if (src_rect.x + src_rect.width > 0) {
                 dx = 0;
             } else {
@@ -769,11 +774,6 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
             } else {
                 extra_height = src_rect.y + src_rect.height + dy - tig_mouse_cursor_bounds.height;
             }
-        } else {
-            dx = dst_rect.x - x;
-            dy = dst_rect.y - y;
-            extra_width = art_frame_data.width + dst_rect.x - x - dst_rect.width;
-            extra_height = art_frame_data.height + dst_rect.y - y - dst_rect.height;
         }
 
         rc = tig_art_frame_data(tig_mouse_cursor_art_id, &art_frame_data);
