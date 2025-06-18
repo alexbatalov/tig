@@ -274,25 +274,11 @@ void tig_mouse_set_position(int x, int y, int z)
     // Mark old frame as dirty.
     tig_window_invalidate_rect(&(tig_mouse_state.frame));
 
-    tig_mouse_state.frame.x = x;
+    tig_mouse_state.x = x;
+    tig_mouse_state.y = y;
 
-    if (tig_mouse_state.frame.x < -tig_mouse_state.offset_x) {
-        tig_mouse_state.frame.x = -tig_mouse_state.offset_x;
-    } else if (tig_mouse_state.frame.x > tig_mouse_max_x - tig_mouse_state.offset_x) {
-        tig_mouse_state.frame.x = tig_mouse_max_x - tig_mouse_state.offset_x;
-    }
-
-    tig_mouse_state.x = tig_mouse_state.frame.x + tig_mouse_state.offset_x;
-
-    tig_mouse_state.frame.y = y;
-
-    if (tig_mouse_state.frame.y < -tig_mouse_state.offset_y) {
-        tig_mouse_state.frame.y = -tig_mouse_state.offset_y;
-    } else if (tig_mouse_state.frame.y > tig_mouse_max_y - tig_mouse_state.offset_y) {
-        tig_mouse_state.frame.y = tig_mouse_max_y - tig_mouse_state.offset_y;
-    }
-
-    tig_mouse_state.y = tig_mouse_state.frame.y + tig_mouse_state.offset_y;
+    tig_mouse_state.frame.x = x - tig_mouse_state.offset_x;
+    tig_mouse_state.frame.y = y - tig_mouse_state.offset_y;
 
     // Mark new frame as dirty.
     tig_window_invalidate_rect(&(tig_mouse_state.frame));
