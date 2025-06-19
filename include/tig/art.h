@@ -249,6 +249,23 @@ typedef enum TigArtAnim {
     TIG_ART_ANIM_EXPLODE,
 } TigArtAnim;
 
+typedef enum TigArtRoofPiece {
+    TIG_ART_ROOF_PIECE_NORTH_WEST_OUTSIDE,
+    TIG_ART_ROOF_PIECE_WEST,
+    TIG_ART_ROOF_PIECE_NORTH,
+    TIG_ART_ROOF_PIECE_NORTH_WEST_INSIDE,
+    TIG_ART_ROOF_PIECE_SOUTH_WEST_OUTSIDE,
+    TIG_ART_ROOF_PIECE_SOUTH_WEST_INSIDE,
+    TIG_ART_ROOF_PIECE_NORTH_EAST_INSIDE,
+    TIG_ART_ROOF_PIECE_NORTH_EAST_OUTSIDE,
+    TIG_ART_ROOF_PIECE_CENTER,
+    TIG_ART_ROOF_PIECE_SOUTH_EAST_OUTSIDE,
+    TIG_ART_ROOF_PIECE_SOUTH,
+    TIG_ART_ROOF_PIECE_EAST,
+    TIG_ART_ROOF_PIECE_SOUTH_EAST_INSIDE,
+    TIG_ART_ROOF_PIECE_COUNT,
+} TigArtRoofPiece;
+
 typedef enum TigArtAnimFlags {
     TIG_ART_0x01 = 0x01,
     TIG_ART_0x02 = 0x02,
@@ -477,9 +494,9 @@ int tig_art_light_id_create(unsigned int num, unsigned int frame, unsigned int r
 int sub_504700(tig_art_id_t art_id);
 tig_art_id_t sub_504730(tig_art_id_t art_id, int rotation);
 int sub_504790(tig_art_id_t art_id);
-int tig_art_roof_id_create(unsigned int num, int a2, unsigned int fill, unsigned int fade, tig_art_id_t* art_id_ptr);
-int sub_504840(tig_art_id_t art_id);
-tig_art_id_t sub_504880(tig_art_id_t art_id, int frame);
+int tig_art_roof_id_create(unsigned int num, int piece, unsigned int fill, unsigned int fade, tig_art_id_t* art_id_ptr);
+int tig_art_roof_id_piece_get(tig_art_id_t art_id);
+tig_art_id_t tig_art_roof_id_piece_set(tig_art_id_t art_id, int piece);
 unsigned int tig_art_roof_id_fill_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_roof_id_fill_set(tig_art_id_t art_id, unsigned int value);
 unsigned int tig_art_roof_id_fade_get(tig_art_id_t art_id);

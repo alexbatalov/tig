@@ -2362,56 +2362,59 @@ int sub_504790(tig_art_id_t art_id)
 }
 
 // 0x5047B0
-int tig_art_roof_id_create(unsigned int num, int a2, unsigned int fill, unsigned int fade, tig_art_id_t* art_id_ptr)
+int tig_art_roof_id_create(unsigned int num, int piece, unsigned int fill, unsigned int fade, tig_art_id_t* art_id_ptr)
 {
-    int v1;
-    int v2;
+    int flipped;
+    int palette;
 
     if (num >= ART_ID_MAX_NUM
-        || a2 >= 13
+        || piece >= 13
         || fill > 1
         || fade > 1) {
         return TIG_ERR_INVALID_PARAM;
     }
 
-    if (a2 >= 9) {
-        a2 -= 9;
-        v1 = 1;
-        v2 = 1;
+    if (piece >= 9) {
+        piece -= 9;
+        flipped = 1;
+        palette = 1;
     } else {
-        v1 = 0;
-        v2 = 0;
+        flipped = 0;
+        palette = 0;
     }
 
-    *art_id_ptr = tig_art_id_flags_set((TIG_ART_TYPE_ROOF << ART_ID_TYPE_SHIFT)
-            | ((num & (ART_ID_MAX_NUM - 1)) << ART_ID_NUM_SHIFT)
-            | ((a2 & 0x1F) << 14)
-            | ((fill & 1) << ROOF_FILL_SHIFT)
-            | ((fade & 1) << ROOF_FADE_SHIFT)
-            | ((v2 & 3) << 4),
-        v1);
+    *art_id_ptr = (TIG_ART_TYPE_ROOF << ART_ID_TYPE_SHIFT)
+        | ((num & (ART_ID_MAX_NUM - 1)) << ART_ID_NUM_SHIFT)
+        | ((piece & 0x1F) << 14)
+        | ((fill & 1) << ROOF_FILL_SHIFT)
+        | ((fade & 1) << ROOF_FADE_SHIFT)
+        | ((palette & (MAX_PALETTES - 1)) << ART_ID_PALETTE_SHIFT);
+    *art_id_ptr = tig_art_id_flags_set(*art_id_ptr, flipped);
 
     return TIG_OK;
 }
 
 // 0x504840
-int sub_504840(tig_art_id_t art_id)
+int tig_art_roof_id_piece_get(tig_art_id_t art_id)
 {
-    if (tig_art_type(art_id) == TIG_ART_TYPE_ROOF) {
-        int v1 = tig_art_id_frame_get(art_id);
-        if ((tig_art_id_flags_get(art_id) & 1) != 0) {
-            v1 += 9;
-        }
-        return v1;
-    } else {
+    int piece;
+
+    if (tig_art_type(art_id) != TIG_ART_TYPE_ROOF) {
         return -1;
     }
+
+    piece = tig_art_id_frame_get(art_id);
+    if ((tig_art_id_flags_get(art_id) & 1) != 0) {
+        piece += 9;
+    }
+
+    return piece;
 }
 
 // 0x504880
-tig_art_id_t sub_504880(tig_art_id_t art_id, int frame)
+tig_art_id_t tig_art_roof_id_piece_set(tig_art_id_t art_id, int frame)
 {
-    int flags = 0;
+    int flipped = 0;
     int palette = 0;
 
     if (tig_art_type(art_id) != TIG_ART_TYPE_ROOF) {
@@ -2420,12 +2423,12 @@ tig_art_id_t sub_504880(tig_art_id_t art_id, int frame)
 
     if (frame >= 9) {
         frame = frame - 9;
-        flags = 1;
+        flipped = 1;
         palette = 1;
     }
 
     art_id = tig_art_id_frame_set(art_id, frame);
-    art_id = tig_art_id_flags_set(art_id, flags);
+    art_id = tig_art_id_flags_set(art_id, flipped);
     art_id = tig_art_id_palette_set(art_id, palette);
 
     return art_id;
@@ -2774,7 +2777,7 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
                 rect.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].width;
                 rect.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame].height;
 
-                art_blit_info.art_id = sub_504880(art_id, frame);
+                art_blit_info.art_id = tig_art_roof_id_piece_set(art_id, frame);
                 art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
 
                 if (dword_604718) {
@@ -2792,7 +2795,7 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
                 rect.width = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame - 9].width;
                 rect.height = tig_art_cache_entries[cache_entry_index].hdr.frames_tbl[rotation][frame - 9].height;
 
-                art_blit_info.art_id = sub_504880(art_id, frame);
+                art_blit_info.art_id = tig_art_roof_id_piece_set(art_id, frame);
                 art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
 
                 if (dword_604718) {
@@ -2809,7 +2812,7 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
             tig_art_cache_entries[cache_entry_index].dirty[palette][rotation] = 0;
         }
 
-        frame = sub_504840(art_id);
+        frame = tig_art_roof_id_piece_get(art_id);
     } else {
         rotation = tig_art_id_rotation_get(art_id);
         if (tig_art_mirroring_enabled
