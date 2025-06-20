@@ -2005,18 +2005,20 @@ int tig_file_rmdir_recursively(const char* path)
     strcat(mutable_path, "\\*.*");
 
     if (tig_find_first_file(mutable_path, &ffd)) {
-        strcpy(mutable_path, path);
-        strcat(mutable_path, "\\");
-        strcat(mutable_path, ffd.name);
+        do {
+            strcpy(mutable_path, path);
+            strcat(mutable_path, "\\");
+            strcat(mutable_path, ffd.name);
 
-        if (ffd.path_info.type == SDL_PATHTYPE_DIRECTORY) {
-            if (strcmp(ffd.name, ".") != 0
-                && strcmp(ffd.name, "..") != 0) {
-                tig_file_rmdir_recursively(mutable_path);
+            if (ffd.path_info.type == SDL_PATHTYPE_DIRECTORY) {
+                if (strcmp(ffd.name, ".") != 0
+                    && strcmp(ffd.name, "..") != 0) {
+                    tig_file_rmdir_recursively(mutable_path);
+                }
+            } else {
+                remove(mutable_path);
             }
-        } else {
-            remove(mutable_path);
-        }
+        } while (tig_find_next_file(&ffd));
     }
     tig_find_close(&ffd);
 
