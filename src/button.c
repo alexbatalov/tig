@@ -655,7 +655,7 @@ int tig_button_radio_group_create(int count, tig_button_handle_t* button_handles
         btn = &(buttons[button_index]);
         if ((btn->usage & TIG_BUTTON_USAGE_FREE) == 0
             && (btn->usage & TIG_BUTTON_USAGE_RADIO) != 0
-            && btn->group > group) {
+            && btn->group >= group) {
             group = btn->group + 1;
         }
     }
