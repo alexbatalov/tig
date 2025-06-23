@@ -1201,7 +1201,7 @@ int tig_file_remove(const char* file_name)
     TigDatabaseEntry* database_entry;
 
     if (file_name[0] == '.' || file_name[0] == '\\' || file_name[1] == ':') {
-        return remove(file_name);
+        return SDL_RemovePath(file_name) ? 0 : 1;
     }
 
     if ((tig_file_ignored(file_name) & 0x2) != 0) {
@@ -1213,7 +1213,7 @@ int tig_file_remove(const char* file_name)
         if ((repo->type & TIG_FILE_PLAIN) != 0) {
             sprintf(path, "%s\\%s", repo->path, file_name);
 
-            if (remove(path) == 0) {
+            if (SDL_RemovePath(path)) {
                 repo = repo->next;
                 while (repo != NULL) {
                     if ((repo->type & TIG_FILE_DATABASE) != 0
@@ -1633,12 +1633,12 @@ bool tig_file_lock(const char* filename, const void* owner, size_t size)
 
     if (fwrite(owner, size, 1, stream) != 1) {
         fclose(stream);
-        remove(path);
+        SDL_RemovePath(path);
         return false;
     }
 
     if (fclose(stream) != 0) {
-        remove(path);
+        SDL_RemovePath(path);
         return false;
     }
 
@@ -2016,7 +2016,7 @@ int tig_file_rmdir_recursively(const char* path)
                     tig_file_rmdir_recursively(mutable_path);
                 }
             } else {
-                remove(mutable_path);
+                SDL_RemovePath(mutable_path);
             }
         } while (tig_find_next_file(&ffd));
     }
