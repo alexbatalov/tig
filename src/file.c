@@ -1242,7 +1242,7 @@ int tig_file_rename(const char* old_file_name, const char* new_file_name)
     char new_path[TIG_MAX_PATH];
 
     if (old_file_name[0] == '.' || old_file_name[0] == '\\' || old_file_name[1] == ':') {
-        return rename(old_file_name, new_file_name);
+        return SDL_RenamePath(old_file_name, new_file_name) ? 0 : 1;
     }
 
     if ((tig_file_ignored(old_file_name) & 0x2) != 0) {
@@ -1255,7 +1255,7 @@ int tig_file_rename(const char* old_file_name, const char* new_file_name)
             sprintf(old_path, "%s\\%s", repo->path, old_file_name);
             sprintf(new_path, "%s\\%s", repo->path, new_file_name);
 
-            if (rename(old_path, new_path) != 0) {
+            if (SDL_RenamePath(old_path, new_path)) {
                 return 0;
             }
         }
