@@ -37,7 +37,8 @@ typedef enum TigMessageMouseEvent {
 typedef struct TigMouseMessageData {
     int x;
     int y;
-    int z;
+    int dx;
+    int dy;
     TigMessageMouseEvent event;
     bool repeat;
 } TigMouseMessageData;

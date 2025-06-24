@@ -232,7 +232,6 @@ void tig_mouse_ping()
         message.timestamp = tig_ping_timestamp;
         message.data.mouse.x = tig_mouse_state.x;
         message.data.mouse.y = tig_mouse_state.y;
-        message.data.mouse.z = tig_mouse_state.z;
         message.data.mouse.event = TIG_MESSAGE_MOUSE_IDLE;
         tig_message_enqueue(&message);
 
@@ -254,7 +253,6 @@ void tig_mouse_ping()
                 message.timestamp = tig_ping_timestamp;
                 message.data.mouse.x = tig_mouse_state.x;
                 message.data.mouse.y = tig_mouse_state.y;
-                message.data.mouse.z = tig_mouse_state.z;
                 message.data.mouse.event = tig_message_mouse_button_down_flags[button];
                 message.data.mouse.repeat = true;
                 tig_message_enqueue(&message);
@@ -264,7 +262,7 @@ void tig_mouse_ping()
 }
 
 // 0x4FF3B0
-void tig_mouse_set_position(int x, int y, int z)
+void tig_mouse_set_position(int x, int y)
 {
     TigMessage message;
 
@@ -290,7 +288,6 @@ void tig_mouse_set_position(int x, int y, int z)
     tig_timer_now(&(message.timestamp));
     message.data.mouse.x = tig_mouse_state.x;
     message.data.mouse.y = tig_mouse_state.y;
-    message.data.mouse.z = z;
     message.data.mouse.event = TIG_MESSAGE_MOUSE_MOVE;
     message.data.mouse.repeat = false;
     tig_message_enqueue(&message);
@@ -311,7 +308,6 @@ void tig_mouse_set_button(int button, bool pressed)
         message.timestamp = tig_ping_timestamp;
         message.data.mouse.x = tig_mouse_state.x;
         message.data.mouse.y = tig_mouse_state.y;
-        message.data.mouse.z = 0;
         message.data.mouse.event = tig_message_mouse_button_down_flags[button];
         message.data.mouse.repeat = false;
         tig_message_enqueue(&message);
@@ -327,7 +323,6 @@ void tig_mouse_set_button(int button, bool pressed)
         message.timestamp = tig_ping_timestamp;
         message.data.mouse.x = tig_mouse_state.x;
         message.data.mouse.y = tig_mouse_state.y;
-        message.data.mouse.z = 0;
         message.data.mouse.event = tig_message_mouse_button_up_flags[button];
         message.data.mouse.repeat = false;
         tig_message_enqueue(&message);
@@ -848,4 +843,20 @@ int sub_500560()
 // 0x500570
 void sub_500570()
 {
+}
+
+void tig_mouse_wheel(int dx, int dy)
+{
+    TigMessage message;
+
+    // Emit "wheel" event.
+    message.type = TIG_MESSAGE_MOUSE;
+    tig_timer_now(&(message.timestamp));
+    message.data.mouse.x = tig_mouse_state.x;
+    message.data.mouse.y = tig_mouse_state.y;
+    message.data.mouse.dx = dx;
+    message.data.mouse.dy = dy;
+    message.data.mouse.event = TIG_MESSAGE_MOUSE_WHEEL;
+    message.data.mouse.repeat = false;
+    tig_message_enqueue(&message);
 }

@@ -118,7 +118,7 @@ void tig_message_ping()
             tig_set_active(false);
             break;
         case SDL_EVENT_MOUSE_MOTION:
-            tig_mouse_set_position((int)event.motion.x, (int)event.motion.y, 0);
+            tig_mouse_set_position((int)event.motion.x, (int)event.motion.y);
             break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
         case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -133,6 +133,9 @@ void tig_message_ping()
                 tig_mouse_set_button(TIG_MOUSE_BUTTON_MIDDLE, event.button.down);
                 break;
             }
+            break;
+        case SDL_EVENT_MOUSE_WHEEL:
+            tig_mouse_wheel(event.wheel.integer_x, event.wheel.integer_y);
             break;
         case SDL_EVENT_KEY_DOWN:
         case SDL_EVENT_KEY_UP:

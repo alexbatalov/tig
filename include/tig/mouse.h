@@ -47,7 +47,7 @@ void tig_mouse_ping();
 //
 // This function is only used from WNDPROC and should not be called in software
 // cursor mode (managed by DirectInput).
-void tig_mouse_set_position(int x, int y, int z);
+void tig_mouse_set_position(int x, int y);
 
 // Forwards "mouse down" and "mouse up" events from Windows Messages to mouse
 // system.
@@ -93,6 +93,8 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y);
 
 int sub_500560();
 void sub_500570();
+
+void tig_mouse_wheel(int dx, int dy);
 
 #ifdef __cplusplus
 }
