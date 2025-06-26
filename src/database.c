@@ -6,6 +6,7 @@
 #include <fpattern/fpattern.h>
 #include <zlib.h>
 
+#include "tig/compat.h"
 #include "tig/find_file.h"
 #include "tig/memory.h"
 
@@ -176,6 +177,9 @@ TigDatabase* tig_database_open(const char* path)
             break;
         }
 
+        compat_windows_path_to_native(name);
+        SDL_strlwr(name);
+
         entry->path = name;
         entry->flags &= ~TIG_DATABASE_ENTRY_0x200;
         entry->flags |= TIG_DATABASE_ENTRY_0x100;
@@ -250,6 +254,9 @@ bool tig_database_find_first_entry(TigDatabase* database, const char* pattern, T
     ffd->pattern = STRDUP(pattern);
     ffd->path_segments_count = num_path_segments(pattern);
 
+    compat_windows_path_to_native(ffd->pattern);
+    SDL_strlwr(ffd->pattern);
+
     if (!fpattern_isvalid(pattern)) {
         ffd->index = database->entries_count;
         return false;
@@ -285,7 +292,7 @@ void tig_database_find_prepare(TigDatabaseFindFileData* ffd)
     // name).
     while (l <= r) {
         m = (l + r) / 2;
-        cmp = SDL_strcasecmp(ffd->database->entries[m].path, ffd->pattern);
+        cmp = SDL_strcmp(ffd->database->entries[m].path, ffd->pattern);
         if (cmp < 0) {
             l = m + 1;
         } else if (cmp > 0) {
@@ -348,7 +355,13 @@ int tig_database_filelength(TigDatabaseFileHandle* stream)
 // 0x53C1D0
 bool tig_database_get_entry(TigDatabase* database, const char* path, TigDatabaseEntry** entry_ptr)
 {
-    *entry_ptr = (TigDatabaseEntry*)bsearch(path, database->entries, database->entries_count, sizeof(*database->entries), tig_database_find_entry_by_path);
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    SDL_strlwr(native_path);
+
+    *entry_ptr = (TigDatabaseEntry*)bsearch(native_path, database->entries, database->entries_count, sizeof(*database->entries), tig_database_find_entry_by_path);
     if (*entry_ptr == NULL) {
         return false;
     }
@@ -745,6 +758,9 @@ void tig_database_load_ignored(TigDatabase* database)
             file_name[file_name_length - 1] = '\0';
         }
 
+        compat_windows_path_to_native(file_name);
+        SDL_strlwr(file_name);
+
         if (fpattern_isvalid(file_name)) {
             file_name_segments_count = num_path_segments(file_name);
 
@@ -767,10 +783,12 @@ int num_path_segments(const char* path)
     const char* pch;
 
     count = 0;
-    pch = strchr(path, '\\');
-    while (pch != NULL) {
-        count++;
-        pch = strchr(pch + 1, '\\');
+    pch = path;
+    while (*pch != '\0') {
+        if (*pch == '\\' || *pch == '/') {
+            count++;
+        }
+        pch++;
     }
 
     return count;
@@ -781,7 +799,7 @@ int tig_database_find_entry_by_path(const void* a1, const void* a2)
 {
     const char* path = (const char*)a1;
     const TigDatabaseEntry* entry = (const TigDatabaseEntry*)a2;
-    return SDL_strcasecmp(path, entry->path);
+    return SDL_strcmp(path, entry->path);
 }
 
 // 0x53CED0

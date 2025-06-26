@@ -50,20 +50,40 @@ typedef struct TigFileIgnore {
     /* 0008 */ struct TigFileIgnore* next;
 } TigFileIgnore;
 
+static bool tig_file_mkdir_native(const char* path);
+static bool tig_file_rmdir_native(const char* path);
+static bool sub_52E040_native(const char* path);
+static bool tig_file_is_empty_directory_native(const char* path);
+static bool tig_file_is_directory_native(const char* path);
+static bool tig_file_archive_native(const char* dst, const char* src);
+static bool tig_file_unarchive_native(const char* src, const char* dst);
 static bool sub_52E840(const char* dst, const char* src);
 static bool sub_52E8D0(TigFile* dst_stream, TigFile* src_stream);
 static bool sub_52E900(TigFile* dst_stream, TigFile* src_stream, size_t size);
-static bool tig_file_archive_worker(const char* path, TigFile* stream1, TigFile* stream2);
+static bool tig_file_archive_worker_native(const char* path, TigFile* stream1, TigFile* stream2);
+static bool tig_file_repository_add_native(const char* path);
+static bool tig_file_repository_remove_native(const char* file_name);
+static int tig_file_mkdir_ex_native(const char* path);
+static int tig_file_rmdir_ex_native(const char* path);
+static bool tig_file_extract_native(const char* filename, char* path);
+static void tig_file_list_create_native(TigFileList* list, const char* pattern);
+static bool tig_file_exists_native(const char* file_name, TigFileInfo* info);
+static bool tig_file_exists_in_path_native(const char* search_path, const char* file_name, TigFileInfo* info);
+static int tig_file_remove_native(const char* file_name);
+static int tig_file_rename_native(const char* old_file_name, const char* new_file_name);
+static TigFile* tig_file_fopen_native(const char* path, const char* mode);
+static TigFile* tig_file_reopen_native(const char* path, const char* mode, TigFile* stream);
 static TigFile* tig_file_create();
 static void tig_file_destroy(TigFile* stream);
 static bool tig_file_close_internal(TigFile* stream);
-static int tig_file_open_internal(const char* path, const char* mode, TigFile* stream);
+static int tig_file_open_internal_native(const char* path, const char* mode, TigFile* stream);
 static void tig_file_process_attribs(SDL_PathType type, unsigned int* flags);
 static void tig_file_list_add(TigFileList* list, TigFileInfo* info);
 static bool sub_5310C0(const char* filename, const void* owner, size_t size);
 static unsigned int tig_file_ignored(const char* path);
+static bool tig_file_copy_native(const char* src, const char* dst);
 static bool tig_file_copy_internal(TigFile* dst, TigFile* src);
-static int tig_file_rmdir_recursively(const char* path);
+static int tig_file_rmdir_recursively_native(const char* path);
 
 // 0x62B2A8
 static TigFileIgnore* off_62B2A8;
@@ -75,13 +95,13 @@ static TigFileRepository* tig_file_repositories_head;
 static TigFileIgnore* tig_file_ignore_head;
 
 // 0x52DFE0
-bool tig_file_mkdir(const char* path)
+bool tig_file_mkdir_native(const char* path)
 {
-    return tig_file_mkdir_ex(path) == 0;
+    return tig_file_mkdir_ex_native(path) == 0;
 }
 
 // 0x52E000
-bool tig_file_rmdir(const char* path)
+bool tig_file_rmdir_native(const char* path)
 {
     if (!tig_file_is_directory(path)) {
         return false;
@@ -99,23 +119,24 @@ bool tig_file_rmdir(const char* path)
 }
 
 // 0x52E040
-bool sub_52E040(const char* path)
+bool sub_52E040_native(const char* path)
 {
     bool success;
     char pattern[TIG_MAX_PATH];
     TigFileList list;
     unsigned int index;
 
-    if (!tig_file_is_directory(path)) {
+    if (!tig_file_is_directory_native(path)) {
         return false;
     }
 
     success = true;
-    sprintf(pattern, "%s\\*.*", path);
-    tig_file_list_create(&list, pattern);
+
+    compat_join_path(pattern, sizeof(pattern), path, "*.*");
+    tig_file_list_create_native(&list, pattern);
 
     for (index = 0; index < list.count; index++) {
-        sprintf(pattern, "%s\\%s", path, list.entries[index].path);
+        compat_join_path(pattern, sizeof(pattern), path, list.entries[index].path);
         if ((list.entries[index].attributes & TIG_FILE_ATTRIBUTE_SUBDIR) != 0) {
             if (strcmp(list.entries[index].path, ".") != 0
                 && strcmp(list.entries[index].path, "..") != 0) {
@@ -123,12 +144,12 @@ bool sub_52E040(const char* path)
                     success = false;
                 }
 
-                if (tig_file_rmdir_ex(pattern) != 0) {
+                if (tig_file_rmdir_ex_native(pattern) != 0) {
                     success = false;
                 }
             }
         } else {
-            if (tig_file_remove(pattern) != 0) {
+            if (tig_file_remove_native(pattern) != 0) {
                 success = false;
             }
         }
@@ -139,19 +160,19 @@ bool sub_52E040(const char* path)
 }
 
 // 0x52E1B0
-bool tig_file_is_empty_directory(const char* path)
+bool tig_file_is_empty_directory_native(const char* path)
 {
     char pattern[TIG_MAX_PATH];
     TigFileList list;
     bool is_empty;
 
-    if (!tig_file_is_directory(path)) {
+    if (!tig_file_is_directory_native(path)) {
         return false;
     }
 
-    sprintf(pattern, "%s\\*.*", path);
+    compat_join_path(pattern, sizeof(pattern), path, "*.*");
 
-    tig_file_list_create(&list, pattern);
+    tig_file_list_create_native(&list, pattern);
 
     // Only contains trivia (`.` and `..`).
     is_empty = list.count <= 2;
@@ -162,9 +183,10 @@ bool tig_file_is_empty_directory(const char* path)
 }
 
 // 0x52E220
-bool tig_file_is_directory(const char* path)
+bool tig_file_is_directory_native(const char* path)
 {
     TigFileInfo info;
+
     return tig_file_exists(path, &info) && (info.attributes & TIG_FILE_ATTRIBUTE_SUBDIR) != 0;
 }
 
@@ -211,7 +233,7 @@ bool sub_52E260(const char* dst, const char* src)
 }
 
 // 0x52E430
-bool tig_file_archive(const char* dst, const char* src)
+bool tig_file_archive_native(const char* dst, const char* src)
 {
     char index_path[TIG_MAX_PATH];
     char data_path[TIG_MAX_PATH];
@@ -225,19 +247,19 @@ bool tig_file_archive(const char* dst, const char* src)
     }
 
     sprintf(index_path, "%s.tfai", dst);
-    index_stream = tig_file_fopen(index_path, "wb");
+    index_stream = tig_file_fopen_native(index_path, "wb");
     if (index_stream == NULL) {
         return false;
     }
 
     sprintf(data_path, "%s.tfaf", dst);
-    data_stream = tig_file_fopen(data_path, "wb");
+    data_stream = tig_file_fopen_native(data_path, "wb");
     if (data_stream == NULL) {
         tig_file_fclose(index_stream);
         return false;
     }
 
-    success = tig_file_archive_worker(src, index_stream, data_stream);
+    success = tig_file_archive_worker_native(src, index_stream, data_stream);
     if (success) {
         type = 3;
         if (tig_file_fwrite(&type, sizeof(type), 1, index_stream) != 1) {
@@ -249,15 +271,15 @@ bool tig_file_archive(const char* dst, const char* src)
     tig_file_fclose(index_stream);
 
     if (!success) {
-        tig_file_remove(data_path);
-        tig_file_remove(index_path);
+        tig_file_remove_native(data_path);
+        tig_file_remove_native(index_path);
     }
 
     return success;
 }
 
 // 0x52E550
-bool tig_file_unarchive(const char* src, const char* dst)
+bool tig_file_unarchive_native(const char* src, const char* dst)
 {
     char path1[TIG_MAX_PATH];
     char path2[TIG_MAX_PATH];
@@ -272,20 +294,19 @@ bool tig_file_unarchive(const char* src, const char* dst)
     tig_file_mkdir(dst);
 
     sprintf(path1, "%s.tfai", src);
-    index_stream = tig_file_fopen(path1, "rb");
+    index_stream = tig_file_fopen_native(path1, "rb");
     if (index_stream == NULL) {
         return false;
     }
 
     sprintf(path1, "%s.tfaf", src);
-    data_stream = tig_file_fopen(path1, "rb");
+    data_stream = tig_file_fopen_native(path1, "rb");
     if (data_stream == NULL) {
         // FIXME: Leaks `stream1`.
         return false;
     }
 
     strcpy(path2, dst);
-    strcat(path2, "\\");
 
     while (tig_file_fread(&type, sizeof(type), 1, index_stream) == 1) {
         if (type == 0) {
@@ -303,8 +324,8 @@ bool tig_file_unarchive(const char* src, const char* dst)
                 break;
             }
 
-            sprintf(path3, "%s%s", path2, path1);
-            tmp_stream = tig_file_fopen(path3, "wb");
+            compat_join_path(path3, sizeof(path3), path2, path1);
+            tmp_stream = tig_file_fopen_native(path3, "wb");
             if (tmp_stream == NULL) {
                 break;
             }
@@ -325,17 +346,16 @@ bool tig_file_unarchive(const char* src, const char* dst)
             }
 
             path1[size] = '\0';
-            strcat(path2, path1);
-            tig_file_mkdir(path2);
-            strcat(path2, "\\");
+            compat_append_path(path2, sizeof(path2), path1);
+            tig_file_mkdir_native(path2);
         } else if (type == 2) {
-            pch = strrchr(path2, '\\');
+            pch = strrchr(path2, PATH_SEPARATOR);
             if (pch == NULL) {
                 break;
             }
             *pch = '\0';
 
-            pch = strrchr(path2, '\\');
+            pch = strrchr(path2, PATH_SEPARATOR);
             if (pch == NULL) {
                 break;
             }
@@ -425,7 +445,7 @@ bool sub_52E900(TigFile* dst_stream, TigFile* src_stream, size_t size)
 }
 
 // 0x52E9C0
-bool tig_file_archive_worker(const char* path, TigFile* index_stream, TigFile* data_stream)
+bool tig_file_archive_worker_native(const char* path, TigFile* index_stream, TigFile* data_stream)
 {
     char pattern[TIG_MAX_PATH];
     TigFileList list;
@@ -434,8 +454,8 @@ bool tig_file_archive_worker(const char* path, TigFile* index_stream, TigFile* d
     int size;
     TigFile* tmp_stream;
 
-    sprintf(pattern, "%s\\*.*", path);
-    tig_file_list_create(&list, pattern);
+    compat_join_path(pattern, sizeof(pattern), path, "*.*");
+    tig_file_list_create_native(&list, pattern);
 
     for (index = 0; index < list.count; index++) {
         if ((list.entries[index].attributes & TIG_FILE_ATTRIBUTE_SUBDIR) != 0) {
@@ -458,9 +478,9 @@ bool tig_file_archive_worker(const char* path, TigFile* index_stream, TigFile* d
                     return false;
                 }
 
-                sprintf(pattern, "%s\\%s", path, list.entries[index].path);
+                compat_join_path(pattern, sizeof(pattern), path, list.entries[index].path);
 
-                if (!tig_file_archive_worker(pattern, index_stream, data_stream)) {
+                if (!tig_file_archive_worker_native(pattern, index_stream, data_stream)) {
                     // FIXME: Leaks `list`.
                     return false;
                 }
@@ -495,7 +515,7 @@ bool tig_file_archive_worker(const char* path, TigFile* index_stream, TigFile* d
                 return false;
             }
 
-            sprintf(pattern, "%s\\%s", path, list.entries[index].path);
+            compat_join_path(pattern, sizeof(pattern), path, list.entries[index].path);
 
             tmp_stream = tig_file_fopen(pattern, "rb");
             if (tmp_stream == NULL) {
@@ -556,7 +576,7 @@ void tig_file_exit()
 }
 
 // 0x52ED40
-bool tig_file_repository_add(const char* path)
+bool tig_file_repository_add_native(const char* path)
 {
     TigFileRepository* curr;
     TigFileRepository* prev;
@@ -613,8 +633,8 @@ bool tig_file_repository_add(const char* path)
 
             tig_debug_printf("TIG File: Added path \"%s\"\n", path);
 
-            sprintf(cache_path, "%s\\%s", tig_file_repositories_head->path, CACHE_DIR_NAME);
-            tig_file_rmdir_recursively(cache_path);
+            compat_join_path(cache_path, sizeof(cache_path), tig_file_repositories_head->path, CACHE_DIR_NAME);
+            tig_file_rmdir_recursively_native(cache_path);
 
             return true;
         } else {
@@ -645,7 +665,7 @@ bool tig_file_repository_add(const char* path)
 }
 
 // 0x52EF30
-bool tig_file_repository_remove(const char* file_name)
+bool tig_file_repository_remove_native(const char* file_name)
 {
     TigFileRepository* repo;
     TigFileRepository* prev;
@@ -661,8 +681,8 @@ bool tig_file_repository_remove(const char* file_name)
             if ((repo->type & TIG_FILE_DATABASE) != 0) {
                 tig_database_close(repo->database);
             } else {
-                sprintf(path, "%s\\%s", repo->path, CACHE_DIR_NAME);
-                tig_file_rmdir_recursively(path);
+                compat_join_path(path, sizeof(path), repo->path, CACHE_DIR_NAME);
+                tig_file_rmdir_recursively_native(path);
             }
 
             if (prev != NULL) {
@@ -698,8 +718,8 @@ bool tig_file_repository_remove_all()
         if ((curr->type & 1) != 0) {
             tig_database_close(curr->database);
         } else {
-            sprintf(path, "%s\\%s", curr->path, CACHE_DIR_NAME);
-            tig_file_rmdir_recursively(path);
+            compat_join_path(path, sizeof(path), curr->path, CACHE_DIR_NAME);
+            tig_file_rmdir_recursively_native(path);
         }
 
         FREE(curr->path);
@@ -731,7 +751,7 @@ bool tig_file_repository_guid(const char* path, TigGuid* guid)
 }
 
 // 0x52F100
-int tig_file_mkdir_ex(const char* path)
+int tig_file_mkdir_ex_native(const char* path)
 {
     char temp_path[TIG_MAX_PATH];
     size_t temp_path_length;
@@ -739,22 +759,21 @@ int tig_file_mkdir_ex(const char* path)
 
     temp_path[0] = '\0';
 
-    if (path[0] != '.' && path[0] != '.' && path[1] != ':') {
+    if (path[0] != '.' && path[0] != '\\' && path[1] != ':' && path[0] != '/') {
         repo = tig_file_repositories_head;
         while (repo != NULL) {
             if ((repo->type & TIG_FILE_PLAIN) != 0) {
                 strcpy(temp_path, repo->path);
-                strcat(temp_path, "\\");
                 break;
             }
             repo = repo->next;
         }
     }
 
-    strcat(temp_path, path);
+    compat_append_path(temp_path, sizeof(temp_path), path);
 
     temp_path_length = strlen(temp_path);
-    if (temp_path[temp_path_length] == '\\') {
+    if (temp_path[temp_path_length] == PATH_SEPARATOR) {
         temp_path[temp_path_length] = '\0';
     }
 
@@ -766,36 +785,31 @@ int tig_file_mkdir_ex(const char* path)
 }
 
 // 0x52F230
-int tig_file_rmdir_ex(const char* path)
+int tig_file_rmdir_ex_native(const char* path)
 {
     char temp_path[TIG_MAX_PATH];
     TigFileRepository* repo;
-    int rc = -1;
 
     temp_path[0] = '\0';
 
-    if (path[0] != '.' && path[0] != '.' && path[1] != ':') {
+    if (path[0] != '.' && path[0] != '\\' && path[1] != ':' && path[0] != '/') {
         repo = tig_file_repositories_head;
         while (repo != NULL) {
             if ((repo->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
                 strcpy(temp_path, repo->path);
-                strcat(temp_path, "\\");
-                strcat(temp_path, path);
-
-                if (SDL_RemovePath(temp_path)) {
-                    rc = 0;
-                }
+                break;
             }
             repo = repo->next;
         }
-    } else {
-        strcat(temp_path, path);
-        if (SDL_RemovePath(temp_path)) {
-            rc = 0;
-        }
     }
 
-    return rc;
+    compat_append_path(temp_path, sizeof(temp_path), path);
+
+    if (!SDL_RemovePath(temp_path)) {
+        return -1;
+    }
+
+    return 0;
 }
 
 // 0x52F370
@@ -826,7 +840,7 @@ void tig_file_ignore(const char* path, unsigned int flags)
 }
 
 // 0x52F410
-bool tig_file_extract(const char* filename, char* path)
+bool tig_file_extract_native(const char* filename, char* path)
 {
     TigDatabaseEntry* database_entry;
     TigFile* in;
@@ -838,14 +852,12 @@ bool tig_file_extract(const char* filename, char* path)
     unsigned int ignored;
 
     first_directory_repo = NULL;
-    if (filename[0] == '.' || filename[0] == '\\' || filename[1] == ':') {
+    if (filename[0] == '.' || filename[0] == '\\' || filename[1] == ':' || filename[0] == '/') {
         strcpy(path, filename);
         return true;
     }
 
-    strcpy(path, CACHE_DIR_NAME);
-    strcat(path, "\\");
-    strcat(path, filename);
+    compat_join_path(path, TIG_MAX_PATH, CACHE_DIR_NAME, filename);
 
     ignored = tig_file_ignored(filename);
 
@@ -858,7 +870,7 @@ bool tig_file_extract(const char* filename, char* path)
 
             if ((ignored & TIG_FILE_IGNORE_DIRECTORY) == 0) {
                 // Check if file exists in a directory bundle.
-                sprintf(tmp, "%s\\%s", repo->path, filename);
+                compat_join_path(tmp, sizeof(tmp), repo->path, filename);
                 if (tig_find_first_file(tmp, &ffd)) {
                     strcpy(path, tmp);
                     tig_find_close(&ffd);
@@ -867,7 +879,7 @@ bool tig_file_extract(const char* filename, char* path)
                 tig_find_close(&ffd);
 
                 // Check if file is already expanded.
-                sprintf(tmp, "%s\\%s", repo->path, path);
+                compat_join_path(tmp, sizeof(tmp), repo->path, path);
                 if (tig_find_first_file(tmp, &ffd)) {
                     strcpy(path, tmp);
                     tig_find_close(&ffd);
@@ -879,9 +891,9 @@ bool tig_file_extract(const char* filename, char* path)
             if ((ignored & TIG_FILE_IGNORE_DATABASE) == 0) {
                 if (tig_database_get_entry(repo->database, filename, &database_entry)) {
                     compat_splitpath(path, NULL, tmp, NULL, NULL);
-                    tig_file_mkdir_ex(tmp);
+                    tig_file_mkdir_ex_native(tmp);
 
-                    out = tig_file_fopen(path, "wb");
+                    out = tig_file_fopen_native(path, "wb");
                     if (out == NULL) {
                         return false;
                     }
@@ -912,7 +924,7 @@ bool tig_file_extract(const char* filename, char* path)
                         }
                     }
 
-                    sprintf(tmp, "%s\\%s", first_directory_repo->path, path);
+                    compat_join_path(tmp, sizeof(tmp), first_directory_repo->path, path);
                     strcpy(path, tmp);
 
                     return true;
@@ -926,7 +938,7 @@ bool tig_file_extract(const char* filename, char* path)
 }
 
 // 0x52F760
-void tig_file_list_create(TigFileList* list, const char* pattern)
+void tig_file_list_create_native(TigFileList* list, const char* pattern)
 {
     char mutable_pattern[TIG_MAX_PATH];
     size_t pattern_length;
@@ -949,7 +961,7 @@ void tig_file_list_create(TigFileList* list, const char* pattern)
     list->count = 0;
     list->entries = NULL;
 
-    if (mutable_pattern[0] == '.' || mutable_pattern[0] == '\\' || mutable_pattern[1] == ':') {
+    if (mutable_pattern[0] == '.' || mutable_pattern[0] == '\\' || mutable_pattern[1] == ':' || mutable_pattern[0] == '/') {
         if (tig_find_first_file(mutable_pattern, &directory_ffd)) {
             do {
                 tig_file_process_attribs(directory_ffd.path_info.type, &(info.attributes));
@@ -986,9 +998,7 @@ void tig_file_list_create(TigFileList* list, const char* pattern)
                 }
             } else if ((repo->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
                 if ((ignored & TIG_FILE_IGNORE_DIRECTORY) == 0) {
-                    strcpy(path, repo->path);
-                    strcat(path, "\\");
-                    strcat(path, mutable_pattern);
+                    compat_join_path(path, sizeof(path), repo->path, mutable_pattern);
 
                     if (tig_find_first_file(path, &directory_ffd)) {
                         do {
@@ -1055,7 +1065,7 @@ int tig_file_filelength(TigFile* stream)
 }
 
 // 0x52FB80
-bool tig_file_exists(const char* file_name, TigFileInfo* info)
+bool tig_file_exists_native(const char* file_name, TigFileInfo* info)
 {
     TigFindFileData ffd;
     TigFileRepository* repo;
@@ -1067,7 +1077,7 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
 
     ignored = tig_file_ignored(file_name);
 
-    if (file_name[0] == '.' || file_name[0] == '\\' || file_name[1] == ':') {
+    if (file_name[0] == '.' || file_name[0] == '\\' || file_name[1] == ':' || file_name[0] == '/') {
         if (!tig_find_first_file(file_name, &ffd)) {
             tig_find_close(&ffd);
             return false;
@@ -1088,9 +1098,7 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
     while (repo != NULL) {
         if ((repo->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
             if ((ignored & TIG_FILE_IGNORE_DIRECTORY) == 0) {
-                strcpy(path, repo->path);
-                strcat(path, "\\");
-                strcat(path, file_name);
+                compat_join_path(path, sizeof(path), repo->path, file_name);
 
                 if (tig_find_first_file(path, &ffd)) {
                     if (info != NULL) {
@@ -1130,7 +1138,7 @@ bool tig_file_exists(const char* file_name, TigFileInfo* info)
 }
 
 // 0x52FE60
-bool tig_file_exists_in_path(const char* search_path, const char* file_name, TigFileInfo* info)
+bool tig_file_exists_in_path_native(const char* search_path, const char* file_name, TigFileInfo* info)
 {
     TigFindFileData ffd;
     TigFileRepository* repo;
@@ -1140,8 +1148,8 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
     char fname[COMPAT_MAX_FNAME];
     char ext[COMPAT_MAX_EXT];
 
-    if (file_name[0] == '.' || file_name[0] == '\\' || file_name[1] == ':') {
-        return tig_file_exists(file_name, info);
+    if (file_name[0] == '.' || file_name[0] == '\\' || file_name[1] == ':' || file_name[0] == '/') {
+        return tig_file_exists_native(file_name, info);
     }
 
     ignored = tig_file_ignored(file_name);
@@ -1151,9 +1159,7 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
         if ((repo->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
             if ((ignored & TIG_FILE_IGNORE_DATABASE) != 0
                 && SDL_strcasecmp(search_path, repo->path) == 0) {
-                strcpy(path, repo->path);
-                strcat(path, "\\");
-                strcat(path, file_name);
+                compat_join_path(path, sizeof(path), repo->path, file_name);
 
                 if (tig_find_first_file(path, &ffd)) {
                     if (info != NULL) {
@@ -1194,13 +1200,13 @@ bool tig_file_exists_in_path(const char* search_path, const char* file_name, Tig
 }
 
 // 0x5300F0
-int tig_file_remove(const char* file_name)
+int tig_file_remove_native(const char* file_name)
 {
     TigFileRepository* repo;
     char path[TIG_MAX_PATH];
     TigDatabaseEntry* database_entry;
 
-    if (file_name[0] == '.' || file_name[0] == '\\' || file_name[1] == ':') {
+    if (file_name[0] == '.' || file_name[0] == '\\' || file_name[1] == ':' || file_name[0] == '/') {
         return SDL_RemovePath(file_name) ? 0 : 1;
     }
 
@@ -1211,7 +1217,7 @@ int tig_file_remove(const char* file_name)
     repo = tig_file_repositories_head;
     while (repo != NULL) {
         if ((repo->type & TIG_FILE_PLAIN) != 0) {
-            sprintf(path, "%s\\%s", repo->path, file_name);
+            compat_join_path(path, sizeof(path), repo->path, file_name);
 
             if (SDL_RemovePath(path)) {
                 repo = repo->next;
@@ -1235,13 +1241,13 @@ int tig_file_remove(const char* file_name)
 }
 
 // 0x5301F0
-int tig_file_rename(const char* old_file_name, const char* new_file_name)
+int tig_file_rename_native(const char* old_file_name, const char* new_file_name)
 {
     TigFileRepository* repo;
     char old_path[TIG_MAX_PATH];
     char new_path[TIG_MAX_PATH];
 
-    if (old_file_name[0] == '.' || old_file_name[0] == '\\' || old_file_name[1] == ':') {
+    if (old_file_name[0] == '.' || old_file_name[0] == '\\' || old_file_name[1] == ':' || old_file_name[0] == '/') {
         return SDL_RenamePath(old_file_name, new_file_name) ? 0 : 1;
     }
 
@@ -1252,8 +1258,8 @@ int tig_file_rename(const char* old_file_name, const char* new_file_name)
     repo = tig_file_repositories_head;
     while (repo != NULL) {
         if ((repo->type & TIG_FILE_PLAIN) != 0) {
-            sprintf(old_path, "%s\\%s", repo->path, old_file_name);
-            sprintf(new_path, "%s\\%s", repo->path, new_file_name);
+            compat_join_path(old_path, sizeof(old_path), repo->path, old_file_name);
+            compat_join_path(new_path, sizeof(new_path), repo->path, new_file_name);
 
             if (SDL_RenamePath(old_path, new_path)) {
                 return 0;
@@ -1299,12 +1305,12 @@ int tig_file_fflush(TigFile* stream)
 }
 
 // 0x5303A0
-TigFile* tig_file_fopen(const char* path, const char* mode)
+TigFile* tig_file_fopen_native(const char* path, const char* mode)
 {
     TigFile* stream;
 
     stream = tig_file_create();
-    if (tig_file_open_internal(path, mode, stream) == 0) {
+    if (tig_file_open_internal_native(path, mode, stream) == 0) {
         tig_file_destroy(stream);
         return NULL;
     }
@@ -1313,11 +1319,11 @@ TigFile* tig_file_fopen(const char* path, const char* mode)
 }
 
 // 0x5303D0
-TigFile* tig_file_reopen(const char* path, const char* mode, TigFile* stream)
+TigFile* tig_file_reopen_native(const char* path, const char* mode, TigFile* stream)
 {
     tig_file_close_internal(stream);
 
-    if (tig_file_open_internal(path, mode, stream) == 0) {
+    if (tig_file_open_internal_native(path, mode, stream) == 0) {
         tig_file_destroy(stream);
         return NULL;
     }
@@ -1759,7 +1765,7 @@ bool tig_file_close_internal(TigFile* stream)
 }
 
 // 0x530C70
-int tig_file_open_internal(const char* path, const char* mode, TigFile* stream)
+int tig_file_open_internal_native(const char* path, const char* mode, TigFile* stream)
 {
     unsigned int ignored;
     TigFileRepository* repo;
@@ -1769,7 +1775,7 @@ int tig_file_open_internal(const char* path, const char* mode, TigFile* stream)
 
     stream->flags &= ~(TIG_FILE_DATABASE | TIG_FILE_PLAIN);
 
-    if (path[0] == '.' || path[0] == '\\' || path[1] == ':') {
+    if (path[0] == '.' || path[0] == '\\' || path[1] == ':' || path[0] == '/') {
         stream->impl.plain_file_stream = fopen(path, mode);
         if (stream->impl.plain_file_stream == NULL) {
             return 0;
@@ -1789,9 +1795,8 @@ int tig_file_open_internal(const char* path, const char* mode, TigFile* stream)
                     writeable_repo = tig_file_repositories_head;
                     while (writeable_repo != repo) {
                         if ((writeable_repo->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
-                            strcpy(mutable_path, writeable_repo->path);
-                            strcat(mutable_path, "\\");
-                            strcat(mutable_path, path);
+                            compat_join_path(mutable_path, sizeof(mutable_path), writeable_repo->path, path);
+                            compat_resolve_path(mutable_path);
 
                             stream->impl.plain_file_stream = fopen(mutable_path, mode);
                             if (stream->impl.plain_file_stream != NULL) {
@@ -1820,9 +1825,8 @@ int tig_file_open_internal(const char* path, const char* mode, TigFile* stream)
             repo = tig_file_repositories_head;
             while (repo != NULL) {
                 if ((repo->type & TIG_FILE_REPOSITORY_DIRECTORY) != 0) {
-                    strcpy(mutable_path, repo->path);
-                    strcat(mutable_path, "\\");
-                    strcat(mutable_path, path);
+                    compat_join_path(mutable_path, sizeof(mutable_path), repo->path, path);
+                    compat_resolve_path(mutable_path);
 
                     stream->impl.plain_file_stream = fopen(mutable_path, mode);
                     if (stream->impl.plain_file_stream != NULL) {
@@ -1930,21 +1934,21 @@ unsigned int tig_file_ignored(const char* path)
 }
 
 // 0x5311D0
-bool tig_file_copy(const char* src, const char* dst)
+bool tig_file_copy_native(const char* src, const char* dst)
 {
     TigFile* in;
     TigFile* out;
 
-    if (!tig_file_exists(src, NULL)) {
+    if (!tig_file_exists_native(src, NULL)) {
         return false;
     }
 
-    in = tig_file_fopen(src, "rb");
+    in = tig_file_fopen_native(src, "rb");
     if (in == NULL) {
         return false;
     }
 
-    out = tig_file_fopen(dst, "wb");
+    out = tig_file_fopen_native(dst, "wb");
     if (out == NULL) {
         tig_file_fclose(in);
         return false;
@@ -1996,24 +2000,21 @@ bool tig_file_copy_internal(TigFile* dst, TigFile* src)
 }
 
 // 0x531320
-int tig_file_rmdir_recursively(const char* path)
+int tig_file_rmdir_recursively_native(const char* path)
 {
     char mutable_path[TIG_MAX_PATH];
     TigFindFileData ffd;
 
-    strcpy(mutable_path, path);
-    strcat(mutable_path, "\\*.*");
+    compat_join_path(mutable_path, sizeof(mutable_path), path, "*.*");
 
     if (tig_find_first_file(mutable_path, &ffd)) {
         do {
-            strcpy(mutable_path, path);
-            strcat(mutable_path, "\\");
-            strcat(mutable_path, ffd.name);
+            compat_join_path(mutable_path, sizeof(mutable_path), path, ffd.name);
 
             if (ffd.path_info.type == SDL_PATHTYPE_DIRECTORY) {
                 if (strcmp(ffd.name, ".") != 0
                     && strcmp(ffd.name, "..") != 0) {
-                    tig_file_rmdir_recursively(mutable_path);
+                    tig_file_rmdir_recursively_native(mutable_path);
                 }
             } else {
                 SDL_RemovePath(mutable_path);
@@ -2122,4 +2123,253 @@ SDL_IOStream* tig_file_io_open(const char* path, const char* mode)
     }
 
     return io;
+}
+
+bool tig_file_mkdir(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_mkdir_native(native_path);
+}
+
+bool tig_file_rmdir(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_rmdir_native(native_path);
+}
+
+bool sub_52E040(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return sub_52E040_native(native_path);
+}
+
+bool tig_file_is_empty_directory(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_is_empty_directory_native(native_path);
+}
+
+bool tig_file_is_directory(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_is_directory_native(native_path);
+}
+
+bool tig_file_archive(const char* dst, const char* src)
+{
+    char native_dst[TIG_MAX_PATH];
+    char native_src[TIG_MAX_PATH];
+
+    strcpy(native_dst, dst);
+    compat_windows_path_to_native(native_dst);
+    compat_resolve_path(native_dst);
+
+    strcpy(native_src, src);
+    compat_windows_path_to_native(native_src);
+    compat_resolve_path(native_src);
+
+    return tig_file_archive_native(native_dst, native_src);
+}
+
+bool tig_file_unarchive(const char* src, const char* dst)
+{
+    char native_src[TIG_MAX_PATH];
+    char native_dst[TIG_MAX_PATH];
+
+    strcpy(native_src, src);
+    compat_windows_path_to_native(native_src);
+    compat_resolve_path(native_src);
+
+    strcpy(native_dst, dst);
+    compat_windows_path_to_native(native_dst);
+    compat_resolve_path(native_dst);
+
+    return tig_file_unarchive_native(native_src, native_dst);
+}
+
+bool tig_file_repository_add(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_repository_add_native(native_path);
+}
+
+bool tig_file_repository_remove(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_repository_remove_native(native_path);
+}
+
+int tig_file_mkdir_ex(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_mkdir_ex_native(native_path);
+}
+
+int tig_file_rmdir_ex(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_rmdir_ex_native(native_path);
+}
+
+bool tig_file_extract(const char* filename, char* path)
+{
+    char native_filename[TIG_MAX_PATH];
+
+    strcpy(native_filename, filename);
+    compat_windows_path_to_native(native_filename);
+    compat_resolve_path(native_filename);
+
+    return tig_file_extract_native(native_filename, path);
+}
+
+void tig_file_list_create(TigFileList* list, const char* pattern)
+{
+    char native_pattern[TIG_MAX_PATH];
+
+    strcpy(native_pattern, pattern);
+    compat_windows_path_to_native(native_pattern);
+    compat_resolve_path(native_pattern);
+
+    tig_file_list_create_native(list, native_pattern);
+}
+
+bool tig_file_exists(const char* path, TigFileInfo* info)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_exists_native(native_path, info);
+}
+
+bool tig_file_exists_in_path(const char* search_path, const char* file_name, TigFileInfo* info)
+{
+    char native_search_path[TIG_MAX_PATH];
+    char native_file_name[TIG_MAX_PATH];
+
+    strcpy(native_search_path, search_path);
+    compat_windows_path_to_native(native_search_path);
+    compat_resolve_path(native_search_path);
+
+    strcpy(native_file_name, file_name);
+    compat_windows_path_to_native(native_file_name);
+    compat_resolve_path(native_file_name);
+
+    return tig_file_exists_in_path_native(native_search_path, native_file_name, info);
+}
+
+int tig_file_remove(const char* path)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_remove_native(native_path);
+}
+
+int tig_file_rename(const char* old_file_name, const char* new_file_name)
+{
+    char native_old_file_name[TIG_MAX_PATH];
+    char native_new_file_name[TIG_MAX_PATH];
+
+    strcpy(native_old_file_name, old_file_name);
+    compat_windows_path_to_native(native_old_file_name);
+    compat_resolve_path(native_old_file_name);
+
+    strcpy(native_new_file_name, new_file_name);
+    compat_windows_path_to_native(native_new_file_name);
+    compat_resolve_path(native_new_file_name);
+
+    return tig_file_rename_native(native_old_file_name, native_new_file_name);
+}
+
+TigFile* tig_file_fopen(const char* path, const char* mode)
+{
+    char native_path[TIG_MAX_PATH];
+
+    if (path[0] == '\0') {
+        return NULL;
+    }
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_fopen_native(native_path, mode);
+}
+
+TigFile* tig_file_reopen(const char* path, const char* mode, TigFile* stream)
+{
+    char native_path[TIG_MAX_PATH];
+
+    strcpy(native_path, path);
+    compat_windows_path_to_native(native_path);
+    compat_resolve_path(native_path);
+
+    return tig_file_reopen_native(native_path, mode, stream);
+}
+
+bool tig_file_copy(const char* src, const char* dst)
+{
+    char native_src[TIG_MAX_PATH];
+    char native_dst[TIG_MAX_PATH];
+
+    strcpy(native_src, src);
+    compat_windows_path_to_native(native_src);
+    compat_resolve_path(native_src);
+
+    strcpy(native_dst, dst);
+    compat_windows_path_to_native(native_dst);
+    compat_resolve_path(native_dst);
+
+    return tig_file_copy_native(native_src, native_dst);
 }
