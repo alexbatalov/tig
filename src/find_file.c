@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "tig/compat.h"
 #include "tig/memory.h"
 
 typedef struct TigFindFileDataPriv {
@@ -14,7 +15,8 @@ typedef struct TigFindFileDataPriv {
 
 bool tig_find_first_file(const char* pattern, TigFindFileData* find_file_data)
 {
-    char path[TIG_MAX_PATH];
+    char native_pattern[TIG_MAX_PATH];
+    char dir[TIG_MAX_PATH];
     char fname[TIG_MAX_PATH];
     char* pch;
     int count;
@@ -24,26 +26,32 @@ bool tig_find_first_file(const char* pattern, TigFindFileData* find_file_data)
     find_file_data->name[0] = '\0';
     find_file_data->handle = 0;
 
-    pch = strrchr(pattern, '\\');
+    strcpy(native_pattern, pattern);
+    compat_windows_path_to_native(native_pattern);
+
+    pch = strrchr(native_pattern, PATH_SEPARATOR);
     if (pch != NULL) {
-        strncpy(path, pattern, pch - pattern);
-        path[pch - pattern] = '\0';
+        strncpy(dir, native_pattern, pch - native_pattern);
+        dir[pch - native_pattern] = '\0';
+
+        compat_windows_path_to_native(dir);
+        compat_resolve_path(dir);
 
         strcpy(fname, pch + 1);
     } else {
-        path[0] = '.';
-        path[1] = '\0';
+        dir[0] = '.';
+        dir[1] = '\0';
 
-        strcpy(fname, pattern);
+        strcpy(fname, native_pattern);
     }
 
-    entries = SDL_GlobDirectory(path, fname, SDL_GLOB_CASEINSENSITIVE, &count);
+    entries = SDL_GlobDirectory(dir, fname, SDL_GLOB_CASEINSENSITIVE, &count);
     if (count == 0) {
         return false;
     }
 
     priv = (TigFindFileDataPriv*)MALLOC(sizeof(*priv));
-    strcpy(priv->dir, path);
+    strcpy(priv->dir, dir);
     priv->entries = entries;
     priv->count = count;
     priv->index = 0;
@@ -73,7 +81,7 @@ bool tig_find_next_file(TigFindFileData* find_file_data)
         return false;
     }
 
-    snprintf(path, sizeof(path), "%s\\%s", priv->dir, priv->entries[priv->index]);
+    compat_join_path(path, sizeof(path), priv->dir, priv->entries[priv->index]);
     if (!SDL_GetPathInfo(path, &(find_file_data->path_info))) {
         return false;
     }

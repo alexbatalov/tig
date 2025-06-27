@@ -6,12 +6,129 @@
 #include <dirent.h>
 #endif
 
+void compat_windows_path_to_native(char* path)
+{
+#ifdef _WIN32
+    (void)path;
+#else
+    char* pch = path;
+    while (*pch != '\0') {
+        if (*pch == '\\') {
+            *pch = '/';
+        }
+        pch++;
+    }
+#endif
+}
+
+void compat_resolve_path(char* path)
+{
+#ifdef _WIN32
+    (void)path;
+#else
+    char* pch = path;
+
+    DIR* dir;
+    if (pch[0] == '/') {
+        dir = opendir("/");
+        pch++;
+    } else {
+        dir = opendir(".");
+    }
+
+    while (dir != NULL) {
+        char* sep = strchr(pch, '/');
+        size_t length;
+        if (sep != NULL) {
+            length = sep - pch;
+        } else {
+            length = strlen(pch);
+        }
+
+        bool found = false;
+
+        struct dirent* entry = readdir(dir);
+        while (entry != NULL) {
+            if (strlen(entry->d_name) == length && SDL_strncasecmp(pch, entry->d_name, length) == 0) {
+                strncpy(pch, entry->d_name, length);
+                found = true;
+                break;
+            }
+            entry = readdir(dir);
+        }
+
+        closedir(dir);
+        dir = NULL;
+
+        if (!found) {
+            break;
+        }
+
+        if (sep == NULL) {
+            break;
+        }
+
+        *sep = '\0';
+        dir = opendir(path);
+        *sep = '/';
+
+        pch = sep + 1;
+    }
+#endif
+}
+
+void compat_append_path(char* path, size_t size, const char* comp)
+{
+    size_t path_len = strlen(path);
+    size_t comp_len = strlen(comp);
+
+    if (path_len + comp_len + 1 >= size) {
+        return;
+    }
+
+    if (path_len != 0) {
+        path[path_len++] = PATH_SEPARATOR;
+        path[path_len] = '\0';
+    }
+
+    strncat(path, comp, comp_len);
+}
+
+void compat_join_path_ex(char* path, size_t size, ...)
+{
+    va_list args;
+    const char* comp;
+    size_t comp_len;
+    size_t path_len = 0;
+
+    path[0] = '\0';
+
+    va_start(args, size);
+
+    while ((comp = va_arg(args, const char*)) != NULL) {
+        comp_len = strlen(comp);
+        if (path_len + comp_len + 1 >= size) {
+            break;
+        }
+
+        if (path_len != 0) {
+            path[path_len++] = PATH_SEPARATOR;
+            path[path_len] = '\0';
+        }
+
+        strncat(path, comp, comp_len);
+        path_len += comp_len;
+    }
+
+    va_end(args);
+}
+
 void compat_splitpath(const char* path, char* drive, char* dir, char* fname, char* ext)
 {
 #ifdef _WIN32
     _splitpath(path, drive, dir, fname, ext);
 #else
-    const char* driveStart = path;
+    const char* drive_start = path;
     if (path[0] == '/' && path[1] == '/') {
         path += 2;
         while (*path != '\0' && *path != '/' && *path != '.') {
@@ -20,12 +137,12 @@ void compat_splitpath(const char* path, char* drive, char* dir, char* fname, cha
     }
 
     if (drive != NULL) {
-        size_t driveSize = path - driveStart;
-        if (driveSize > COMPAT_MAX_DRIVE - 1) {
-            driveSize = COMPAT_MAX_DRIVE - 1;
+        size_t drive_size = path - drive_start;
+        if (drive_size > COMPAT_MAX_DRIVE - 1) {
+            drive_size = COMPAT_MAX_DRIVE - 1;
         }
-        strncpy(drive, path, driveSize);
-        drive[driveSize] = '\0';
+        strncpy(drive, path, drive_size);
+        drive[drive_size] = '\0';
     }
 
     const char* dir_start = path;
@@ -47,12 +164,12 @@ void compat_splitpath(const char* path, char* drive, char* dir, char* fname, cha
     }
 
     if (dir != NULL) {
-        size_t dirSize = fname_start - dir_start;
-        if (dirSize > COMPAT_MAX_DIR - 1) {
-            dirSize = COMPAT_MAX_DIR - 1;
+        size_t dir_size = fname_start - dir_start;
+        if (dir_size > COMPAT_MAX_DIR - 1) {
+            dir_size = COMPAT_MAX_DIR - 1;
         }
-        strncpy(dir, path, dirSize);
-        dir[dirSize] = '\0';
+        strncpy(dir, path, dir_size);
+        dir[dir_size] = '\0';
     }
 
     if (fname != NULL) {
