@@ -5,9 +5,9 @@
 #include <stdlib.h>
 
 #define START_GUARD_BYTE 0xAA
-#define START_GUARD_SIZE 4
+#define START_GUARD_SIZE ((int)sizeof(void*))
 #define END_GUARD_BYTE 0xBB
-#define END_GUARD_SIZE 4
+#define END_GUARD_SIZE ((int)sizeof(void*))
 
 typedef struct TigMemoryBlock {
     /* 0000 */ void* data;
