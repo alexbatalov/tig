@@ -1875,12 +1875,12 @@ void tig_file_list_add(TigFileList* list, TigFileInfo* info)
         }
 
         list->entries = (TigFileInfo*)REALLOC(list->entries, sizeof(TigFileInfo) * (list->count + 1));
-        memcpy(&(list->entries[l + 1]), &(list->entries[l]), sizeof(TigFileInfo) * (list->count - l));
+        memmove(&(list->entries[l + 1]), &(list->entries[l]), sizeof(TigFileInfo) * (list->count - l));
         list->entries[l] = *info;
         list->count++;
     } else {
         list->entries = (TigFileInfo*)MALLOC(sizeof(TigFileInfo));
-        memcpy(list->entries, info, sizeof(TigFileInfo));
+        list->entries[0] = *info;
         list->count++;
     }
 }

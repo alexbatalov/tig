@@ -5490,7 +5490,7 @@ void tig_art_cache_check_fullness()
     tig_art_cache_entries_length -= cnt;
 
     // Move remaining cache entries on top.
-    memcpy(tig_art_cache_entries,
+    memmove(tig_art_cache_entries,
         &(tig_art_cache_entries[cnt]),
         sizeof(TigArtCacheEntry) * (tig_art_cache_entries_length));
 
@@ -5630,7 +5630,7 @@ bool tig_art_cache_entry_load(tig_art_id_t art_id, const char* path, int cache_e
             sizeof(TigArtCacheEntry) * tig_art_cache_entries_capacity);
     }
 
-    memcpy(&(tig_art_cache_entries[cache_entry_index + 1]),
+    memmove(&(tig_art_cache_entries[cache_entry_index + 1]),
         &(tig_art_cache_entries[cache_entry_index]),
         sizeof(TigArtCacheEntry) * (tig_art_cache_entries_length - cache_entry_index));
 
@@ -5646,7 +5646,7 @@ bool tig_art_cache_entry_load(tig_art_id_t art_id, const char* path, int cache_e
         0,
         &size);
     if (rc != TIG_OK) {
-        memcpy(&(tig_art_cache_entries[cache_entry_index]),
+        memmove(&(tig_art_cache_entries[cache_entry_index]),
             &(tig_art_cache_entries[cache_entry_index + 1]),
             sizeof(TigArtCacheEntry) * (tig_art_cache_entries_length - cache_entry_index));
         return false;

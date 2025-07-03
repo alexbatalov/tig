@@ -1241,7 +1241,7 @@ void push_window_stack(tig_window_handle_t window_handle)
     if ((windows[window_index].flags & (TIG_WINDOW_ALWAYS_ON_TOP | TIG_WINDOW_MODAL)) != 0) {
         tig_window_stack[tig_window_num_windows++] = window_handle;
     } else if ((windows[window_index].flags & (TIG_WINDOW_ALWAYS_ON_BOTTOM | TIG_WINDOW_MODAL)) != 0) {
-        memcpy(&(tig_window_stack[1]),
+        memmove(&(tig_window_stack[1]),
             &(tig_window_stack[0]),
             sizeof(tig_window_handle_t) * tig_window_num_windows);
         tig_window_stack[0] = window_handle;
@@ -1263,7 +1263,7 @@ void push_window_stack(tig_window_handle_t window_handle)
         // NOTE: Original code is slightly different, but does the same thing -
         // make a room a new window by moving windows in the stack.
         if (prev_index + 1 < tig_window_num_windows) {
-            memcpy(&(tig_window_stack[prev_index + 1]),
+            memmove(&(tig_window_stack[prev_index + 1]),
                 &(tig_window_stack[prev_index]),
                 sizeof(tig_window_handle_t) * (tig_window_num_windows - prev_index));
         }
