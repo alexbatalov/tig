@@ -1781,14 +1781,14 @@ bool tig_window_modal_dialog_create_buttons(int type, tig_window_handle_t window
     ok_button_data.mouse_down_snd_id = -1;
     ok_button_data.mouse_enter_snd_id = -1;
     ok_button_data.mouse_exit_snd_id = -1;
-    ok_button_data.flags = TIG_BUTTON_FLAG_0x01;
+    ok_button_data.flags = TIG_BUTTON_MOMENTARY;
     ok_button_data.window_handle = window_handle;
 
     cancel_button_data.mouse_up_snd_id = -1;
     cancel_button_data.mouse_down_snd_id = -1;
     cancel_button_data.mouse_enter_snd_id = -1;
     cancel_button_data.mouse_exit_snd_id = -1;
-    cancel_button_data.flags = TIG_BUTTON_FLAG_0x01;
+    cancel_button_data.flags = TIG_BUTTON_MOMENTARY;
     cancel_button_data.window_handle = window_handle;
 
     switch (type) {

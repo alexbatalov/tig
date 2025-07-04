@@ -17,16 +17,16 @@ typedef enum TigButtonState {
     TIG_BUTTON_STATE_MOUSE_OUTSIDE,
 } TigButtonState;
 
-typedef enum TigButtonFlags {
-    TIG_BUTTON_FLAG_0x01 = 1 << 0,
-    TIG_BUTTON_FLAG_0x02 = 1 << 1,
-    TIG_BUTTON_FLAG_0x04 = 1 << 2,
-    TIG_BUTTON_FLAG_HIDDEN = 1 << 3,
-    TIG_BUTTON_FLAG_0x10 = 1 << 4,
-} TigButtonFlags;
+typedef unsigned int TigButtonFlags;
+
+#define TIG_BUTTON_MOMENTARY 0x01u
+#define TIG_BUTTON_TOGGLE 0x02u
+#define TIG_BUTTON_LATCH 0x04u
+#define TIG_BUTTON_HIDDEN 0x08u
+#define TIG_BUTTON_ON 0x10u
 
 typedef struct TigButtonData {
-    /* 0000 */ unsigned int flags; // See `TigButtonFlags`.
+    /* 0000 */ TigButtonFlags flags;
     /* 0004 */ tig_window_handle_t window_handle;
     /* 0008 */ int x; // In window coordinate system
     /* 000C */ int y; // In window coordinate system
@@ -45,8 +45,8 @@ int tig_button_create(TigButtonData* button_data, tig_button_handle_t* button_ha
 int tig_button_destroy(tig_button_handle_t button_handle);
 int tig_button_data(tig_button_handle_t button_handle, TigButtonData* button_data);
 int tig_button_refresh_rect(int window_handle, TigRect* rect);
-void tig_button_state_change(tig_button_handle_t button_handle, int state);
-int tig_button_state_get(tig_button_handle_t button_handle, int* state);
+void tig_button_state_change(tig_button_handle_t button_handle, TigButtonState state);
+int tig_button_state_get(tig_button_handle_t button_handle, TigButtonState* state);
 tig_button_handle_t tig_button_get_at_position(int x, int y);
 bool tig_button_process_mouse_msg(TigMouseMessageData* mouse);
 int tig_button_radio_group_create(int count, tig_button_handle_t* button_handles, int selected);

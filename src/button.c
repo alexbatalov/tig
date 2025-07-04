@@ -9,19 +9,19 @@
 // The maximum number of buttons.
 #define MAX_BUTTONS 400
 
-typedef enum TigButtonUsage {
-    TIG_BUTTON_USAGE_FREE = 1 << 0,
-    TIG_BUTTON_USAGE_RADIO = 1 << 1,
-    TIG_BUTTON_USAGE_FORCE_HIDDEN = 1 << 2,
-} TigButtonUsage;
+typedef unsigned int TigButtonUsage;
+
+#define TIG_BUTTON_USAGE_FREE 0x01u
+#define TIG_BUTTON_USAGE_RADIO 0x02u
+#define TIG_BUTTON_USAGE_FORCE_HIDDEN 0x04u
 
 typedef struct TigButton {
-    /* 0000 */ unsigned int usage;
-    /* 0004 */ int flags;
+    /* 0000 */ TigButtonUsage usage;
+    /* 0004 */ TigButtonFlags flags;
     /* 0008 */ tig_window_handle_t window_handle;
     /* 000C */ TigRect rect;
     /* 001C */ tig_art_id_t art_id;
-    /* 0020 */ int state;
+    /* 0020 */ TigButtonState state;
     /* 0024 */ int mouse_down_snd_id;
     /* 0028 */ int mouse_up_snd_id;
     /* 002C */ int mouse_enter_snd_id;
@@ -104,12 +104,12 @@ int tig_button_create(TigButtonData* button_data, tig_button_handle_t* button_ha
     btn->flags = button_data->flags;
 
     if ((window_data.flags & TIG_WINDOW_HIDDEN) != 0) {
-        btn->flags |= TIG_BUTTON_FLAG_HIDDEN;
+        btn->flags |= TIG_BUTTON_HIDDEN;
         btn->usage |= TIG_BUTTON_USAGE_FORCE_HIDDEN;
     }
 
-    if ((btn->flags & TIG_BUTTON_FLAG_0x04) != 0) {
-        btn->flags |= TIG_BUTTON_FLAG_0x02;
+    if ((btn->flags & TIG_BUTTON_LATCH) != 0) {
+        btn->flags |= TIG_BUTTON_TOGGLE;
     }
 
     btn->rect.x = window_data.rect.x + button_data->x;
@@ -130,7 +130,7 @@ int tig_button_create(TigButtonData* button_data, tig_button_handle_t* button_ha
 
     btn->art_id = button_data->art_id;
 
-    if ((button_data->flags & TIG_BUTTON_FLAG_0x10) != 0) {
+    if ((button_data->flags & TIG_BUTTON_ON) != 0) {
         btn->state = TIG_BUTTON_STATE_PRESSED;
     } else {
         btn->state = TIG_BUTTON_STATE_MOUSE_OUTSIDE;
@@ -148,7 +148,7 @@ int tig_button_create(TigButtonData* button_data, tig_button_handle_t* button_ha
         return rc;
     }
 
-    if ((button_data->flags & TIG_BUTTON_FLAG_HIDDEN) == 0) {
+    if ((button_data->flags & TIG_BUTTON_HIDDEN) == 0) {
         tig_window_invalidate_rect(&(btn->rect));
         tig_button_refresh_rect(btn->window_handle, &(btn->rect));
     }
@@ -252,7 +252,7 @@ int tig_button_refresh_rect(int window_handle, TigRect* rect)
             button_index = tig_button_handle_to_index(window_buttons[index]);
 
             if (tig_rect_intersection(&(buttons[button_index].rect), rect, &src_rect) == TIG_OK
-                && (buttons[button_index].flags & TIG_BUTTON_FLAG_HIDDEN) == 0) {
+                && (buttons[button_index].flags & TIG_BUTTON_HIDDEN) == 0) {
                 dest_rect.width = src_rect.width;
                 dest_rect.height = src_rect.height;
                 dest_rect.x = src_rect.x - window_data.rect.x;
@@ -313,13 +313,13 @@ tig_button_handle_t tig_button_index_to_handle(int index)
 }
 
 // 0x537FE0
-void tig_button_state_change(tig_button_handle_t button_handle, int state)
+void tig_button_state_change(tig_button_handle_t button_handle, TigButtonState state)
 {
     // 0x6364E4
     static bool in_state_change;
 
     int button_index;
-    int old_state;
+    TigButtonState old_state;
 
     if (button_handle == TIG_BUTTON_HANDLE_INVALID) {
         tig_debug_printf("tig_button_state_change: ERROR: Attempt to reference Empty ButtonID!\n");
@@ -358,7 +358,7 @@ void tig_button_state_change(tig_button_handle_t button_handle, int state)
 }
 
 // 0x5380A0
-int tig_button_state_get(tig_button_handle_t button_handle, int* state)
+int tig_button_state_get(tig_button_handle_t button_handle, TigButtonState* state)
 {
     int button_index;
 
@@ -403,7 +403,7 @@ tig_button_handle_t tig_button_get_at_position(int x, int y)
         button_index = tig_button_handle_to_index(window_buttons[index]);
         btn = &(buttons[button_index]);
 
-        if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) == 0
+        if ((btn->flags & TIG_BUTTON_HIDDEN) == 0
             && x >= btn->rect.x
             && y >= btn->rect.y
             && x < btn->rect.x + btn->rect.width
@@ -494,9 +494,9 @@ bool tig_button_process_mouse_msg(TigMouseMessageData* mouse)
 
         new_state = TIG_BUTTON_STATE_PRESSED;
         if (tig_button_pressed_button_handle == TIG_BUTTON_HANDLE_INVALID) {
-            if ((buttons[button_index].flags & TIG_BUTTON_FLAG_0x02) != 0) {
+            if ((buttons[button_index].flags & TIG_BUTTON_TOGGLE) != 0) {
                 if (buttons[button_index].state == TIG_BUTTON_STATE_PRESSED
-                    && (buttons[button_index].flags & TIG_BUTTON_FLAG_0x04) != 0) {
+                    && (buttons[button_index].flags & TIG_BUTTON_LATCH) != 0) {
                     return true;
                 }
 
@@ -549,7 +549,7 @@ bool tig_button_process_mouse_msg(TigMouseMessageData* mouse)
 
         button_index = tig_button_handle_to_index(button_handle);
 
-        if ((buttons[button_index].flags & TIG_BUTTON_FLAG_0x02) == 0) {
+        if ((buttons[button_index].flags & TIG_BUTTON_TOGGLE) == 0) {
             tig_button_pressed_button_handle = TIG_BUTTON_HANDLE_INVALID;
             tig_button_hovered_button_handle = button_handle;
             tig_button_state_change(button_handle, TIG_BUTTON_STATE_RELEASED);
@@ -573,7 +573,7 @@ bool tig_button_process_mouse_msg(TigMouseMessageData* mouse)
         button_index = tig_button_handle_to_index(button_handle);
 
         if (tig_button_hovered_button_handle != TIG_BUTTON_HANDLE_INVALID) {
-            if ((buttons[button_index].flags & TIG_BUTTON_FLAG_0x02) == 0
+            if ((buttons[button_index].flags & TIG_BUTTON_TOGGLE) == 0
                 || buttons[button_index].state != TIG_BUTTON_STATE_PRESSED) {
                 tig_button_state_change(tig_button_hovered_button_handle, TIG_BUTTON_STATE_MOUSE_OUTSIDE);
             }
@@ -588,7 +588,7 @@ bool tig_button_process_mouse_msg(TigMouseMessageData* mouse)
 
         tig_button_hovered_button_handle = button_handle;
 
-        if ((buttons[button_index].flags & TIG_BUTTON_FLAG_0x02) == 0
+        if ((buttons[button_index].flags & TIG_BUTTON_TOGGLE) == 0
             || buttons[button_index].state != TIG_BUTTON_STATE_PRESSED) {
             tig_button_state_change(tig_button_hovered_button_handle, TIG_BUTTON_STATE_MOUSE_INSIDE);
         }
@@ -669,8 +669,8 @@ int tig_button_radio_group_create(int count, tig_button_handle_t* button_handles
         }
 
         btn->usage |= TIG_BUTTON_USAGE_RADIO;
-        btn->flags |= TIG_BUTTON_FLAG_0x02;
-        btn->flags |= TIG_BUTTON_FLAG_0x04;
+        btn->flags |= TIG_BUTTON_TOGGLE;
+        btn->flags |= TIG_BUTTON_LATCH;
         btn->group = group;
     }
 
@@ -734,11 +734,11 @@ int tig_button_show(tig_button_handle_t button_handle)
     button_index = tig_button_handle_to_index(button_handle);
     btn = &(buttons[button_index]);
 
-    if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) == 0) {
+    if ((btn->flags & TIG_BUTTON_HIDDEN) == 0) {
         return TIG_ERR_INVALID_PARAM;
     }
 
-    btn->flags &= ~TIG_BUTTON_FLAG_HIDDEN;
+    btn->flags &= ~TIG_BUTTON_HIDDEN;
 
     tig_button_refresh_rect(btn->window_handle, &(btn->rect));
     tig_window_invalidate_rect(&(btn->rect));
@@ -759,14 +759,14 @@ int tig_button_hide(tig_button_handle_t button_handle)
     button_index = tig_button_handle_to_index(button_handle);
     btn = &(buttons[button_index]);
 
-    if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) != 0) {
+    if ((btn->flags & TIG_BUTTON_HIDDEN) != 0) {
         if ((btn->usage & TIG_BUTTON_USAGE_FORCE_HIDDEN) != 0) {
             btn->usage &= ~TIG_BUTTON_USAGE_FORCE_HIDDEN;
         }
         return TIG_ERR_INVALID_PARAM;
     }
 
-    btn->flags |= TIG_BUTTON_FLAG_HIDDEN;
+    btn->flags |= TIG_BUTTON_HIDDEN;
 
     tig_button_refresh_rect(btn->window_handle, &(btn->rect));
     tig_window_invalidate_rect(&(btn->rect));
@@ -788,7 +788,7 @@ int tig_button_is_hidden(tig_button_handle_t button_handle, bool* hidden)
     }
 
     button_index = tig_button_handle_to_index(button_handle);
-    *hidden = (buttons[button_index].flags & TIG_BUTTON_FLAG_HIDDEN) != 0;
+    *hidden = (buttons[button_index].flags & TIG_BUTTON_HIDDEN) != 0;
 
     return TIG_OK;
 }
@@ -806,7 +806,7 @@ int tig_button_show_force(tig_button_handle_t button_handle)
     button_index = tig_button_handle_to_index(button_handle);
     btn = &(buttons[button_index]);
 
-    if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) == 0) {
+    if ((btn->flags & TIG_BUTTON_HIDDEN) == 0) {
         return TIG_ERR_INVALID_PARAM;
     }
 
@@ -814,7 +814,7 @@ int tig_button_show_force(tig_button_handle_t button_handle)
         return TIG_ERR_INVALID_PARAM;
     }
 
-    btn->flags &= ~TIG_BUTTON_FLAG_HIDDEN;
+    btn->flags &= ~TIG_BUTTON_HIDDEN;
     btn->usage &= ~TIG_BUTTON_USAGE_FORCE_HIDDEN;
 
     tig_button_refresh_rect(btn->window_handle, &(btn->rect));
@@ -836,11 +836,11 @@ int tig_button_hide_force(tig_button_handle_t button_handle)
     button_index = tig_button_handle_to_index(button_handle);
     btn = &(buttons[button_index]);
 
-    if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) != 0) {
+    if ((btn->flags & TIG_BUTTON_HIDDEN) != 0) {
         return TIG_ERR_INVALID_PARAM;
     }
 
-    btn->flags |= TIG_BUTTON_FLAG_HIDDEN;
+    btn->flags |= TIG_BUTTON_HIDDEN;
     btn->usage |= TIG_BUTTON_USAGE_FORCE_HIDDEN;
 
     tig_button_refresh_rect(btn->window_handle, &(btn->rect));
@@ -872,7 +872,7 @@ void tig_button_set_art(tig_button_handle_t button_handle, tig_art_id_t art_id)
 
     btn->art_id = art_id;
 
-    if ((btn->flags & TIG_BUTTON_FLAG_HIDDEN) == 0) {
+    if ((btn->flags & TIG_BUTTON_HIDDEN) == 0) {
         tig_window_invalidate_rect(&(btn->rect));
         tig_button_refresh_rect(btn->window_handle, &(btn->rect));
     }
