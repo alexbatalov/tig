@@ -5,7 +5,7 @@ include(FetchContent)
 
 FetchContent_Declare(SDL3
     GIT_REPOSITORY "https://github.com/libsdl-org/SDL"
-    GIT_TAG "release-3.2.14"
+    GIT_TAG "release-3.2.18"
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
