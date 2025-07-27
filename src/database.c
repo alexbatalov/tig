@@ -637,7 +637,8 @@ int tig_database_fseek(TigDatabaseFileHandle* stream, int offset, int origin)
         return 1;
     }
 
-    if (pos < 0 || (unsigned int)pos >= stream->entry->size) {
+    // FIX: Original code treats seeking to the end of stream as error.
+    if (pos < 0 || (unsigned int)pos > stream->entry->size) {
         stream->flags |= TIG_DATABASE_FILE_ERROR;
         return 1;
     }
