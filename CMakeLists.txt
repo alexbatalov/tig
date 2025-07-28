@@ -11,6 +11,7 @@ option(TIG_BUILD_EXAMPLE "Build example." ON)
 
 add_subdirectory("third_party/fpattern" EXCLUDE_FROM_ALL)
 add_subdirectory("third_party/sdl3" EXCLUDE_FROM_ALL)
+add_subdirectory("third_party/sdl3_mixer" EXCLUDE_FROM_ALL)
 add_subdirectory("third_party/zlib" EXCLUDE_FROM_ALL)
 
 if(TIG_BUILD_TESTS)
@@ -105,6 +106,7 @@ target_include_directories(tig_common INTERFACE
 target_link_libraries(tig_common INTERFACE
     fpattern::fpattern
     SDL3::SDL3
+    SDL3_mixer::SDL3_mixer
     ${ZLIB_LIBRARIES}
     ${BINK_COMPAT_LIBRARY}
     ${MSS_COMPAT_LIBRARY}

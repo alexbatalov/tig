@@ -18,11 +18,11 @@ extern "C" {
 
 #define SMP_PLAYING 0x0004
 
-typedef void* HAUDIO;
+typedef struct AUDIO* HAUDIO;
 typedef void* HDIGDRIVER;
 typedef void* HDLSDEVICE;
 typedef void* HMDIDRIVER;
-typedef void* HSTREAM;
+typedef struct STREAM* HSTREAM;
 
 void AILCALL AIL_close_stream(HSTREAM stream);
 int AILCALL AIL_digital_handle_reacquire(HDIGDRIVER drvr);

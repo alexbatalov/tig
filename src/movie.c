@@ -1,7 +1,6 @@
 #include "tig/movie.h"
 
 #include <bink_compat.h>
-#include <mss_compat.h>
 
 #include "tig/color.h"
 #include "tig/core.h"
@@ -22,13 +21,8 @@ static int tig_movie_screen_height;
 // 0x5314F0
 int tig_movie_init(TigInitInfo* init_info)
 {
-    HDIGDRIVER drvr;
-
     // COMPAT: Load `binkw32.dll`.
     bink_compat_init();
-
-    AIL_quick_handles(&drvr, NULL, NULL);
-    BinkSetSoundSystem(BinkOpenMiles, drvr);
 
     tig_movie_screen_width = init_info->width;
     tig_movie_screen_height = init_info->height;
