@@ -871,6 +871,7 @@ bool tig_file_extract_native(const char* filename, char* path)
             if ((ignored & TIG_FILE_IGNORE_DIRECTORY) == 0) {
                 // Check if file exists in a directory bundle.
                 compat_join_path(tmp, sizeof(tmp), repo->path, filename);
+                compat_resolve_path(tmp);
                 if (tig_find_first_file(tmp, &ffd)) {
                     strcpy(path, tmp);
                     tig_find_close(&ffd);
@@ -880,6 +881,7 @@ bool tig_file_extract_native(const char* filename, char* path)
 
                 // Check if file is already expanded.
                 compat_join_path(tmp, sizeof(tmp), repo->path, path);
+                compat_resolve_path(tmp);
                 if (tig_find_first_file(tmp, &ffd)) {
                     strcpy(path, tmp);
                     tig_find_close(&ffd);
