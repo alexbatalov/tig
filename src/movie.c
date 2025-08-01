@@ -2,6 +2,8 @@
 
 #include <bink_compat.h>
 
+#include <SDL3_mixer/SDL_mixer.h>
+
 #include "tig/color.h"
 #include "tig/core.h"
 #include "tig/kb.h"
@@ -18,11 +20,40 @@ static TigVideoBuffer* tig_movie_video_buffer;
 static int tig_movie_screen_width;
 static int tig_movie_screen_height;
 
+typedef struct SdlMixerSoundData {
+    u8* buffer;
+    u32 min_buffer_size;
+    SDL_AudioStream* stream;
+    MIX_Track* track;
+    s32 paused;
+    float volume;
+    MIX_StereoGains pan;
+} SdlMixerSoundData;
+
+static BINKSNDOPEN BINKCALL SdlMixerSystemOpen(void* param);
+static s32 BINKCALL SdlMixerOpen(struct BINKSND* snd, u32 freq, s32 bits, s32 chans, u32 flags, HBINK bnk);
+static s32 BINKCALL SdlMixerReady(struct BINKSND* snd);
+static s32 BINKCALL SdlMixerLock(struct BINKSND* snd, u8** addr, u32* len);
+static s32 BINKCALL SdlMixerUnlock(struct BINKSND* snd, u32 filled);
+static void BINKCALL SdlMixerSetVolume(struct BINKSND* snd, s32 volume);
+static void BINKCALL SdlMixerSetPan(struct BINKSND* snd, s32 pan);
+static s32 BINKCALL SdlMixerPause(struct BINKSND* snd, s32 status);
+static s32 BINKCALL SdlMixerSetOnOff(struct BINKSND* snd, s32 status);
+static void BINKCALL SdlMixerClose(struct BINKSND* snd);
+static void setup_track(struct BINKSND* snd);
+static int ref_mixer();
+static void unref_mixer();
+
+static MIX_Mixer* mixer;
+static int mixer_refcount;
+
 // 0x5314F0
 int tig_movie_init(TigInitInfo* init_info)
 {
     // COMPAT: Load `binkw32.dll`.
     bink_compat_init();
+
+    BinkSetSoundSystem(SdlMixerSystemOpen, NULL);
 
     tig_movie_screen_width = init_info->width;
     tig_movie_screen_height = init_info->height;
@@ -193,4 +224,218 @@ bool tig_movie_do_frame()
     }
 
     return true;
+}
+
+BINKSNDOPEN BINKCALL SdlMixerSystemOpen(void* param)
+{
+    (void)param;
+
+    return SdlMixerOpen;
+}
+
+s32 BINKCALL SdlMixerOpen(struct BINKSND* snd, u32 freq, s32 bits, s32 chans, u32 flags, HBINK bnk)
+{
+    SdlMixerSoundData* snddata;
+    SDL_AudioSpec src_spec;
+    SDL_AudioSpec dst_spec;
+
+    (void)flags;
+    (void)bnk;
+
+    memset(snd, 0, sizeof(*snd));
+
+    if (ref_mixer() == 0) {
+        return 0;
+    }
+
+    snd->freq = freq;
+    snd->bits = bits;
+    snd->chans = chans;
+
+    snddata = (SdlMixerSoundData*)snd->snddata;
+
+    src_spec.channels = chans;
+    src_spec.freq = freq;
+    src_spec.format = SDL_AUDIO_S16LE;
+    MIX_GetMixerFormat(mixer, &dst_spec);
+
+    snddata->min_buffer_size = 16536;
+    snddata->buffer = SDL_malloc(snddata->min_buffer_size * 2);
+    if (snddata->buffer == NULL) {
+        return 0;
+    }
+
+    snddata->stream = SDL_CreateAudioStream(&src_spec, &dst_spec);
+    if (snddata->stream == NULL) {
+        SDL_free(snddata->buffer);
+        return 0;
+    }
+
+    snddata->track = MIX_CreateTrack(mixer);
+    if (snddata->track == NULL) {
+        SDL_DestroyAudioStream(snddata->stream);
+        SDL_free(snddata->buffer);
+        return 0;
+    }
+
+    if (!MIX_SetTrackAudioStream(snddata->track, snddata->stream)) {
+        MIX_DestroyTrack(snddata->track);
+        SDL_DestroyAudioStream(snddata->stream);
+        SDL_free(snddata->buffer);
+        return 0;
+    }
+
+    snddata->paused = 1;
+    snddata->volume = 1.0f;
+    snddata->pan.left = 0.5f;
+    snddata->pan.right = 0.5f;
+    setup_track(snd);
+
+    snd->Latency = 64;
+    snd->Ready = SdlMixerReady;
+    snd->Lock = SdlMixerLock;
+    snd->Unlock = SdlMixerUnlock;
+    snd->Volume = SdlMixerSetVolume;
+    snd->Pan = SdlMixerSetPan;
+    snd->Pause = SdlMixerPause;
+    snd->SetOnOff = SdlMixerSetOnOff;
+    snd->Close = SdlMixerClose;
+
+    return 1;
+}
+
+s32 BINKCALL SdlMixerReady(struct BINKSND* snd)
+{
+    SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
+
+    return SDL_GetAudioStreamAvailable(snddata->stream) < snddata->min_buffer_size;
+}
+
+s32 BINKCALL SdlMixerLock(struct BINKSND* snd, u8** addr, u32* len)
+{
+    SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
+
+    *addr = snddata->buffer;
+    *len = snddata->min_buffer_size;
+
+    return 1;
+}
+
+s32 BINKCALL SdlMixerUnlock(struct BINKSND* snd, u32 filled)
+{
+    SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
+
+    SDL_PutAudioStreamData(snddata->stream, snddata->buffer, filled);
+    MIX_PlayTrack(snddata->track, 0);
+    snddata->paused = 0;
+
+    return 1;
+}
+
+void BINKCALL SdlMixerSetVolume(struct BINKSND* snd, s32 volume)
+{
+    SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
+
+    if (volume < 0) {
+        volume = 0;
+    } else if (volume > 32767) {
+        volume = 32767;
+    }
+
+    snddata->volume = (float)volume / 32767.0f;
+
+    MIX_SetTrackGain(snddata->track, snddata->volume);
+}
+
+void BINKCALL SdlMixerSetPan(struct BINKSND* snd, s32 pan)
+{
+    SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
+
+    if (pan < 0) {
+        pan = 0;
+    } else if (pan > 65536) {
+        pan = 65536;
+    }
+
+    snddata->pan.left = (65536.0f - (float)pan) / 65536.0f;
+    snddata->pan.right = (float)pan / 65536.0f;
+
+    MIX_SetTrackStereo(snddata->track, &(snddata->pan));
+}
+
+s32 BINKCALL SdlMixerPause(struct BINKSND* snd, s32 status)
+{
+    SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
+
+    if (status == 0) {
+        if (snddata->paused == 1) {
+            MIX_ResumeTrack(snddata->track);
+            snddata->paused = 0;
+        }
+    } else if (status == 1) {
+        if (snddata->paused == 0) {
+            MIX_PauseTrack(snddata->track);
+            snddata->paused = 1;
+        }
+    }
+
+    return snddata->paused;
+}
+
+s32 BINKCALL SdlMixerSetOnOff(struct BINKSND* snd, s32 status)
+{
+    SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
+
+    if (status == 0) {
+        if (snd->OnOff == 1) {
+            MIX_StopTrack(snddata->track, 0);
+            snd->OnOff = 0;
+        }
+    } else if (status == 1) {
+        if (snd->OnOff == 0) {
+            setup_track(snd);
+            snd->OnOff = 1;
+        }
+    }
+
+    return snd->OnOff;
+}
+
+void BINKCALL SdlMixerClose(struct BINKSND* snd)
+{
+    SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
+
+    MIX_DestroyTrack(snddata->track);
+    SDL_DestroyAudioStream(snddata->stream);
+    SDL_free(snddata->buffer);
+
+    unref_mixer();
+}
+
+void setup_track(struct BINKSND* snd)
+{
+    SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
+
+    MIX_SetTrackGain(snddata->track, snddata->volume);
+    MIX_SetTrackStereo(snddata->track, &(snddata->pan));
+}
+
+int ref_mixer()
+{
+    if (++mixer_refcount == 1) {
+        mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+        if (mixer == NULL) {
+            --mixer_refcount;
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+void unref_mixer()
+{
+    if (--mixer_refcount == 0) {
+        MIX_DestroyMixer(mixer);
+    }
 }
