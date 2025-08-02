@@ -285,7 +285,7 @@ s32 BINKCALL SdlMixerOpen(struct BINKSND* snd, u32 freq, s32 bits, s32 chans, u3
         return 0;
     }
 
-    snddata->paused = 1;
+    snddata->paused = 0;
     snddata->volume = 1.0f;
     snddata->pan.left = 0.5f;
     snddata->pan.right = 0.5f;
@@ -308,7 +308,11 @@ s32 BINKCALL SdlMixerReady(struct BINKSND* snd)
 {
     SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
 
-    return SDL_GetAudioStreamAvailable(snddata->stream) < snddata->min_buffer_size;
+    if (snddata->paused && !snd->OnOff) {
+        return 0;
+    }
+
+    return SDL_GetAudioStreamQueued(snddata->stream) < (int)snddata->min_buffer_size;
 }
 
 s32 BINKCALL SdlMixerLock(struct BINKSND* snd, u8** addr, u32* len)
@@ -327,7 +331,6 @@ s32 BINKCALL SdlMixerUnlock(struct BINKSND* snd, u32 filled)
 
     SDL_PutAudioStreamData(snddata->stream, snddata->buffer, filled);
     MIX_PlayTrack(snddata->track, 0);
-    snddata->paused = 0;
 
     return 1;
 }
