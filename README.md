@@ -25,11 +25,11 @@ Additionally, TIG uses Bink for playing movies and Miles Sound System for sound 
 Preparing for x64 is mostly about dealing with serialization anti-patterns where the original code reads/writes structs with pointers. An example of this approach can be found in `art.c`.
 
 Roadmap:
- - [ ] Provide platform-specific API (e.g. path resolution, timers, etc.)
+ - [x] Provide platform-specific API (e.g. path resolution, timers, etc.)
  - [x] Replace DirectX with SDL
- - [ ] ~~Replace WinSock with SDL_Net~~
+ - [x] ~~Replace WinSock with SDL_Net~~
  - [ ] Replace Bink (not sure if there is an obvious replacement)
- - [ ] Replace Miles Sound System with OpenAL + minimp3
+ - [x] Replace Miles Sound System with ~~OpenAL + minimp3~~ SDL3_mixer
  - [x] x64
 
 You're welcome to help with any of these. Keep it C and match surrounding code style.
