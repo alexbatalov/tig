@@ -121,11 +121,6 @@ void AILCALL AIL_quick_unload(HAUDIO audio)
     free(audio);
 }
 
-char* AILCALL AIL_set_redist_directory(const char* dir)
-{
-    return NULL;
-}
-
 void AILCALL AIL_set_stream_loop_count(HSTREAM stream, int count)
 {
     stream->loops = count;

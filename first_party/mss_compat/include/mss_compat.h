@@ -36,7 +36,6 @@ void AILCALL AIL_quick_shutdown(void);
 int AILCALL AIL_quick_startup(int use_digital, int use_MIDI, unsigned output_rate, int output_bits, int output_channels);
 int AILCALL AIL_quick_status(HAUDIO audio);
 void AILCALL AIL_quick_unload(HAUDIO audio);
-char* AILCALL AIL_set_redist_directory(const char* dir);
 void AILCALL AIL_set_stream_loop_count(HSTREAM stream, int count);
 void AILCALL AIL_set_stream_volume(HSTREAM stream, int volume);
 void AILCALL AIL_start_stream(HSTREAM stream);

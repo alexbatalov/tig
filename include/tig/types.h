@@ -103,9 +103,6 @@ typedef unsigned int TigInitFlags;
 // (otherwise the window is centered in the screen).
 #define TIG_INITIALIZE_POSITIONED 0x0100u
 
-// Use `TigInitInfo::mss_redist_path` to set Miles Sound System redist path.
-#define TIG_INITIALIZE_SET_MSS_REDIST_PATH 0x1000u
-
 // Completely disables sound system.
 #define TIG_INITIALIZE_NO_SOUND 0x2000u
 

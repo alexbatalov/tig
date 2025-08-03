@@ -90,11 +90,6 @@ int tig_sound_init(TigInitInfo* init_info)
     // COMPAT: Load `mss32.dll`.
     mss_compat_init();
 
-    if ((init_info->flags & TIG_INITIALIZE_SET_MSS_REDIST_PATH) != 0
-        && init_info->mss_redist_path != NULL) {
-        AIL_set_redist_directory(init_info->mss_redist_path);
-    }
-
     tig_sound_initialized = false;
     tig_sound_next_effect_handle = FIRST_EFFECT_HANDLE;
 
