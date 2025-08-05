@@ -78,7 +78,7 @@ int tig_init(TigInitInfo* init_info)
         return TIG_ERR_ALREADY_INITIALIZED;
     }
 
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+    if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
         tig_debug_printf("Error initializing SDL: %s\n", SDL_GetError());
         return TIG_ERR_GENERIC;
     }
