@@ -38,7 +38,7 @@ bool tig_file_rmdir(const char* path);
 bool tig_file_empty_directory(const char* path);
 bool tig_file_is_empty_directory(const char* path);
 bool tig_file_is_directory(const char* path);
-bool sub_52E260(const char* dst, const char* src);
+bool tig_file_copy_directory(const char* dst, const char* src);
 bool tig_file_archive(const char* dst, const char* src);
 bool tig_file_unarchive(const char* src, const char* dst);
 int tig_file_init(TigInitInfo* init_info);

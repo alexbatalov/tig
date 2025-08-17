@@ -57,9 +57,9 @@ static bool tig_file_is_empty_directory_native(const char* path);
 static bool tig_file_is_directory_native(const char* path);
 static bool tig_file_archive_native(const char* dst, const char* src);
 static bool tig_file_unarchive_native(const char* src, const char* dst);
-static bool sub_52E840(const char* dst, const char* src);
-static bool sub_52E8D0(TigFile* dst_stream, TigFile* src_stream);
-static bool sub_52E900(TigFile* dst_stream, TigFile* src_stream, size_t size);
+static bool copy_file_path(const char* dst, const char* src);
+static bool copy_file_stream(TigFile* dst_stream, TigFile* src_stream);
+static bool copy_file_stream_size(TigFile* dst_stream, TigFile* src_stream, size_t size);
 static bool tig_file_archive_worker_native(const char* path, TigFile* stream1, TigFile* stream2);
 static bool tig_file_repository_add_native(const char* path);
 static bool tig_file_repository_remove_native(const char* file_name);
@@ -191,7 +191,7 @@ bool tig_file_is_directory_native(const char* path)
 }
 
 // 0x52E260
-bool sub_52E260(const char* dst, const char* src)
+bool tig_file_copy_directory(const char* dst, const char* src)
 {
     char path1[TIG_MAX_PATH];
     char path2[TIG_MAX_PATH];
@@ -212,15 +212,15 @@ bool sub_52E260(const char* dst, const char* src)
             sprintf(path2, "%s\\%s", dst, list.entries[index].path);
 
             if ((list.entries[index].attributes & TIG_FILE_ATTRIBUTE_SUBDIR) != 0) {
-                if (strcmp(list.entries[index].path, ".") == 0
-                    || strcmp(list.entries[index].path, "..") == 0) {
-                    if (!sub_52E260(path2, path1)) {
+                if (strcmp(list.entries[index].path, ".") != 0
+                    && strcmp(list.entries[index].path, "..") != 0) {
+                    if (!tig_file_copy_directory(path2, path1)) {
                         tig_file_list_destroy(&list);
                         return false;
                     }
                 }
             } else {
-                if (!sub_52E840(path2, path1)) {
+                if (!copy_file_path(path2, path1)) {
                     tig_file_list_destroy(&list);
                     return false;
                 }
@@ -330,7 +330,7 @@ bool tig_file_unarchive_native(const char* src, const char* dst)
                 break;
             }
 
-            if (!sub_52E900(tmp_stream, data_stream, size)) {
+            if (!copy_file_stream_size(tmp_stream, data_stream, size)) {
                 tig_file_fclose(tmp_stream);
                 break;
             }
@@ -373,7 +373,7 @@ bool tig_file_unarchive_native(const char* src, const char* dst)
 }
 
 // 0x52E840
-bool sub_52E840(const char* dst, const char* src)
+bool copy_file_path(const char* dst, const char* src)
 {
     TigFile* dst_stream;
     TigFile* src_stream;
@@ -389,7 +389,7 @@ bool sub_52E840(const char* dst, const char* src)
         return false;
     }
 
-    if (!sub_52E8D0(dst_stream, src_stream)) {
+    if (!copy_file_stream(dst_stream, src_stream)) {
         tig_file_fclose(dst_stream);
         tig_file_fclose(src_stream);
         tig_file_remove(dst);
@@ -402,18 +402,18 @@ bool sub_52E840(const char* dst, const char* src)
 }
 
 // 0x52E8D0
-bool sub_52E8D0(TigFile* dst_stream, TigFile* src_stream)
+bool copy_file_stream(TigFile* dst_stream, TigFile* src_stream)
 {
     size_t size = tig_file_filelength(src_stream);
     if (size != 0) {
-        return sub_52E900(dst_stream, src_stream, size);
+        return copy_file_stream_size(dst_stream, src_stream, size);
     } else {
         return true;
     }
 }
 
 // 0x52E900
-bool sub_52E900(TigFile* dst_stream, TigFile* src_stream, size_t size)
+bool copy_file_stream_size(TigFile* dst_stream, TigFile* src_stream, size_t size)
 {
     unsigned char buffer[COPY_BUFFER_SIZE];
 
@@ -523,7 +523,7 @@ bool tig_file_archive_worker_native(const char* path, TigFile* index_stream, Tig
                 return false;
             }
 
-            if (!sub_52E8D0(data_stream, tmp_stream)) {
+            if (!copy_file_stream(data_stream, tmp_stream)) {
                 // FIXME: Leaks `tmp_stream`.
                 // FIXME: Leaks `list`.
                 return false;
