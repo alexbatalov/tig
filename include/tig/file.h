@@ -35,7 +35,7 @@ typedef struct TigFileList {
 
 bool tig_file_mkdir(const char* path);
 bool tig_file_rmdir(const char* path);
-bool sub_52E040(const char* path);
+bool tig_file_empty_directory(const char* path);
 bool tig_file_is_empty_directory(const char* path);
 bool tig_file_is_directory(const char* path);
 bool sub_52E260(const char* dst, const char* src);

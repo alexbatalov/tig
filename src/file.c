@@ -52,7 +52,7 @@ typedef struct TigFileIgnore {
 
 static bool tig_file_mkdir_native(const char* path);
 static bool tig_file_rmdir_native(const char* path);
-static bool sub_52E040_native(const char* path);
+static bool tig_file_empty_directory_native(const char* path);
 static bool tig_file_is_empty_directory_native(const char* path);
 static bool tig_file_is_directory_native(const char* path);
 static bool tig_file_archive_native(const char* dst, const char* src);
@@ -119,7 +119,7 @@ bool tig_file_rmdir_native(const char* path)
 }
 
 // 0x52E040
-bool sub_52E040_native(const char* path)
+bool tig_file_empty_directory_native(const char* path)
 {
     bool success;
     char pattern[TIG_MAX_PATH];
@@ -140,7 +140,7 @@ bool sub_52E040_native(const char* path)
         if ((list.entries[index].attributes & TIG_FILE_ATTRIBUTE_SUBDIR) != 0) {
             if (strcmp(list.entries[index].path, ".") != 0
                 && strcmp(list.entries[index].path, "..") != 0) {
-                if (!sub_52E040(pattern)) {
+                if (!tig_file_empty_directory(pattern)) {
                     success = false;
                 }
 
@@ -2149,7 +2149,7 @@ bool tig_file_rmdir(const char* path)
     return tig_file_rmdir_native(native_path);
 }
 
-bool sub_52E040(const char* path)
+bool tig_file_empty_directory(const char* path)
 {
     char native_path[TIG_MAX_PATH];
 
@@ -2157,7 +2157,7 @@ bool sub_52E040(const char* path)
     compat_windows_path_to_native(native_path);
     compat_resolve_path(native_path);
 
-    return sub_52E040_native(native_path);
+    return tig_file_empty_directory_native(native_path);
 }
 
 bool tig_file_is_empty_directory(const char* path)
