@@ -1,6 +1,6 @@
 # TIG
 
-Reimplementation of the engine behind Arcanum: Of Steamworks and Magick Obscura, and The Temple of Elemental Evil.
+Reimplementation of the OS abstraction library used in Arcanum: Of Steamworks and Magick Obscura, and The Temple of Elemental Evil.
 
 ## Introduction
 
