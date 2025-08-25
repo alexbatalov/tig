@@ -4,6 +4,7 @@ project(tig)
 
 option(TIG_BUILD_TESTS "Build tests." ON)
 option(TIG_BUILD_EXAMPLE "Build example." ON)
+option(TIG_DEBUG_MEMORY "Use debug memory routines." ON)
 
 # ------------------------------------------------------------------------------
 # DEPENDENCIES
@@ -111,6 +112,12 @@ target_link_libraries(tig_common INTERFACE
     ${BINK_COMPAT_LIBRARY}
     ${MSS_COMPAT_LIBRARY}
 )
+
+if(TIG_DEBUG_MEMORY)
+    target_compile_definitions(tig_common INTERFACE
+        TIG_DEBUG_MEMORY
+    )
+endif()
 
 if(WIN32)
     target_compile_definitions(tig_common INTERFACE

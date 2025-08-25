@@ -38,18 +38,18 @@ void tig_memory_get_system_status(size_t* total, size_t* available);
 // manage memory, allocation functions of this module are never used (at least
 // in Arcanum, one call in ToEE doesn't count). However, their presence imply
 // they were probably used during development, so should we.
-#ifdef NDEBUG
-#define MALLOC(size) malloc(size)
-#define REALLOC(ptr, size) realloc(ptr, size)
-#define FREE(ptr) free(ptr)
-#define CALLOC(count, size) calloc(count, size)
-#define STRDUP(str) strdup(str)
-#else
+#ifdef TIG_DEBUG_MEMORY
 #define MALLOC(size) tig_memory_alloc(size, __FILE__, __LINE__)
 #define REALLOC(ptr, size) tig_memory_realloc(ptr, size, __FILE__, __LINE__)
 #define FREE(ptr) tig_memory_free(ptr, __FILE__, __LINE__)
 #define CALLOC(count, size) tig_memory_calloc(count, size, __FILE__, __LINE__)
 #define STRDUP(str) tig_memory_strdup(str, __FILE__, __LINE__)
+#else
+#define MALLOC(size) malloc(size)
+#define REALLOC(ptr, size) realloc(ptr, size)
+#define FREE(ptr) free(ptr)
+#define CALLOC(count, size) calloc(count, size)
+#define STRDUP(str) strdup(str)
 #endif
 
 // Testing.
